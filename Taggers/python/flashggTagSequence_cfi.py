@@ -10,24 +10,25 @@ flashggTagSequence = cms.Sequence(flashggUpdatedIdMVADiPhotons
                                   * flashggPreselectedDiPhotons
 				  * flashggDiPhotonMVA
                                   * flashggUnpackedJets
-                                  * flashggVBFMVA
-                                  * flashggVBFDiPhoDiJetMVA
-                                  * ( flashggUntagged
+                                  #* flashggVBFMVA
+                                  #* flashggVBFDiPhoDiJetMVA
+                                  #* ( #flashggUntagged
                                       #                                  *( flashggSigmaMoMpToMTag
-                                      + flashggVBFTag
-                                      + flashggTTHLeptonicTag
-                                     + flashggTTHHadronicTag                                      
+                                      #+ flashggVBFTag
+                                      * flashggTHQLeptonicTag
+                                      #+ flashggTTHLeptonicTag
+                                     #+ flashggTTHHadronicTag                                      
                                       #############old VH tags##############
                                       #                  + flashggVHEtTag
                                       #                  + flashggVHLooseTag
                                       #                  + flashggVHTightTag
                                       ###########updated VH tags############
-                                      + flashggVHMetTag
-                                      + flashggWHLeptonicTag
-                                      + flashggZHLeptonicTag
-                                      + flashggVHLeptonicLooseTag
-                                      + flashggVHHadronicTag
-					)
-                                 * flashggTagSorter
+                                      #+ flashggVHMetTag
+                                      #+ flashggWHLeptonicTag
+                                      #+ flashggZHLeptonicTag
+                                      #+ flashggVHLeptonicLooseTag
+                                      #+ flashggVHHadronicTag
+                                  #	)
+                                 #* flashggTagSorter
                                   )
 
