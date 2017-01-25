@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
 import FWCore.ParameterSet.VarParsing as VarParsing
-from flashgg.Systematics.SystematicDumperDefaultVariables import minimalVariables,minimalHistograms,minimalNonSignalVariables,systematicVariables
+from flashgg.Systematics.SystematicDumperDefaultVariables import defaultVariables,minimalVariables,minimalHistograms,minimalNonSignalVariables,systematicVariables
 import os
 
 # SYSTEMATICS SECTION
@@ -205,14 +205,25 @@ elif customize.processId == "Data":
     customizeSystematicsForData(process)
 else:
     print "Background MC, so store mgg and central only"
-    variablesToUse = minimalVariables
+    variablesToUse = defaultVariables
     customizeSystematicsForBackground(process)
 
 
-#variablesToUse.append("topMass :=getTopMass()")
-#variablesToUse.append("LeptonPt :=getLepton().pt")
-#variablesToUse.append("fwdJetEta :=getFwdJet().eta")
+variablesToUse.append("topMass :=getTopMass()")
 
+variablesToUse.append("fwdJetEta :=getFwdJet().eta")
+
+variablesToUse.append("LeptonPt :=getLeptonP4().pt")
+variablesToUse.append("LeptonType :=getLeptonType()")
+variablesToUse.append("LeptonCharge :=getLeptonCharge()")
+
+variablesToUse.append("nJets :=jets().size()")
+variablesToUse.append("nBJets :=bJets().size()")
+
+variablesToUse.append("FoxWolf :=getFoxWolframMoment_ONE()")
+variablesToUse.append("Aplanarity :=getAplanarity()")
+
+variablesToUse.append("MVA :=thqleptonicMvaRes()")
 
 print "--- Systematics  with independent collections ---"
 print systlabels

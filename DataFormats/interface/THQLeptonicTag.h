@@ -29,17 +29,36 @@ namespace flashgg {
         const std::vector<edm::Ptr<Jet> > nonbJets() const { return nonBJets_;}
         float thqleptonicMvaRes() const {return thqleptonicMvaRes_;}
         
-        const reco::LeafCandidate getLepton() const{
-            if( electrons().size() == 1 && muons().size() == 0 ){
-                return ( *(electrons()[0]) );
-            }else if( electrons().size() == 0 && muons().size() == 1 ){
-                return ( *(muons()[0]) );
-            }
+        // const reco::LeafCandidate getLepton() const{
+        //     if( electrons().size() == 1 && muons().size() == 0 ){
+        //         return ( *(electrons()[0]) );
+        //     }else if( electrons().size() == 0 && muons().size() == 1 ){
+        //         return ( *(muons()[0]) );
+        //     }
             
-            reco::LeafCandidate ret;
+        //     reco::LeafCandidate ret;
+        //     return ret;
+        // }
+        int getLeptonCharge() const{
+            if( LeptonType_ == 1 )
+                return electrons()[0]->charge();
+            else if(LeptonType_ == 2 )
+                return muons()[0]->charge();
+
+            return 0;
+        }
+        reco::Candidate::LorentzVector getLeptonP4() const{
+            if( LeptonType_ == 1 )
+                return electrons()[0]->p4();
+            else if(LeptonType_ == 2 )
+                return muons()[0]->p4();
+
+            reco::Candidate::LorentzVector ret;
             return ret;
         }
-        const int getLeptonType() const{
+        
+
+        int getLeptonType() const{
             return LeptonType_;
         }
 
