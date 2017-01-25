@@ -739,7 +739,8 @@ namespace flashgg {
                 thqltags->push_back( thqltags_obj );
             }//thq tag
             else {
-                std::cout << " THQLeptonicTagProducer NO TAG " << std::endl;
+                if(false)
+                    std::cout << " THQLeptonicTagProducer NO TAG " << std::endl;
             }
 
             n_jets = 0; n_bjets = 0; n_ljets = 0; n_lbjets = 0; n_mbjets = 0; n_tbjets = 0;
