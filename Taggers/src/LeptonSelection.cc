@@ -148,8 +148,8 @@ namespace flashgg {
 
         vector<bool> IDs;
 
-        bool doPassLoose=false;
-        bool doPassMedium=false;
+        bool doPassVeto=false;
+        bool doPassTight=false;
         bool doPassMVA90=false;
         bool doPassMVA80=false;
         
@@ -231,30 +231,30 @@ namespace flashgg {
             if(fabs(eleta) >= 0.8 && elNonTrigMVA >= 0.899) doPassMVA80 = true;
 
             if(
-               elfull5x5_sigmaIetaIeta < 0.011
-               && fabs(eldEtaInSeed) < 0.00477
-               && fabs(eldPhiIn) < 0.222
-               && elhOverE < 0.298
-               && elRelIsoEA < 0.0994
-               && fabs(elooEmooP) < 0.241
+               elfull5x5_sigmaIetaIeta < 0.0115 
+               && fabs(eldEtaInSeed) < 0.00749
+               && fabs(eldPhiIn) < 0.228
+               && elhOverE < 0.356
+               && elRelIsoEA < 0.175
+               && fabs(elooEmooP) < 0.299
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
-               && elMissedHits <=	1 
+               && elMissedHits <=	2 
                && passConversionVeto
-               ) doPassLoose = true;
+               ) doPassVeto = true;
             
             if( 
                elfull5x5_sigmaIetaIeta < 0.00998
-               && fabs(eldEtaInSeed) < 0.00311
-               && fabs(eldPhiIn) < 0.103
-               && elhOverE < 0.253
-               && elRelIsoEA < 0.0695
-               && fabs(elooEmooP) < 0.134
+               && fabs(eldEtaInSeed) < 0.00308
+               && fabs(eldPhiIn) < 0.0816
+               && elhOverE < 0.0414
+               && elRelIsoEA < 0.0588
+               && fabs(elooEmooP) <0.0129 
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
                && elMissedHits <=	1 
                && passConversionVeto
-                ) doPassMedium = true;
+                ) doPassTight = true;
             
         }else{
 
@@ -262,34 +262,34 @@ namespace flashgg {
 	    if(elNonTrigMVA >= 0.758) doPassMVA80 = true;
 
             if(
-               elfull5x5_sigmaIetaIeta < 0.0314
-               && fabs(eldEtaInSeed) < 0.00868
+               elfull5x5_sigmaIetaIeta < 0.037 
+               && fabs(eldEtaInSeed) < 0.00895 
                && fabs(eldPhiIn) < 0.213
-               && elhOverE < 0.101
-               && elRelIsoEA < 0.107
-               && fabs(elooEmooP) < 0.14
+               && elhOverE < 0.211
+               && elRelIsoEA < 0.159 
+               && fabs(elooEmooP) < 0.15
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
-               && elMissedHits <=	1 
+               && elMissedHits <=	3 
                && passConversionVeto
-               ) doPassLoose = true;
+               ) doPassVeto = true;
             
             if( 
-               elfull5x5_sigmaIetaIeta < 0.0298
-               && fabs(eldEtaInSeed) < 0.00609
-               && fabs(eldPhiIn) < 0.045
-               && elhOverE < 0.0878
-               && elRelIsoEA < 0.0821
-               && fabs(elooEmooP) < 0.13
+               elfull5x5_sigmaIetaIeta < 0.0292
+               && fabs(eldEtaInSeed) < 0.00605
+               && fabs(eldPhiIn) < 0.0394
+               && elhOverE < 0.0641
+               && elRelIsoEA < 0.0571
+               && fabs(elooEmooP) < 0.129
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
                && elMissedHits <=	1 
                && passConversionVeto
-                ) doPassMedium = true;
+                ) doPassTight = true;
         }
 
-        IDs.push_back(doPassLoose);
-        IDs.push_back(doPassMedium);
+        IDs.push_back(doPassVeto);
+        IDs.push_back(doPassTight);
         IDs.push_back(doPassMVA90);
         IDs.push_back(doPassMVA80);
 
@@ -324,8 +324,8 @@ namespace flashgg {
             vector<bool> IDs;
             if(!isData){//for MC use the stored Egamma IDs
                 IDs.clear();
-                IDs.push_back(Electron->passLooseId());
-                IDs.push_back(Electron->passMediumId());
+                IDs.push_back(Electron->passVetoId());
+                IDs.push_back(Electron->passTightId());
                 IDs.push_back(Electron->passMVAMediumId());
                 IDs.push_back(Electron->passMVATightId());
             } else {//for data use calculated IDs : FIXME saghosh : for data MicroAOD not containing latest egamma ids
