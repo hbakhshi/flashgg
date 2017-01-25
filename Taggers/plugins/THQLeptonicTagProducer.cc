@@ -29,7 +29,7 @@
 #include "flashgg/DataFormats/interface/VBFTagTruth.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
-#include "flashgg/DataFormats/interface/SemiLepTopQuark.h"
+#include "flashgg/Taggers/interface/SemiLepTopQuark.h"
 #include "PhysicsTools/CandUtils/interface/EventShapeVariables.h"
 #include "flashgg/Taggers/interface/FoxWolfram.hpp"
 
@@ -176,7 +176,7 @@ namespace flashgg {
         public:
             bool operator()( edm::Ptr<flashgg::Jet> lh, edm::Ptr<flashgg::Jet> rh ) const
             {
-                return abs(lh->eta()) > abs(rh->eta());
+                return fabs(lh->eta()) > fabs(rh->eta());
             };
         };
         
@@ -440,11 +440,8 @@ namespace flashgg {
         double idmva1 = 0.;
         double idmva2 = 0.;
 
-        vector<int> numMuonJetsdR;
-        vector<int> numElectronJetsdR;
-        bool muonJets = false;
-        bool ElectronJets = false;
 
+        
         for( unsigned int diphoIndex = 0; diphoIndex < diPhotons->size(); diphoIndex++ ) {
 
             hasGoodElec = false; hasVetoElec = false;
@@ -483,6 +480,7 @@ namespace flashgg {
 
             photonSelection = true;
             
+        
             G1.set( diPhotons->ptrAt( diphoIndex )->leadingPhoton()->pt(),
                     diPhotons->ptrAt( diphoIndex )->leadingPhoton()->eta(),
                     diPhotons->ptrAt( diphoIndex )->leadingPhoton()->phi(),
@@ -532,130 +530,19 @@ namespace flashgg {
                                                                                 0,1,
                                                                                 deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, evt.isRealData());
 
-            hasGoodElec = ( goodElectrons.size() > 0 ); hasVetoElec = ( vetoElectrons.size() > 0 );
-            hasGoodMuons = ( goodMuons.size() > 0 );
-            //if( !hasGoodElec && !hasGoodMuons ) { continue; }
-            //if( hasGoodElec && hasGoodMuons ) { continue; }
-
-            numMuonJetsdR.clear();
-            numElectronJetsdR.clear();
-            muonJets = false;
-            ElectronJets = false;
-
-            /*
-            float pt1 = diPhotons->ptrAt( diphoIndex )->leadingPhoton()->phi();
-            float phi1 = diPhotons->ptrAt( diphoIndex )->leadingPhoton()->phi();
-            float eta1 = diPhotons->ptrAt( diphoIndex )->leadingPhoton()->eta();
-            float pt2 = diPhotons->ptrAt( diphoIndex )->subLeadingPhoton()->phi();
-            float phi2 = diPhotons->ptrAt( diphoIndex )->subLeadingPhoton()->phi();
-            float eta2 = diPhotons->ptrAt( diphoIndex )->subLeadingPhoton()->eta();
+            hasGoodElec = ( goodElectrons.size() == 1 ); hasVetoElec = ( vetoElectrons.size() > 0 );
+            hasGoodMuons = ( goodMuons.size() == 1 );
 
 
-            std::cout << "jet index!!!!!!!!!!!! "<< jetCollectionIndex<< std::endl;
-
-            for( UInt_t jetLoop = 0; jetLoop < Jets[jetCollectionIndex]->size() ; jetLoop++ ) {
-                Ptr<flashgg::Jet> jet  = Jets[jetCollectionIndex]->ptrAt( jetLoop );
-                
-                // within eta 4.7?
-                if( fabs( jet->eta() ) > 4.7 ) { continue; }
-                //pt less than 
-                if ( jet->pt() <  30 ) { continue ; }
-                if (!jet->passesJetID  ( flashgg::Loose ) ) continue;
-                // close to lead photon?
-                float dPhi = deltaPhi( jet->phi(), phi1 );
-                float dEta = jet->eta() - eta1;
-                if( sqrt( dPhi * dPhi + dEta * dEta ) < 0.4 ) { continue; }
-                
-                // close to sublead photon?
-                dPhi = deltaPhi( jet->phi(), phi2 );
-                dEta = jet->eta() - eta2;
-                if( sqrt( dPhi * dPhi + dEta * dEta ) < 0.4 ) { continue; }
-
-                tagJets.push_back( jet );
-
-            }
-            */
-
+            int LeptonType = 0; //1 : electron, 2:muon
 
             if( hasGoodMuons && !hasVetoElec) {
 
+                LeptonType = 2;
                 for( unsigned int muonIndex = 0; muonIndex < goodMuons.size(); muonIndex++ ) {
 
                     Ptr<flashgg::Muon> muon = goodMuons[muonIndex];
 
-                    int deltaRMuonJetcount = 0;
-                    double bDiscriminatorValue = -999.;
-
-
-                    for( unsigned int candIndex_outer = 0; candIndex_outer < Jets[jetCollectionIndex]->size() ; candIndex_outer++ ) {
-                        edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( candIndex_outer );
-
-                        std::cout << "prin: "<< Jets[jetCollectionIndex]->size() << " "<<thejet->pt() << " "<< thejet->eta()<<" "<< thejet->phi()<< " "<< thejet->energy() <<std::endl;
-
-                        if( !thejet->passesPuJetId( dipho ) ) { continue; }
-
-                        if( fabs( thejet->eta() ) > jetEtaThreshold_ ) { continue; }
-
-                        if( thejet->pt() < jetPtThreshold_ ) { continue; }
-
-                        float dRPhoLeadJet = deltaR( thejet->eta(), thejet->phi(), dipho->leadingPhoton()->superCluster()->eta(), dipho->leadingPhoton()->superCluster()->phi() ) ;
-                        float dRPhoSubLeadJet = deltaR( thejet->eta(), thejet->phi(), dipho->subLeadingPhoton()->superCluster()->eta(),
-                                                        dipho->subLeadingPhoton()->superCluster()->phi() );
-
-                        if( dRPhoLeadJet < deltaRJetLeadPhoThreshold_ || dRPhoSubLeadJet < deltaRJetSubLeadPhoThreshold_ ) { continue; }
-
-                        float dRJetMuon = deltaR( thejet->eta(), thejet->phi(), muon->eta(), muon->phi() ) ;
-
-                        if( dRJetMuon < deltaRJetLepThreshold_ ) { continue; }
-                        deltaRMuonJetcount++;
-
-                        
-
-                        tagJets.push_back( thejet );
-
-                        TLorentzVector jet_lorentzVector;
-                        jet_lorentzVector.SetPtEtaPhiE(  thejet->pt() , thejet->eta() , thejet->phi() , thejet->energy() );
-                        std::cout <<  thejet->pt() << " "<< thejet->eta()<<" "<< thejet->phi()<< " "<< thejet->energy() <<std::endl;
-                        particles_LorentzVector.push_back( jet_lorentzVector );
-                        particles_RhoEtaPhiVector.push_back( math::RhoEtaPhiVector( thejet->pt(), thejet->eta(), thejet->phi() ) );
-             
-
-                        bDiscriminatorValue = thejet->bDiscriminator( bTag_.c_str() );
-
-                        if( bDiscriminatorValue > bDiscriminator_[1] ) {
-                            tagBJets.push_back( thejet );
-                            n_mbjets++;
-                            MediumBJetVect.push_back( thejet ); 
-                            MediumBJetVect_EtaSorted.push_back( thejet );
-                            MediumBJetVect_PtSorted.push_back( thejet );
-                            MediumBJetVect_BSorted.push_back( thejet );
-                            std::sort(MediumBJetVect_EtaSorted.begin(),MediumBJetVect_EtaSorted.end(),GreaterByEta()); 
-                            std::sort(MediumBJetVect_PtSorted.begin(),MediumBJetVect_PtSorted.end(),GreaterByPt()); 
-                            std::sort(MediumBJetVect_BSorted.begin(),MediumBJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
-                        }
-                        else{
-                            nontagBJets.push_back( thejet );
-                            n_ljets++;
-                            LightJetVect.push_back( thejet ); 
-                            LightJetVect_EtaSorted.push_back( thejet );
-                            LightJetVect_PtSorted.push_back( thejet );
-                            LightJetVect_BSorted.push_back( thejet );
-                            std::sort(LightJetVect_EtaSorted.begin(),LightJetVect_EtaSorted.end(),GreaterByEta()); 
-                            std::sort(LightJetVect_PtSorted.begin(),LightJetVect_PtSorted.end(),GreaterByPt()); 
-                            std::sort(LightJetVect_BSorted.begin(),LightJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
-                        }
-                        
-                        SelJetVect.push_back( thejet ); 
-                        SelJetVect_EtaSorted.push_back( thejet );
-                        SelJetVect_PtSorted.push_back( thejet );
-                        SelJetVect_BSorted.push_back( thejet );
-                        std::sort(SelJetVect_EtaSorted.begin(),SelJetVect_EtaSorted.end(),GreaterByEta()); 
-                        std::sort(SelJetVect_PtSorted.begin(),SelJetVect_PtSorted.end(),GreaterByPt()); 
-                        std::sort(SelJetVect_BSorted.begin(),SelJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
-
-                    }//end of jets loop
-
-                    numMuonJetsdR.push_back( deltaRMuonJetcount );
                     tagMuons.push_back( muon );
 
                     lepton.set( muon->pt(),
@@ -672,79 +559,11 @@ namespace flashgg {
             }
 
             if( hasGoodElec && !hasGoodMuons) {
-
-                std::vector<const flashgg::Photon *> photons;
-
-                photons.push_back( dipho->leadingPhoton() );
-                photons.push_back( dipho->subLeadingPhoton() );
-
+                LeptonType = 1;
 
                 for( unsigned int ElectronIndex = 0; ElectronIndex < goodElectrons.size(); ElectronIndex++ ) {
 
                     Ptr<Electron> Electron = goodElectrons[ElectronIndex];
-
-                    int deltaRElectronJetcount = 0;
-                    double bDiscriminatorValue = -999.;
-
-                    for( unsigned int candIndex_outer = 0; candIndex_outer < Jets[jetCollectionIndex]->size() ; candIndex_outer++ ) {
-                        edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( candIndex_outer );
-
-                        if( !thejet->passesPuJetId( dipho ) ) { continue; }
-
-                        //https://github.com/h2gglobe/h2gglobe/blob/master/PhotonAnalysis/src/PhotonAnalysis.cc#L5367
-                        if( fabs( thejet->eta() ) > jetEtaThreshold_ ) { continue; }
-
-                        //https://github.com/h2gglobe/h2gglobe/blob/master/PhotonAnalysis/src/PhotonAnalysis.cc#L5371
-                        if( thejet->pt() < jetPtThreshold_ ) { continue; }
-
-                        float dRJetElectron = deltaR( thejet->eta(), thejet->phi(), Electron->eta(), Electron->phi() ) ;
-
-                        //https://github.com/njets_btagmediumh2gglobe/h2gglobe/blob/master/PhotonAnalysis/src/PhotonAnalysis.cc#L5370
-                        if( dRJetElectron < deltaRJetLepThreshold_ ) { continue; }
-                        deltaRElectronJetcount++;
-
-                        tagJets.push_back( thejet );
-
-                        TLorentzVector jet_lorentzVector;
-                        jet_lorentzVector.SetPtEtaPhiE(  thejet->pt() , thejet->eta() , thejet->phi() , thejet->energy() );
-                        particles_LorentzVector.push_back( jet_lorentzVector );
-                        particles_RhoEtaPhiVector.push_back( math::RhoEtaPhiVector( thejet->pt(), thejet->eta(), thejet->phi() ) );
-
-                        bDiscriminatorValue = thejet->bDiscriminator( bTag_.c_str() );
-
-                        if( bDiscriminatorValue > bDiscriminator_[1] ) {
-                            tagBJets.push_back( thejet );
-                            n_mbjets++;
-                            MediumBJetVect.push_back( thejet ); 
-                            MediumBJetVect_EtaSorted.push_back( thejet );
-                            MediumBJetVect_PtSorted.push_back( thejet );
-                            MediumBJetVect_BSorted.push_back( thejet );
-                            std::sort(MediumBJetVect_EtaSorted.begin(),MediumBJetVect_EtaSorted.end(),GreaterByEta()); 
-                            std::sort(MediumBJetVect_PtSorted.begin(),MediumBJetVect_PtSorted.end(),GreaterByPt()); 
-                            std::sort(MediumBJetVect_BSorted.begin(),MediumBJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
-                        }
-                        else{
-                            nontagBJets.push_back( thejet );
-                            n_ljets++;
-                            LightJetVect.push_back( thejet ); 
-                            LightJetVect_EtaSorted.push_back( thejet );
-                            LightJetVect_PtSorted.push_back( thejet );
-                            LightJetVect_BSorted.push_back( thejet );
-                            std::sort(LightJetVect_EtaSorted.begin(),LightJetVect_EtaSorted.end(),GreaterByEta()); 
-                            std::sort(LightJetVect_PtSorted.begin(),LightJetVect_PtSorted.end(),GreaterByPt()); 
-                            std::sort(LightJetVect_BSorted.begin(),LightJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
-                        }
-
-                        SelJetVect.push_back( thejet ); 
-                        SelJetVect_EtaSorted.push_back( thejet );
-                        SelJetVect_PtSorted.push_back( thejet );
-                        SelJetVect_BSorted.push_back( thejet );
-                        std::sort(SelJetVect_EtaSorted.begin(),SelJetVect_EtaSorted.end(),GreaterByEta()); 
-                        std::sort(SelJetVect_PtSorted.begin(),SelJetVect_PtSorted.end(),GreaterByPt()); 
-                        std::sort(SelJetVect_BSorted.begin(),SelJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
-
-                    }//end of jets loop
-                    numElectronJetsdR.push_back( deltaRElectronJetcount );
                     tagElectrons.push_back( Electron );
 
                     lepton.set( Electron->pt(),
@@ -762,77 +581,105 @@ namespace flashgg {
             }
 
 
-            for( unsigned num = 0; num < numMuonJetsdR.size(); num++ ) {
-                int check = numMuonJetsdR.at( num );
-                if( check >= jetsNumberThreshold_ ) {muonJets = true;}
-            }
+            int deltaRLeptonJetcount = 0;
 
-            for( unsigned num = 0; num < numElectronJetsdR.size(); num++ ) {
-                int check = numElectronJetsdR.at( num );
-                if( check >= jetsNumberThreshold_ ) {ElectronJets = true;}
-            }
+            for( unsigned int candIndex_outer = 0; candIndex_outer < Jets[jetCollectionIndex]->size() ; candIndex_outer++ ) {
+                edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( candIndex_outer );
 
-            
-            std::cout << " THQLeptonicTagProducer tagBJets.size()=" << tagBJets.size()
-                      << " tagJets.size()=" << tagJets.size()
-                      << " photonSelection=" << photonSelection
-                      << " tagMuons.size()=" << tagMuons.size() << " muonJets=" << muonJets
-                      << " tagElectrons.size()="<< tagElectrons.size() << " ElectronJets=" << ElectronJets
-                      << std::endl;
-            
-            EventShapeVariables shapeVars(particles_RhoEtaPhiVector);
-            std::cout  << "aplanarity: "<<shapeVars.aplanarity()<<std::endl;
-            eventshapes.set( shapeVars.aplanarity() ,
-                             shapeVars.C() ,
-                             shapeVars.circularity(),
-                             shapeVars.D() ,
-                             shapeVars.isotropy(),
-                             shapeVars.sphericity() );
+                //std::cout << "prin: "<< Jets[jetCollectionIndex]->size() << " "<<thejet->pt() << " "<< thejet->eta()<<" "<< thejet->phi()<< " "<< thejet->energy() <<std::endl;
 
-            n_jets = tagJets.size() ; 
+                if( !thejet->passesPuJetId( dipho ) ) { continue; }
 
-            if( tagBJets.size() >= bjetsNumberThreshold_ && tagJets.size() >= jetsNumberThreshold_ && photonSelection
-                && ( ( (tagMuons.size() == 1 && muonJets) and  (tagElectrons.size() == 0 && !ElectronJets) )  || ( (tagMuons.size() == 0 && !muonJets)  and  (tagElectrons.size() == 1 && ElectronJets) ) ) ) {
-                if( tagElectrons.size() > 0 && ElectronJets ) {
-                    std::cout << "including electron weights" << std::endl;
-                    thqltags_obj.includeWeights( *tagElectrons[0] );
-                } else if( tagMuons.size() > 0 && muonJets ) {
-                    std::cout << "including muon weights" << std::endl;
-                    thqltags_obj.includeWeights( *tagMuons[0] );
+                if( fabs( thejet->eta() ) > jetEtaThreshold_ ) { continue; }
+
+                if( thejet->pt() < jetPtThreshold_ ) { continue; }
+
+                float dRPhoLeadJet = deltaR( thejet->eta(), thejet->phi(), dipho->leadingPhoton()->superCluster()->eta(), dipho->leadingPhoton()->superCluster()->phi() ) ;
+                float dRPhoSubLeadJet = deltaR( thejet->eta(), thejet->phi(), dipho->subLeadingPhoton()->superCluster()->eta(),
+                                                dipho->subLeadingPhoton()->superCluster()->phi() );
+
+                if( dRPhoLeadJet < deltaRJetLeadPhoThreshold_ || dRPhoSubLeadJet < deltaRJetSubLeadPhoThreshold_ ) { continue; }
+
+                if( LeptonType != 0 ){
+                    float dRJetLepton = deltaR( thejet->eta(), thejet->phi(), lepton.eta , lepton.phi ) ;
+
+                    if( dRJetLepton < deltaRJetLepThreshold_ ) { continue; }
                 }
+                deltaRLeptonJetcount++;
 
-                //TLorentzVector bL,fwdJL;
-                bL.SetPtEtaPhiE( MediumBJetVect_BSorted[0]->pt(), MediumBJetVect_BSorted[0]->eta(), MediumBJetVect_BSorted[0]->phi(), MediumBJetVect_BSorted[0]->energy());
-                fwdJL.SetPtEtaPhiE( SelJetVect_EtaSorted[0]->pt(),SelJetVect_EtaSorted[0]->eta(), SelJetVect_EtaSorted[0]->phi(), SelJetVect_EtaSorted[0]->energy());
-                
-                if (std::abs(fwdJL.Mag() - bL.Mag()) < std::numeric_limits<float>::epsilon() )
-                    fwdJL.SetPtEtaPhiE( SelJetVect_EtaSorted[1]->pt(),SelJetVect_EtaSorted[1]->eta(), SelJetVect_EtaSorted[1]->phi(), SelJetVect_EtaSorted[1]->energy());   
+                        
 
-                    
-                flashgg::SemiLepTopQuark singletop(bL, metL, lepton.LorentzVector(), fwdJL,fwdJL);
-                //met.SetLorentzVector(singletop.getMET());
-                metL = singletop.getMET() ;
-                jprime_eta  = fwdJL.Eta();
-                met_pt = metL.Pt();
-                //met.SetLorentzVector(flashgg::SemiLepTopQuark(bL, met.LorentzVector(), lepton.LorentzVector(), fwdJL,fwdJL).getMET());
-                //if (LightJetVect_BSorted.size()>1)
-                //std::cout<< " met meta: " << met.LorentzVector().X() << " "<< met.LorentzVector().E()<< " "<< LightJetVect_EtaSorted[0]->eta()<< " "<<LightJetVect_EtaSorted[1]->eta()<< std::endl; 
-                
-                
-                //TVector3 jprimev3;
-                //jprime.set( LightJetVect_EtaSorted[0]->pt() , 
-                //            LightJetVect_EtaSorted[0]->eta(),
-                //            LightJetVect_EtaSorted[0]->phi());
-                
-                //jprime.set( 0.,
-                //            0.,
-                //            0.);
+                tagJets.push_back( thejet );
 
-                //particles_LorentzVector.push_back( met.LorentzVector() ) ;
+                TLorentzVector jet_lorentzVector;
+                jet_lorentzVector.SetPtEtaPhiE(  thejet->pt() , thejet->eta() , thejet->phi() , thejet->energy() );
+                //std::cout <<  thejet->pt() << " "<< thejet->eta()<<" "<< thejet->phi()<< " "<< thejet->energy() <<std::endl;
+                particles_LorentzVector.push_back( jet_lorentzVector );
+                particles_RhoEtaPhiVector.push_back( math::RhoEtaPhiVector( thejet->pt(), thejet->eta(), thejet->phi() ) );
+             
 
+                double bDiscriminatorValue = thejet->bDiscriminator( bTag_.c_str() );
+
+                if( bDiscriminatorValue > bDiscriminator_[1] ) {
+                    tagBJets.push_back( thejet );
+                    n_mbjets++;
+                    MediumBJetVect.push_back( thejet ); 
+                    MediumBJetVect_EtaSorted.push_back( thejet );
+                    MediumBJetVect_PtSorted.push_back( thejet );
+                    MediumBJetVect_BSorted.push_back( thejet );
+                }
+                else{
+                    nontagBJets.push_back( thejet );
+                    n_ljets++;
+                    LightJetVect.push_back( thejet ); 
+                    LightJetVect_EtaSorted.push_back( thejet );
+                    LightJetVect_PtSorted.push_back( thejet );
+                    LightJetVect_BSorted.push_back( thejet );
+                }
+                        
+                SelJetVect.push_back( thejet ); 
+                SelJetVect_EtaSorted.push_back( thejet );
+                SelJetVect_PtSorted.push_back( thejet );
+                SelJetVect_BSorted.push_back( thejet );
+            }//end of jets loop
+            std::sort(MediumBJetVect_EtaSorted.begin(),MediumBJetVect_EtaSorted.end(),GreaterByEta()); 
+            std::sort(MediumBJetVect_PtSorted.begin(),MediumBJetVect_PtSorted.end(),GreaterByPt()); 
+            std::sort(MediumBJetVect_BSorted.begin(),MediumBJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
+
+            std::sort(LightJetVect_EtaSorted.begin(),LightJetVect_EtaSorted.end(),GreaterByEta()); 
+            std::sort(LightJetVect_PtSorted.begin(),LightJetVect_PtSorted.end(),GreaterByPt()); 
+            std::sort(LightJetVect_BSorted.begin(),LightJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
+
+            std::sort(SelJetVect_EtaSorted.begin(),SelJetVect_EtaSorted.end(),GreaterByEta()); 
+            std::sort(SelJetVect_PtSorted.begin(),SelJetVect_PtSorted.end(),GreaterByPt()); 
+            std::sort(SelJetVect_BSorted.begin(),SelJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
+
+
+            // std::cout << " THQLeptonicTagProducer tagBJets.size()=" << tagBJets.size()
+            //           << " tagJets.size()=" << tagJets.size()
+            //           << " photonSelection=" << photonSelection
+            //           << " tagMuons.size()=" << tagMuons.size() << " muonJets=" << muonJets
+            //           << " tagElectrons.size()="<< tagElectrons.size() << " ElectronJets=" << ElectronJets
+            //           << std::endl;
+            
+
+
+
+
+            if( tagBJets.size() == bjetsNumberThreshold_ && tagJets.size() >= jetsNumberThreshold_ && photonSelection ){
+                //&& ( ( (tagMuons.size() == 1 && muonJets) and  (tagElectrons.size() == 0 && !ElectronJets) )  || ( (tagMuons.size() == 0 && !muonJets)  and  (tagElectrons.size() == 1 && ElectronJets) ) ) ) 
                 
+
+                EventShapeVariables shapeVars(particles_RhoEtaPhiVector);
+                //std::cout  << "aplanarity: "<<shapeVars.aplanarity()<<std::endl;
+                eventshapes.set( shapeVars.aplanarity() ,
+                                 shapeVars.C() ,
+                                 shapeVars.circularity(),
+                                 shapeVars.D() ,
+                                 shapeVars.isotropy(),
+                                 shapeVars.sphericity() );
+
                 FoxWolfram fwam( particles_LorentzVector );
-
                 std::vector< particleinfo*> allfoxwolfs = {&foxwolf1 , &foxwolf2 };
                 for(uint ifw = 1 ; ifw < allfoxwolfs.size()+1 ; ifw++)
                     allfoxwolfs[ifw-1]->set( fwam.getMoment( FoxWolfram::SHAT , ifw ),
@@ -841,16 +688,44 @@ namespace flashgg {
                                              fwam.getMoment( FoxWolfram::PSUM , ifw ),
                                              fwam.getMoment( FoxWolfram::PZ , ifw ),
                                              fwam.getMoment( FoxWolfram::ONE , ifw ) );
-                std::cout<< "fox:" << foxwolf1.another<<std::endl;
-                
-                
-                if (MVAMethod_ != "") 
-                    thqLeptonicMvaResult_value_ = thqLeptonicMva_->EvaluateMVA( MVAMethod_.c_str() );
-                
-                //std::cout<< "fox:" << foxwolf1.another<< " "<< thqLeptonicMvaResult_value_ << std::endl;
-                
+                //std::cout<< "fox:" << foxwolf1.another<<std::endl;
+
+
+                edm::Ptr<Jet> fwdJet = SelJetVect_EtaSorted[0];
+                edm::Ptr<Jet> bJet = MediumBJetVect_BSorted[0];
+                float topMass = -100.;
+                if( deltaR( fwdJet->p4() , bJet->p4() ) < std::numeric_limits<double>::epsilon() )
+                    fwdJet = SelJetVect_EtaSorted[1] ;
+                if( LeptonType != 0){
+
+                    bL.SetPtEtaPhiE( bJet->pt(), bJet->eta(), bJet->phi(), bJet->energy());
+                    fwdJL.SetPtEtaPhiE( fwdJet->pt(),fwdJet->eta(), fwdJet->phi(), fwdJet->energy());
+
+                    
+                    flashgg::SemiLepTopQuark singletop(bL, metL, lepton.LorentzVector(), fwdJL,fwdJL);
+                    //met.SetLorentzVector(singletop.getMET());
+                    n_jets = tagJets.size() ; 
+                    metL = singletop.getMET() ;
+                    jprime_eta  = fabs( fwdJL.Eta() );
+                    met_pt = metL.Pt();
+
+                    topMass = singletop.top().M() ;
+
+                    if (MVAMethod_ != "") 
+                        thqLeptonicMvaResult_value_ = thqLeptonicMva_->EvaluateMVA( MVAMethod_.c_str() );
+
+                }            
+
+                if( LeptonType == 1 )
+                    thqltags_obj.includeWeights( *tagElectrons[0] );
+                else if( LeptonType == 2 )
+                    thqltags_obj.includeWeights( *tagMuons[0] );
+                    
+
                 thqltags_obj.includeWeights( *dipho );
-                //thqltags_obj.setTHQLeptonicMVA( thqleptonic_mvares );
+                thqltags_obj.setMVAres( thqLeptonicMvaResult_value_ );
+                thqltags_obj.setFwdJet( fwdJet );
+                thqltags_obj.setbJet( bJet );
                 thqltags_obj.setJets( tagJets );
                 thqltags_obj.setBJets( tagBJets );
                 thqltags_obj.setLightJets( nontagBJets );
@@ -858,179 +733,41 @@ namespace flashgg {
                 thqltags_obj.setElectrons( tagElectrons );
                 thqltags_obj.setDiPhotonIndex( diphoIndex );
                 thqltags_obj.setSystLabel( systLabel_ );
-                thqltags->push_back( thqltags_obj );
-                
-                //std::vector<edm::Ptr<flashgg::Jet> > nontagBJets;   
-                //std::vector<edm::Ptr<flashgg::Jet> >::iterator it;
-                //std::sort (tagBJets.begin(), tagBJets.end());
-                //std::sort (tagJets.begin(),tagJets.end());   // 10 20 30 40 50
-  
+                thqltags_obj.setValues( foxwolf1.another , eventshapes.pt , topMass );
 
-                //it=std::set_difference (tagJets.begin(), tagJets.end(), tagBJets.begin(), tagBJets.end(), nontagBJets.begin());
-                /*
-                if( ! evt.isRealData()  )
-                {
-                    
-                    for( unsigned int jetCollectionIndex = 0; jetCollectionIndex<nontagBJets.size(); ++jetCollectionIndex ) 
-                    {
-                        //edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( candIndex_outer );
-                        edm::Ptr<flashgg::Jet> thejet = tagJets[jetCollectionIndex];
-                        //std::cout<< (*it)->pt()<<std::endl;()
-                        if( thejet->pt() > pt_leadjet ) 
-                        {
-                            index_subleadjet = index_leadjet;
-                            pt_subleadjet = pt_leadjet;
-                            index_leadjet = jetCollectionIndex;
-                            pt_leadjet = thejet->pt();
-                        } 
-                        else if( thejet->pt() > pt_subleadjet )
-                        {
-                            index_subleadjet = jetCollectionIndex;
-                            pt_subleadjet    = thejet->pt();
-                        }
-                        }
-                    std::cout<< index_subleadjet <<" "<< index_leadjet <<" "<< pt_subleadjet << pt_leadjet<<" "<<index_leadq<<  " "<< index_subleadq << " "<< index_subsubleadq << " "<<pt_leadq << " "<<pt_subleadq << " "<<pt_subsubleadq<<std::endl;
-                    //edm::Ptr<flashgg::Jet> theleadjet = Jets[jetCollectionIndex]->ptrAt( index_leadjet);
-                    
-                    //edm::Ptr<flashgg::Jet> thesubleadjet = Jets[jetCollectionIndex]->ptrAt( index_subleadjet );
-                    edm::Ptr<flashgg::Jet>  theleadjet; 
-                    if (nontagBJets.size()>0)  theleadjet = nontagBJets[ index_leadjet];
-                    else   theleadjet = tagJets[ 0 ];
-                    //edm::Ptr<flashgg::Jet> thesubleadjet = nontagBJets[ index_subleadjet ];       
-                    VBFTagTruth truth_obj;
-                    unsigned int index_gp_leadjet = std::numeric_limits<unsigned int>::max();
-                    unsigned int index_gp_subleadjet = std::numeric_limits<unsigned int>::max();
-                    unsigned int index_gp_leadphoton = std::numeric_limits<unsigned int>::max();
-                    unsigned int index_gp_subleadphoton = std::numeric_limits<unsigned int>::max();
-                    unsigned int index_gj_leadjet = std::numeric_limits<unsigned int>::max();
-                    unsigned int index_gj_subleadjet = std::numeric_limits<unsigned int>::max();
-                    
-                    float dr_gp_leadjet = 999.;
-                    float dr_gp_subleadjet = 999.;
-                    float dr_gp_leadphoton = 999.;
-                    float dr_gp_subleadphoton = 999.;
-                    float dr_gj_leadjet = 999.;
-                    float dr_gj_subleadjet = 999.;
-                    for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) 
-                    {
-                        edm::Ptr<reco::GenParticle> part = genParticles->ptrAt( genLoop );
-                        if( part->isHardProcess() ) 
-                        {
-                            
-                            float dr = deltaR( theleadjet->eta(), theleadjet ->phi(), part->eta(), part->phi() );
-                            if( dr < dr_gp_leadjet ) 
-                            {
-                                dr_gp_leadjet = dr;
-                                index_gp_leadjet = genLoop;
-                            }
-                            //dr = deltaR( thesubleadjet->eta(), thesubleadjet->phi(), part->eta(), part->phi() );
-                            //if( dr < dr_gp_subleadjet ) 
-                            // {
-                            //   dr_gp_subleadjet = dr;
-                            //   index_gp_subleadjet = genLoop;
-                            //}
-                            dr = deltaR( thqltags_obj.diPhoton()->leadingPhoton()->eta(), thqltags_obj.diPhoton()->leadingPhoton()->phi(), part->eta(), part->phi() );
-                            if( dr < dr_gp_leadphoton ) 
-                            {
-                                dr_gp_leadphoton = dr;
-                                index_gp_leadphoton = genLoop;
-                            }
-                            dr = deltaR( thqltags_obj.diPhoton()->subLeadingPhoton()->eta(), thqltags_obj.diPhoton()->subLeadingPhoton()->phi(), part->eta(), part->phi() );
-                            if( dr < dr_gp_subleadphoton ) 
-                            {
-                                dr_gp_subleadphoton = dr;
-                                index_gp_subleadphoton = genLoop;
-                            }
-                        }
-                    }
-                    
-                    std::cout<< index_gp_leadjet <<" "<< index_gp_subleadjet <<" "<< index_gp_leadphoton << index_gp_subleadphoton <<" "<<index_gj_leadjet <<  " "<< index_gj_subleadjet << " "<< dr_gp_leadjet << " "<<dr_gp_subleadjet << " "<<dr_gp_leadphoton << " "<<dr_gp_subleadphoton<<" "<< dr_gj_leadjet <<" "<< dr_gj_subleadjet<<std::endl;
-                    
-                    if( index_gp_leadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToLeadingJet( genParticles->ptrAt( index_gp_leadjet ) ); }
-                    if( index_gp_subleadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToSubLeadingJet( genParticles->ptrAt( index_gp_subleadjet ) ); }
-                    if( index_gp_leadphoton < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToLeadingPhoton( genParticles->ptrAt( index_gp_leadphoton ) ); }
-                    if( index_gp_subleadphoton < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToSubLeadingPhoton( genParticles->ptrAt( index_gp_subleadphoton ) ); }
-                    
-                    for( unsigned int gjLoop = 0 ; gjLoop < genJets->size() ; gjLoop++ ) 
-                    {
-                        edm::Ptr <reco::GenJet> gj = genJets->ptrAt( gjLoop );
-                        float dr = deltaR( theleadjet->eta(), theleadjet->phi(), gj->eta(), gj->phi() );
-                        if( dr < dr_gj_leadjet ) 
-                        {
-                            dr_gj_leadjet = dr;
-                            index_gj_leadjet = gjLoop;
-                        }
-                        //dr = deltaR( thesubleadjet->eta(), thesubleadjet->phi(), gj->eta(), gj->phi() );
-                        //if( dr < dr_gj_subleadjet ) 
-                        //{
-                        //   dr_gj_subleadjet = dr;
-                        //index_gj_subleadjet = gjLoop;
-                        //}
-                    }
-                    if( index_gj_leadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestGenJetToLeadingJet( genJets->ptrAt( index_gj_leadjet ) ); }
-                    if( index_gj_subleadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestGenJetToSubLeadingJet( genJets->ptrAt( index_gj_subleadjet ) ); }
-                    
-                    if( index_leadq < std::numeric_limits<unsigned int>::max() ) { truth_obj.setLeadingParton( genParticles->ptrAt( index_leadq ) ); }
-                    if( index_subleadq < std::numeric_limits<unsigned int>::max() ) { truth_obj.setSubLeadingParton( genParticles->ptrAt( index_subleadq ) ); }
-                    if( index_subsubleadq < std::numeric_limits<unsigned int>::max()) { truth_obj.setSubSubLeadingParton( genParticles->ptrAt( index_subsubleadq ));}
-                    // --------
-                    //Partons
-                    //Lead
-                    std::vector<edm::Ptr<reco::GenParticle>> ptOrderedPartons;
-                    for (unsigned int genLoop(0);genLoop < genParticles->size();genLoop++) 
-                    {
-                        edm::Ptr<reco::GenParticle> gp = genParticles->ptrAt(genLoop);
-                        bool isGluon = abs( gp->pdgId() ) < 7 && gp->numberOfMothers() == 0;
-                        bool isQuark = gp->pdgId() == 21 && gp->numberOfMothers() == 0;
-                        if (isGluon || isQuark) {
-                            unsigned int insertionIndex(0);
-                            for (unsigned int parLoop(0);parLoop<ptOrderedPartons.size();parLoop++) {
-                                if (gp->pt() < ptOrderedPartons[parLoop]->pt()) { insertionIndex = parLoop + 1; }
-                            }
-                            ptOrderedPartons.insert( ptOrderedPartons.begin() + insertionIndex, gp);
-                        }
-                    }
-                    if ( ptOrderedPartons.size() > 0 ) 
-                    {
-                        float dr(999.0);
-                        unsigned pIndex(0);
-                        for (unsigned partLoop(0);partLoop<ptOrderedPartons.size();partLoop++) {
-                            float deltaR_temp = deltaR(theleadjet->eta(),theleadjet->phi(),
-                                                       ptOrderedPartons[partLoop]->eta(),ptOrderedPartons[partLoop]->phi());
-                            if (deltaR_temp < dr) {dr = deltaR_temp; pIndex = partLoop;}
-                        }
-                        truth_obj.setClosestPartonToLeadingJet( ptOrderedPartons[pIndex] );
-                    }
-                    
-                    //Sublead
-                                        truth_obj.setGenPV( higgsVtx );
-                    truths->push_back( truth_obj );
-                    thqltags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<VBFTagTruth> >( rTagTruth, idx++ ) ) );
-                }
-                */
+                thqltags->push_back( thqltags_obj );
             }//thq tag
             else {
                 std::cout << " THQLeptonicTagProducer NO TAG " << std::endl;
             }
+
+            n_jets = 0; n_bjets = 0; n_ljets = 0; n_lbjets = 0; n_mbjets = 0; n_tbjets = 0;
+
+            jetsPhi.clear();
+            jetsPt.clear();
+            jetsEta.clear();
+            jetsE.clear();
+            jetsIndex.clear();
+            particles_LorentzVector.clear();
+            particles_RhoEtaPhiVector.clear();
+            SelJetVect.clear(); SelJetVect_EtaSorted.clear(); SelJetVect_PtSorted.clear(); SelJetVect_BSorted.clear();
+            LightJetVect.clear(); LightJetVect_EtaSorted.clear(); LightJetVect_PtSorted.clear(); LightJetVect_BSorted.clear();
+            LooseBJetVect.clear(); LooseBJetVect_EtaSorted.clear(); LooseBJetVect_PtSorted.clear(); LooseBJetVect_BSorted.clear();
+            MediumBJetVect.clear(); MediumBJetVect_EtaSorted.clear(); MediumBJetVect_PtSorted.clear(); MediumBJetVect_BSorted.clear();
+            TightBJetVect.clear(); TightBJetVect_EtaSorted.clear(); TightBJetVect_PtSorted.clear(); TightBJetVect_BSorted.clear();
+
             
         }//diPho loop end !
+
+        // if( thqltags->size() == 0 ){
+        //     THQLeptonicTag empty;
+        //     thqltags->push_back( empty );
+            
+        //     std::cout << " THQLeptonicTagProducer NO TAG is inserted in this event " << std::endl;
+        // }
+        
         evt.put( thqltags );
         //evt.put( truths );
-
-        n_jets = 0; n_bjets = 0; n_ljets = 0; n_lbjets = 0; n_mbjets = 0; n_tbjets = 0;
-
-        jetsPhi.clear();
-        jetsPt.clear();
-        jetsEta.clear();
-        jetsE.clear();
-        jetsIndex.clear();
-        particles_LorentzVector.clear();
-        particles_RhoEtaPhiVector.clear();
-        SelJetVect.clear(); SelJetVect_EtaSorted.clear(); SelJetVect_PtSorted.clear(); SelJetVect_BSorted.clear();
-        LightJetVect.clear(); LightJetVect_EtaSorted.clear(); LightJetVect_PtSorted.clear(); LightJetVect_BSorted.clear();
-        LooseBJetVect.clear(); LooseBJetVect_EtaSorted.clear(); LooseBJetVect_PtSorted.clear(); LooseBJetVect_BSorted.clear();
-        MediumBJetVect.clear(); MediumBJetVect_EtaSorted.clear(); MediumBJetVect_PtSorted.clear(); MediumBJetVect_BSorted.clear();
-        TightBJetVect.clear(); TightBJetVect_EtaSorted.clear(); TightBJetVect_PtSorted.clear(); TightBJetVect_BSorted.clear();
             
         
     }
