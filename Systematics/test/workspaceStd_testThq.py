@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
 import FWCore.ParameterSet.VarParsing as VarParsing
-from flashgg.Systematics.SystematicDumperDefaultVariables import defaultVariables,minimalHistograms,minimalNonSignalVariables,systematicVariables
+from flashgg.Systematics.SystematicDumperDefaultVariables import minimalVariables,minimalHistograms,minimalNonSignalVariables,systematicVariables
 import os
 
 # SYSTEMATICS SECTION
@@ -154,7 +154,7 @@ useEGMTools(process)
 # Only run systematics for signal events
 if customize.processId.count("h_") or customize.processId.count("vbf_") or customize.processId.count("Acceptance"): # convention: ggh vbf wzh (wh zh) tth
     print "Signal MC, so adding systematics and dZ"
-    variablesToUse = defaultVariables
+    variablesToUse = minimalVariables
     if customize.doFiducial:
         variablesToUse.extend(fc.getGenVariables(True))
         variablesToUse.extend(fc.getRecoVariables(True))
@@ -205,8 +205,14 @@ elif customize.processId == "Data":
     customizeSystematicsForData(process)
 else:
     print "Background MC, so store mgg and central only"
-    variablesToUse = defaultVariables
+    variablesToUse = minimalVariables
     customizeSystematicsForBackground(process)
+
+
+#variablesToUse.append("topMass :=getTopMass()")
+#variablesToUse.append("LeptonPt :=getLepton().pt")
+#variablesToUse.append("fwdJetEta :=getFwdJet().eta")
+
 
 print "--- Systematics  with independent collections ---"
 print systlabels
@@ -232,8 +238,8 @@ from flashgg.MetaData.samples_utils import SamplesManager
 
 process.source = cms.Source ("PoolSource",
                              fileNames = cms.untracked.vstring(
-"root://eoscms.cern.ch//eos/cms/store/user/hbakhshi/ICHEPTaggedFiles/thqTreeFW2/edm_output_tree_Signal_myMicroAODOutputFile_7_3.root"
-#"root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISummer16-2_4_1-25ns_Moriond17/2_4_1/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170114_100016/0000/myMicroAODOutputFile_2.root"
+#"/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2/2_3_0/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2-2_3_0-v0-RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/161202_092059/0000/myMicroAODOutputFile_1.root"
+"root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISummer16-2_4_1-25ns_Moriond17/2_4_1/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170114_100016/0000/myMicroAODOutputFile_2.root"
 ))
 
 process.TFileService = cms.Service("TFileService",
@@ -275,15 +281,15 @@ if customize.doFiducial:
     tagList=[["SigmaMpTTag",3]]
 else:
     tagList=[
-        ["UntaggedTag",4],
-        ["VBFTag",2],
+        #["UntaggedTag",4],
+        #["VBFTag",2],
         #["ZHLeptonicTag",0],
         #["WHLeptonicTag",0],
         #["VHLeptonicLooseTag",0],
         #["VHMetTag",0],
         #["VHHadronicTag",0],
-        ["TTHHadronicTag",0],
-        ["TTHLeptonicTag",0],
+        #["TTHHadronicTag",0],
+        #["TTHLeptonicTag",0],
         ["THQLeptonicTag",0],
         ]
 
