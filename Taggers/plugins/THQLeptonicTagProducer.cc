@@ -697,7 +697,7 @@ namespace flashgg {
                 if( deltaR( fwdJet->p4() , bJet->p4() ) < std::numeric_limits<double>::epsilon() )
                     fwdJet = SelJetVect_EtaSorted[1] ;
                 if( LeptonType != 0){
-
+                    
                     bL.SetPtEtaPhiE( bJet->pt(), bJet->eta(), bJet->phi(), bJet->energy());
                     fwdJL.SetPtEtaPhiE( fwdJet->pt(),fwdJet->eta(), fwdJet->phi(), fwdJet->energy());
 
@@ -722,6 +722,7 @@ namespace flashgg {
                     thqltags_obj.includeWeights( *tagMuons[0] );
                     
 
+                thqltags_obj.setLeptonType(LeptonType);
                 thqltags_obj.includeWeights( *dipho );
                 thqltags_obj.setMVAres( thqLeptonicMvaResult_value_ );
                 thqltags_obj.setFwdJet( fwdJet );
