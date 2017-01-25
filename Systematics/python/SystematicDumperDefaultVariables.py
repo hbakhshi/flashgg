@@ -12,11 +12,14 @@ minimalNonSignalVariables = ["CMS_hgg_mass[160,100,180]:=diPhoton().mass"]#,"cen
 defaultVariables=["CMS_hgg_mass[160,100,180]:=diPhoton().mass", 
                                     "leadPt                   :=diPhoton().leadingPhoton.pt",
                                     "subleadPt                :=diPhoton().subLeadingPhoton.pt",
-                                    "diphoMVA                 :=diPhotonMVA().result",    
+                                    "leadEta                  :=diPhoton().leadingPhoton.eta",
+                                    "subleadEta               :=diPhoton().subLeadingPhoton.eta",
+                                    "diphoMVA                 :=diPhotonMVA().result",
+                                    "leadIDMVA                :=leadingView.phoIdMvaWrtChosenVtx",
+                                    "subleadIDMVA             :=subLeadingView.phoIdMvaWrtChosenVtx",
                                     "maxEta                   :=max(abs(diPhoton().leadingPhoton.superCluster.eta),abs(diPhoton().leadingPhoton.superCluster.eta))",
-                                    "genZ           :=tagTruth().genPV().z",
                                     "vtxZ           :=diPhoton().vtx().z",
-                                    "dZ             :=(tagTruth().genPV().z-diPhoton().vtx().z)"]
+                                    ]
 
 
 defaultHistograms=["CMS_hgg_mass>>mass(160,100,180)",
