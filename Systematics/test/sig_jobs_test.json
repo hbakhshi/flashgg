@@ -1,0 +1,11 @@
+{
+    "processes" : {
+        "vbf_125"  : [ [ "/VBFHToGG_M-125_13TeV_powheg_pythia8/ferrif-RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2-2_3_0-v0-RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1-03c441ce0abe5028a99a11eeb0fc9751/USER",
+		       { "args" :["outputFile=output_VBFHToGG_M125_13TeV_powheg_pythia8.root"] } ] ],
+        "ggh_125"  : [ [ "/GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8/ferrif-RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2-2_3_0-v0-RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1-6e50739fbcc735daf803d8fb7f8228e6/USER", 
+		       { "args" :["outputFile=output_GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8.root"] } ] ],
+	"tth_125"  : [ [ "/ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8_v2/ferrif-RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2-2_3_0-v0-RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1-e74a5b70c6e42b3de729c1530015af74/USER",
+                       { "args" :["outputFile=output_ttHJetToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8.root"] } ] ]
+		       },
+        "cmdLine" : "campaign=RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2"
+}

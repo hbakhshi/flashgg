@@ -308,7 +308,7 @@ process.flashggTagSorter.BlindedSelectionPrintout = True
 #print >> processDumpFile, process.dumpPython()
 
 # set default options if needed
-customize.setDefault("maxEvents",1000)
+customize.setDefault("maxEvents",-1)
 customize.setDefault("targetLumi",1.00e+3)
 # call the customization
 customize(process)
