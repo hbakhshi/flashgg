@@ -566,6 +566,7 @@ namespace flashgg {
                     Ptr<Electron> Electron = goodElectrons[ElectronIndex];
                     tagElectrons.push_back( Electron );
 
+                    std::cout << "ele pt: << "<< Electron->centralWeight() << std::endl;
                     lepton.set( Electron->pt(),
                                 Electron->eta() ,
                                 Electron->phi() ,
