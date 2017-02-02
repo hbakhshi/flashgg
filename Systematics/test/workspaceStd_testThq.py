@@ -225,9 +225,9 @@ process.genFilter = cms.Sequence()
 
 
 if( not hasattr(process,"options") ): process.options = cms.untracked.PSet()
-process.options.allowUnscheduled = cms.untracked.bool(True)
+process.options.allowUnscheduled = cms.untracked.bool(False)
 
-
+process.flashggTHQLeptonicTag.ElectronTag = "flashggElectronSystematics"
 process.p = cms.Path(process.dataRequirements*
                      process.genFilter*
                      process.flashggUpdatedIdMVADiPhotons*
