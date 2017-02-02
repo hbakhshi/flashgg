@@ -1,6 +1,6 @@
 # NB this command is specific to the configuration on lxplus and is not gaurenteed elsewhere
 #outdir="/afs/cern.ch/work/s/sethzenz/ws/" # can't set absolute path on lsf because we're expecting to stage
-outdir="/afs/cern.ch/work/g/gkrintir/private/flashgg_thq/v2/CMSSW_8_0_25/src/flashgg/Systematics/test/thq"
+outdir="/afs/cern.ch/user/h/hbakhshi/work/tHq/CMSSW_8_0_25/src/flashgg/Systematics/test/"
 queue="1nd"
 useAAA=1
 atIC=1 # only effect is setting eos path

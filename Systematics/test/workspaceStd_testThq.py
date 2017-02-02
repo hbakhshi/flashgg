@@ -165,6 +165,12 @@ variablesToUse.append("Aplanarity :=getAplanarity()")
 
 variablesToUse.append("MVA :=thqleptonicMvaRes()")
 
+variablesToUse.append("MET :=getMET()")
+variablesToUse.append("METPhi :=getMET_Phi()")
+
+variablesToUse.append("prompt_pho_1     := diPhoton.leadingPhoton.genMatchType()")
+variablesToUse.append("prompt_pho_2     := diPhoton.subLeadingPhoton.genMatchType()")
+
 print "-------------------------------------------------"
 print "--- Variables to be dumped, including systematic weights ---"
 print variablesToUse
@@ -228,6 +234,8 @@ if( not hasattr(process,"options") ): process.options = cms.untracked.PSet()
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
 
+process.flashggTHQLeptonicTag.ElectronTag = "flashggElectronSystematics"
+process.flashggTHQLeptonicTag.MuonTag = "flashggMuonSystematics"
 process.p = cms.Path(process.dataRequirements*
                      process.genFilter*
                      process.flashggUpdatedIdMVADiPhotons*

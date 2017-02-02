@@ -94,22 +94,39 @@ namespace flashgg {
         float getTopMass() const{
             return TopMass;
         }
+        float getMET() const{
+            return MET;
+        }
+        float getMET_Phi() const{
+            return MET_Phi;
+        }
 
         void setJets( std::vector<edm::Ptr<Jet> > Jets ) { Jets_ = Jets; }
         void setBJets( std::vector<edm::Ptr<Jet> > BJets )  { BJets_ = BJets;}
         void setLightJets( std::vector<edm::Ptr<Jet> > Jets )  { nonBJets_ = Jets;}
-        void setMuons( std::vector<edm::Ptr<Muon> > Muons ) {Muons_ = Muons;}
-        void setElectrons( std::vector<edm::Ptr<Electron> > Electrons ) {Electrons_ = Electrons;}
+        void setMuons( std::vector<edm::Ptr<Muon> > Muons ) {
+            Muons_ = Muons;
+            if( Muons.size() == 1 )
+                includeWeights( *Muons_[0] );
+        }
+        void setElectrons( std::vector<edm::Ptr<Electron> > Electrons ) {
+            Electrons_ = Electrons;
+            if( Electrons_.size() == 1 )
+                includeWeights( *Electrons_[0] );
+        }
         void setMVAres(float val) {thqleptonicMvaRes_ = val;}
         void setFwdJet( Ptr<Jet> fwd ) { fwdJet.clear() ; fwdJet.push_back( fwd ) ;}
         void setbJet( Ptr<Jet> bj ) { bJet.clear() ; bJet.push_back( bj ) ;}
 
 
-        void setValues( float fox , float aplan , float topMass ){
+        void setValues( float fox , float aplan , float topMass , float met, float metPhi ){
             FoxWolframMoment_ONE = fox ;
             Aplanarity = aplan;
 
             TopMass = topMass;
+
+            MET = met ;
+            MET_Phi = metPhi ;
         }
         //void setTHQLeptonicMVA( THQLeptonicMVAResult THQLeptonicMVA ) {THQLeptonicMVA_ = THQLeptonicMVA;}
         void setLeptonType(int val){ LeptonType_ = val; }
@@ -127,6 +144,8 @@ namespace flashgg {
         float FoxWolframMoment_ONE;
         float Aplanarity;
         float TopMass;
+        float MET;
+        float MET_Phi;
     };
 }
 
