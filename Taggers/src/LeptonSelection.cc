@@ -9,7 +9,7 @@ using namespace edm;
 namespace flashgg {
 
     std::vector<edm::Ptr<flashgg::Muon> > selectAllMuons( const std::vector<edm::Ptr<flashgg::Muon> > &muonPointers, 
-            const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers, double muonEtaThreshold, double muonPtThreshold, double muPFIsoSumRelThreshold )
+                                                          const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers, double muonEtaThreshold, double muonPtThreshold, double muPFIsoSumRelThreshold , bool Loose)
     {
 
         std::vector<edm::Ptr<flashgg::Muon> > goodMuons;
@@ -30,21 +30,27 @@ namespace flashgg {
             if( fabs( muon->eta() ) > muonEtaThreshold ) continue; 
             if( muon->pt() < muonPtThreshold ) continue; 
 
-            int vtxInd = 0;
-            double dzmin = 9999;
-            for( size_t ivtx = 0 ; ivtx < vertexPointers.size(); ivtx++ ) {
-                Ptr<reco::Vertex> vtx = vertexPointers[ivtx];
-                if( !muon->innerTrack() ) continue; 
-                if( fabs( muon->innerTrack()->vz() - vtx->position().z() ) < dzmin ) {                    
-                    dzmin = fabs( muon->innerTrack()->vz() - vtx->position().z() );
-                    vtxInd = ivtx;
+
+            if( Loose ){
+                if( !muon::isLooseMuon( *muon ) ) continue; 
+            }
+            else{
+                int vtxInd = 0;
+                double dzmin = 9999;
+                for( size_t ivtx = 0 ; ivtx < vertexPointers.size(); ivtx++ ) {
+                    Ptr<reco::Vertex> vtx = vertexPointers[ivtx];
+                    if( !muon->innerTrack() ) continue; 
+                    if( fabs( muon->innerTrack()->vz() - vtx->position().z() ) < dzmin ) {                    
+                        dzmin = fabs( muon->innerTrack()->vz() - vtx->position().z() );
+                        vtxInd = ivtx;
+                    }
                 }
+
+                Ptr<reco::Vertex> best_vtx = vertexPointers[vtxInd];            
+
+                if( !muon::isTightMuon( *muon, *best_vtx ) ) continue; 
             }
 
-            Ptr<reco::Vertex> best_vtx = vertexPointers[vtxInd];            
-
-            if( !muon::isTightMuon( *muon, *best_vtx ) ) continue; 
-            
             double muPFIsoSumRel = ( muon->pfIsolationR04().sumChargedHadronPt 
                                      + max( 0.,muon->pfIsolationR04().sumNeutralHadronEt 
                                             + muon->pfIsolationR04().sumPhotonEt - 0.5 * muon->pfIsolationR04().sumPUPt ) ) / ( muon->pt() );
@@ -58,11 +64,11 @@ namespace flashgg {
 
     std::vector<edm::Ptr<flashgg::Muon> > selectMuons( const std::vector<edm::Ptr<flashgg::Muon> > &muonPointers, Ptr<flashgg::DiPhotonCandidate> dipho,
             const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers, double muonEtaThreshold, double muonPtThreshold, double muPFIsoSumRelThreshold,
-            double dRPhoLeadMuonThreshold, double dRPhoSubLeadMuonThreshold )
+                                                       double dRPhoLeadMuonThreshold, double dRPhoSubLeadMuonThreshold , bool Loose )
     {
 
         std::vector<edm::Ptr<flashgg::Muon> > goodMuons;
-        std::vector<edm::Ptr<flashgg::Muon> > allGoodMuons= selectAllMuons( muonPointers, vertexPointers, muonEtaThreshold, muonPtThreshold, muPFIsoSumRelThreshold );
+        std::vector<edm::Ptr<flashgg::Muon> > allGoodMuons= selectAllMuons( muonPointers, vertexPointers, muonEtaThreshold, muonPtThreshold, muPFIsoSumRelThreshold , Loose );
 
         for( unsigned int muonIndex = 0; muonIndex <allGoodMuons.size(); muonIndex++ ) {
             Ptr<flashgg::Muon> muon = allGoodMuons[muonIndex];
@@ -235,7 +241,7 @@ namespace flashgg {
                && fabs(eldEtaInSeed) < 0.00749
                && fabs(eldPhiIn) < 0.228
                && elhOverE < 0.356
-               && elRelIsoEA < 0.175
+               //&& elRelIsoEA < 0.175
                && fabs(elooEmooP) < 0.299
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
