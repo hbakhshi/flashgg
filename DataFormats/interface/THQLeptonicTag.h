@@ -132,13 +132,6 @@ namespace flashgg {
             return MET_Phi;
         }
 
-        float getMET() const{
-            return MET;
-        }
-        float getMET_Phi() const{
-            return MET_Phi;
-        }
-
         void setJets( std::vector<edm::Ptr<Jet> > Jets ) { Jets_ = Jets; }
         void setBJets( std::vector<edm::Ptr<Jet> > BJets )  { BJets_ = BJets;}
         void setLightJets( std::vector<edm::Ptr<Jet> > Jets )  { nonBJets_ = Jets;}
