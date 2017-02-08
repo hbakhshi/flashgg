@@ -696,9 +696,10 @@ namespace flashgg {
                 edm::Ptr<Jet> bJet = MediumBJetVect_BSorted[0];
                 float topMass = -100.;
                 //if( deltaR( fwdJet->p4() , bJet->p4() ) < std::numeric_limits<double>::epsilon() )
-                //    fwdJet = SelJetVect_EtaSorted[1] ;
+
                 if( fwdJet == bJet )
                     fwdJet = SelJetVect_EtaSorted[1] ;
+
                 if( LeptonType != 0){
                     
                     bL.SetPtEtaPhiE( bJet->pt(), bJet->eta(), bJet->phi(), bJet->energy());
@@ -737,7 +738,7 @@ namespace flashgg {
                 thqltags_obj.setElectrons( tagElectrons );
                 thqltags_obj.setDiPhotonIndex( diphoIndex );
                 thqltags_obj.setSystLabel( systLabel_ );
-                thqltags_obj.setValues( foxwolf1.another , eventshapes.pt , topMass, metL.Pt(), metL.Phi()  );
+                thqltags_obj.setValues( foxwolf1.another , eventshapes.pt , topMass , metL.Pt(), metL.Phi()  );
 
                 thqltags->push_back( thqltags_obj );
             }//thq tag

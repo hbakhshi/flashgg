@@ -125,6 +125,12 @@ namespace flashgg {
         float getTopMass() const{
             return TopMass;
         }
+        float getMET() const{
+            return MET;
+        }
+        float getMET_Phi() const{
+            return MET_Phi;
+        }
 
         float getMET() const{
             return MET;
@@ -138,7 +144,6 @@ namespace flashgg {
         void setLightJets( std::vector<edm::Ptr<Jet> > Jets )  { nonBJets_ = Jets;}
         void setMuons( std::vector<edm::Ptr<Muon> > Muons ) {
             Muons_ = Muons;
-            
             if( Muons.size() == 1 )
                 includeWeights( *Muons_[0] );
         }
@@ -147,18 +152,16 @@ namespace flashgg {
             if( Electrons_.size() == 1 )
                 includeWeights( *Electrons_[0] );
         }
-
         void setMVAres(float val) {thqleptonicMvaRes_ = val;}
         void setFwdJet( Ptr<Jet> fwd ) { fwdJet.clear() ; fwdJet.push_back( fwd ) ;}
         void setbJet( Ptr<Jet> bj ) { bJet.clear() ; bJet.push_back( bj ) ;}
 
 
-        void setValues( float fox , float aplan , float topMass,  float met, float metPhi ){
+        void setValues( float fox , float aplan , float topMass ,  float met, float metPhi ){
             FoxWolframMoment_ONE = fox ;
             Aplanarity = aplan;
 
             TopMass = topMass;
-            
             MET = met ;
             MET_Phi = metPhi ;
         }
