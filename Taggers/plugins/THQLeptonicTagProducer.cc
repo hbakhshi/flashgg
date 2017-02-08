@@ -696,6 +696,7 @@ namespace flashgg {
                 edm::Ptr<Jet> bJet = MediumBJetVect_BSorted[0];
                 float topMass = -100.;
                 //if( deltaR( fwdJet->p4() , bJet->p4() ) < std::numeric_limits<double>::epsilon() )
+
                 if( fwdJet == bJet )
                     fwdJet = SelJetVect_EtaSorted[1] ;
 
