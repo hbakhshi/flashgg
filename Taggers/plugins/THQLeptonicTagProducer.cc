@@ -667,7 +667,7 @@ namespace flashgg {
 
 
 
-            if( tagBJets.size() == bjetsNumberThreshold_ && tagJets.size() >= jetsNumberThreshold_ && photonSelection ){
+            if( tagBJets.size() >= bjetsNumberThreshold_ && tagJets.size() >= jetsNumberThreshold_ && photonSelection ){
                 //&& ( ( (tagMuons.size() == 1 && muonJets) and  (tagElectrons.size() == 0 && !ElectronJets) )  || ( (tagMuons.size() == 0 && !muonJets)  and  (tagElectrons.size() == 1 && ElectronJets) ) ) ) 
                 
 
@@ -695,7 +695,9 @@ namespace flashgg {
                 edm::Ptr<Jet> fwdJet = SelJetVect_EtaSorted[0];
                 edm::Ptr<Jet> bJet = MediumBJetVect_BSorted[0];
                 float topMass = -100.;
-                if( deltaR( fwdJet->p4() , bJet->p4() ) < std::numeric_limits<double>::epsilon() )
+                //if( deltaR( fwdJet->p4() , bJet->p4() ) < std::numeric_limits<double>::epsilon() )
+                //    fwdJet = SelJetVect_EtaSorted[1] ;
+                if( fwdJet == bJet )
                     fwdJet = SelJetVect_EtaSorted[1] ;
                 if( LeptonType != 0){
                     
@@ -735,7 +737,7 @@ namespace flashgg {
                 thqltags_obj.setElectrons( tagElectrons );
                 thqltags_obj.setDiPhotonIndex( diphoIndex );
                 thqltags_obj.setSystLabel( systLabel_ );
-                thqltags_obj.setValues( foxwolf1.another , eventshapes.pt , topMass );
+                thqltags_obj.setValues( foxwolf1.another , eventshapes.pt , topMass, metL.Pt(), metL.Phi()  );
 
                 thqltags->push_back( thqltags_obj );
             }//thq tag
