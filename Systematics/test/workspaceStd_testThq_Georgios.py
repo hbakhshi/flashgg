@@ -382,7 +382,7 @@ process.p = cms.Path(process.dataRequirements*
                      process.flashggMuonSystematics*process.flashggElectronSystematics*
                      process.flashggUnpackedJets*process.jetSystematicsSequence*
                      process.flashggTagSequence*process.systematicsTagSequences*
-                     #process.flashggSystTagMerger*
+                     process.flashggSystTagMerger*
                      #process.finalFilter*
                      process.thqLeptonicTagDumper)
 

@@ -310,7 +310,7 @@ namespace flashgg {
 
     edm::Handle<double>  rho;
     evt.getByToken(rhoTag_,rho);
-    double rho_    = *rho;
+    float rho_    = *rho;
 
     Handle<View<flashgg::DiPhotonCandidate> > diPhotons;
     evt.getByToken( diPhotonToken_, diPhotons );
@@ -418,6 +418,7 @@ namespace flashgg {
 
       LeptonType = 0; //1 : electron, 2:muon
 
+      
       if( hasGoodMuons && !hasVetoElec){
 	LeptonType = 2;
 	thqltags_obj.includeWeights( *goodMuons[0] );
@@ -434,7 +435,27 @@ namespace flashgg {
 		    muon->charge() );
 	particles_LorentzVector.push_back(lepton.LorentzVector());
 	particles_RhoEtaPhiVector.push_back( math::RhoEtaPhiVector( lepton.pt, lepton.eta, lepton.phi ) );
-                
+	
+	int vtxInd = 0;
+	double dzmin = 9999;
+	for( size_t ivtx = 0 ; ivtx < vertices->ptrs().size(); ivtx++ ) {
+	  Ptr<reco::Vertex> vtx = vertices->ptrs()[ivtx];
+	  if( !muon->innerTrack() ) continue; 
+	  if( fabs( muon->innerTrack()->vz() - vtx->position().z() ) < dzmin ) {                    
+	    dzmin = fabs( muon->innerTrack()->vz() - vtx->position().z() );
+	    vtxInd = ivtx;
+	  }
+	}
+	Ptr<reco::Vertex> best_vtx = vertices->ptrs()[vtxInd]; 
+	float a = muon->muonBestTrack()->dxy(best_vtx->position());
+	float b = muon->muonBestTrack()->dz(best_vtx->position());
+	float c = muon->muonBestTrack()->dxy(dipho->vtx()->position());
+	float d = muon->muonBestTrack()->dz(dipho->vtx()->position());
+	if (muonIndex ==1)
+	  thqltags_obj.setLeadingMuonVertices( a, b, c, d) ;
+	else if (muonIndex ==2)
+	  thqltags_obj.setSubleadingMuonVertices( a, b, c, d) ;
+
       }//end of muons loop
 
 
@@ -562,6 +583,8 @@ namespace flashgg {
 				   fwam.getMoment( FoxWolfram::PZ , ifw ),
 				   fwam.getMoment( FoxWolfram::ONE , ifw ) );
 	//std::cout<< "fox:" << foxwolf1.another<<std::endl;
+
+	thqltags_obj.setrho(rho_);
 
 	thqltags_obj.setLeptonType(LeptonType);
 	thqltags_obj.includeWeights( *dipho );
