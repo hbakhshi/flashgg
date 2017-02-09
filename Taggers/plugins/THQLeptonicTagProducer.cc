@@ -594,8 +594,8 @@ namespace flashgg {
 
 	thqltags_obj.setVertices( vertices->ptrs() );
 
-	thqltags_obj.setMuons( goodMuons );
-	thqltags_obj.setElectrons( goodElectrons );
+	thqltags_obj.setMuons( goodLooseMuons );
+	thqltags_obj.setElectrons( vetoElectrons );
 
 	thqltags_obj.setDiPhotonIndex( diphoIndex );
 	thqltags_obj.setSystLabel( systLabel_ );

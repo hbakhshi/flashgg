@@ -209,9 +209,9 @@ thqmva_variables=[
 ]
 
 for label in ["HighestBTagVal", "Medium" , "Loose" , "Tight"]:
-#    thqmva_variables.append('fwdJetEta_%s              :=getFwdJet("%s").eta'%(label, label))
-    thqmva_variables.append('MVA_%s                    :=thqleptonicMvaRes("%s")'%(label,label) )
-#    thqmva_variables.append('bJetPt_%s                 :=getbJet("%s").pt'%(label,label))
+    thqmva_variables.append('fwdJetEta_{0}             := ?thqleptonicMvaRes("{0}")>-10.? getFwdJet("{0}").eta : -999'.format(label) )
+    thqmva_variables.append('MVA_{0}                   := thqleptonicMvaRes("{0}")'.format(label) )
+    thqmva_variables.append('bJetPt_{0}                := ?thqleptonicMvaRes("{0}")>-10.? getbJet("{0}").pt : -999'.format(label) )
 
 
 truth_variables=[
