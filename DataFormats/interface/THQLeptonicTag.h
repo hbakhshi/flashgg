@@ -55,6 +55,10 @@ namespace flashgg {
             return Aeff;
             
         };
+        
+        float getrho() const{
+            return rho_;
+        }
         /*
         float getMuoDz(int muIndex) const{
             mouons()[muIndex]->muonBestTrack()->dz( diPhoton()->vtx()->position() ) ;
@@ -146,6 +150,63 @@ namespace flashgg {
             return MET_Phi;
         }
 
+        const Ptr<reco::Vertex> getVertex( int vtx_index ) {
+            if(vtx_index < 0 ){
+                edm::Ptr<reco::Vertex> ret;
+                return ret;
+            }
+            return vertices_[vtx_index];
+        }
+
+        int getLeadingMuonVertexDxy( ) {
+            if (vtx_dxy_.size()>0)
+                return vtx_dxy_[0];
+            else
+                return -999;
+        }
+        int getLeadingMuonVertexDz( ) {
+            if (vtx_dz_.size()>0)
+                return vtx_dz_[0];
+            else
+                return -999;
+        }
+        int getSubleadingMuonVertexDxy( ) {
+            if (vtx_dxy_.size()>1)
+                return vtx_dxy_[1];
+            else
+                return -999;
+        }
+        int getSubLeadingMuonVertexDz( ) {
+            if (vtx_dz_.size()>1)
+                return vtx_dz_[1];
+            else
+                return -999;
+        }
+        int getLeadingMuonDiphoVertexDxy( ) {
+            if (diphovtx_dxy_.size()>0)
+                return diphovtx_dxy_[0];
+            else
+                return -999;
+        }
+        int getLeadingMuonDiphoVertexDz( ) {
+            if (diphovtx_dz_.size()>0)
+                return diphovtx_dz_[0];
+            else
+                return -999;
+        }
+        int getSubleadingMuonDiphoVertexDxy( ) {
+            if (diphovtx_dxy_.size()>1)
+                return diphovtx_dxy_[1];
+            else
+                return -999;
+        }
+        int getSubLeadingMuonDiphoVertexDz( ) {
+            if (diphovtx_dz_.size()>1)
+                return diphovtx_dz_[1];
+            else
+                return -999;
+        }
+
         void setJets( std::vector<edm::Ptr<Jet> > Jets, std::vector<edm::Ptr<Jet> > Jets_Eta ) {
             Jets_ = Jets; 
             Jets_EtaSorted_ = Jets_Eta;
@@ -154,6 +215,20 @@ namespace flashgg {
         void setVertices( std::vector<edm::Ptr<reco::Vertex> > vertices ) {
             vertices_ = vertices;
         }
+
+        void setLeadingMuonVertices( float a, float b, float c, float d) {
+            vtx_dxy_.push_back(a);
+            vtx_dz_.push_back(b);
+            diphovtx_dxy_.push_back(c);
+            diphovtx_dz_.push_back(d);
+        }
+        void setSubleadingMuonVertices( float a, float b, float c, float d) {
+            vtx_dxy_.push_back(a);
+            vtx_dz_.push_back(b);
+            diphovtx_dxy_.push_back(c);
+            diphovtx_dz_.push_back(d);
+        }
+
 
         void setMuons( std::vector<edm::Ptr<Muon> > Muons ) {
             Muons_ = Muons;
@@ -179,6 +254,10 @@ namespace flashgg {
         }
         //void setTHQLeptonicMVA( THQLeptonicMVAResult THQLeptonicMVA ) {THQLeptonicMVA_ = THQLeptonicMVA;}
         void setLeptonType(int val){ LeptonType_ = val; }
+
+        void setrho(float rho){
+            rho_=rho;
+        }
     private:
         std::vector<edm::Ptr<Muon> > Muons_;
         std::vector<edm::Ptr<Electron> > Electrons_;
@@ -187,7 +266,10 @@ namespace flashgg {
         std::vector<edm::Ptr<Jet> > BJets_;
         std::vector<float> thqleptonicMvaRes_;
         std::vector<edm::Ptr<reco::Vertex> > vertices_;
+        std::vector<float> vtx_dxy_; std::vector<float> vtx_dz_;
+        std::vector<float> diphovtx_dxy_; std::vector<float> diphovtx_dz_;
         //THQLeptonicMVAResult THQLeptonicMVA_;
+        float rho_;
         int LeptonType_;
         std::vector< std::string > bAssignmentLabels;
         std::vector< Ptr<Jet> > fwdJet ;
