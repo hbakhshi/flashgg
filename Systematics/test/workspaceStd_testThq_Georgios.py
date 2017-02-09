@@ -29,7 +29,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 100 )
 
 from flashgg.Systematics.SystematicsCustomize import *
 jetSystematicsInputTags = createStandardSystematicsProducers(process)
-#modifyTagSequenceForSystematics(process,jetSystematicsInputTags)
+modifyTagSequenceForSystematics(process,jetSystematicsInputTags)
 
 systlabels = [""]
 phosystlabels = []
@@ -74,6 +74,12 @@ customize.options.register('dumpWorkspace',
                            VarParsing.VarParsing.multiplicity.singleton,
                            VarParsing.VarParsing.varType.bool,
                            'dumpWorkspace'
+                           )
+customize.options.register('doMuFilter',
+                           True,
+                           VarParsing.VarParsing.multiplicity.singleton,
+                           VarParsing.VarParsing.varType.bool,
+                           'doMuFilter'
                            )
 
 
@@ -147,10 +153,7 @@ print "customize.processId:",customize.processId
 # Or use the official tool instead
 useEGMTools(process)
 
-import flashgg.Taggers.THQLeptonicTagVariables as var
-'''
 variablesToUse = defaultVariables
-
 variablesToUse.append("topMass :=getTopMass()")
 
 variablesToUse.append("fwdJetEta :=getFwdJet().eta")
@@ -167,16 +170,73 @@ variablesToUse.append("Aplanarity :=getAplanarity()")
 
 variablesToUse.append("MVA :=thqleptonicMvaRes()")
 
-variablesToUse.append("MET :=getMET()")
-variablesToUse.append("METPhi :=getMET_Phi()")
+# Only run systematics for signal events
+print 'customize!!!!!!!!!!!!!!!!!!!!!!!!!!',customize.processId.count("h_")
+if customize.processId.count("h_") or customize.processId.count("vbf_") or customize.processId.count("Acceptance") or True: # convention: ggh vbf wzh (wh zh) tth
+    print "Signal MC, so adding systematics and dZ"
+    #variablesToUse = minimalVariables
+    if customize.doFiducial:
+        variablesToUse.extend(fc.getGenVariables(True))
+        variablesToUse.extend(fc.getRecoVariables(True))
+        variablesToUse.append("genLeadGenIso := ? diPhoton().leadingPhoton().hasMatchedGenPhoton() ? diPhoton().leadingPhoton().userFloat(\"genIso\") : -99")
+        variablesToUse.append("decorrSigmarv := diPhotonMVA().decorrSigmarv")
+        variablesToUse.append("leadmva := diPhotonMVA().leadmva")
+        variablesToUse.append("subleadmva := diPhotonMVA().subleadmva")
 
-variablesToUse.append("prompt_pho_1     := diPhoton.leadingPhoton.genMatchType()")
-variablesToUse.append("prompt_pho_2     := diPhoton.subLeadingPhoton.genMatchType()")
+    if customize.doSystematics:
+        for direction in ["Up","Down"]:
+            phosystlabels.append("MvaShift%s01sigma" % direction)
+#            phosystlabels.append("MvaLinearSyst%s01sigma" % direction)
+            phosystlabels.append("SigmaEOverEShift%s01sigma" % direction)
+            phosystlabels.append("MaterialCentral%s01sigma" % direction)
+            phosystlabels.append("MaterialForward%s01sigma" % direction)
+            phosystlabels.append("FNUFEB%s01sigma" % direction)
+            phosystlabels.append("FNUFEE%s01sigma" % direction)
+            jetsystlabels.append("JEC%s01sigma" % direction)
+            jetsystlabels.append("JER%s01sigma" % direction)
+            jetsystlabels.append("RMSShift%s01sigma" % direction)
+            #metsystlabels.append("metUncertainty%s01sigma" % direction)
+            variablesToUse.append("UnmatchedPUWeight%s01sigma[1,-999999.,999999.] := weight(\"UnmatchedPUWeight%s01sigma\")" % (direction,direction))
+            variablesToUse.append("MvaLinearSyst%s01sigma[1,-999999.,999999.] := weight(\"MvaLinearSyst%s01sigma\")" % (direction,direction))
+            variablesToUse.append("LooseMvaSF%s01sigma[1,-999999.,999999.] := weight(\"LooseMvaSF%s01sigma\")" % (direction,direction))
+            variablesToUse.append("PreselSF%s01sigma[1,-999999.,999999.] := weight(\"PreselSF%s01sigma\")" % (direction,direction))
+            variablesToUse.append("electronVetoSF%s01sigma[1,-999999.,999999.] := weight(\"electronVetoSF%s01sigma\")" % (direction,direction))
+            variablesToUse.append("TriggerWeight%s01sigma[1,-999999.,999999.] := weight(\"TriggerWeight%s01sigma\")" % (direction,direction))
+            variablesToUse.append("FracRVWeight%s01sigma[1,-999999.,999999.] := weight(\"FracRVWeight%s01sigma\")" % (direction,direction))
+            variablesToUse.append("ElectronWeight%s01sigma[1,-999999.,999999.] := weight(\"ElectronWeight%s01sigma\")" % (direction,direction))
+            variablesToUse.append("MuonWeight%s01sigma[1,-999999.,999999.] := weight(\"MuonWeight%s01sigma\")" % (direction,direction))
+            variablesToUse.append("JetBTagCutWeight%s01sigma[1,-999999.,999999.] := weight(\"JetBTagCutWeight%s01sigma\")" % (direction,direction))
+            for r9 in ["HighR9","LowR9"]:
+                for region in ["EB","EE"]:
+                    phosystlabels.append("ShowerShape%s%s%s01sigma"%(r9,region,direction))
+#                    phosystlabels.append("MCSmear%s%s%s01sigma" % (r9,region,direction))
+                    phosystlabels.append("MCScale%s%s%s01sigma" % (r9,region,direction))
+                    for var in ["Rho","Phi"]:
+                        phosystlabels.append("MCSmear%s%s%s%s01sigma" % (r9,region,var,direction))
+        systlabels += phosystlabels
+        systlabels += jetsystlabels
+        #systlabels += metsystlabels
+    customizeSystematicsForSignal(process)
+elif customize.processId == "Data":
+    print "Data, so turn off all shifts and systematics, with some exceptions"
+    variablesToUse = minimalNonSignalVariables
+    if customize.doFiducial:
+        variablesToUse.extend(fc.getRecoVariables(True))
+    customizeSystematicsForData(process)
+else:
+    print "Background MC, so store mgg and central only"
+    variablesToUse = minimalNonSignalVariables
+    customizeSystematicsForBackground(process)
 
 
-variablesToUse.append("MuonsPt := getMuonsPt()" )
-'''
-variablesToUse = defaultVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables
+#from flashgg.Taggers.globalVariables_cff import globalVariables
+#globalVariables.extraFloats.rho = cms.InputTag("rhoFixedGridAll")
+
+#cloneTagSequenceForEachSystematic(process,systlabels,phosystlabels,jetsystlabels,jetSystematicsInputTags)
+cloneTagSequenceForEachSystematic(process,systlabels,phosystlabels,metsystlabels,jetsystlabels,jetSystematicsInputTags)
+
+print "--- Systematics  with independent collections ---"
+print systlabels
 print "-------------------------------------------------"
 print "--- Variables to be dumped, including systematic weights ---"
 print variablesToUse
@@ -197,23 +257,76 @@ process.TFileService = cms.Service("TFileService",
 
 process.extraDumpers = cms.Sequence()
 from flashgg.Taggers.tagsDumpers_cfi import *
-#process.load("flashgg.Taggers.globalVariables_cff")
 
 process.thqLeptonicTagDumper = createTagDumper("THQLeptonicTag")
+process.thqLeptonicTagDumper.src = "flashggSystTagMerger"
 process.thqLeptonicTagDumper.dumpTrees = customize.dumpTrees
 process.thqLeptonicTagDumper.dumpWorkspace = customize.dumpWorkspace
 process.thqLeptonicTagDumper.nameTemplate ="$PROCESS_$SQRTS_$LABEL_$SUBCAT"
-#process.thqLeptonicTagDumper.globalVariables = process.globalVariables
+
 
 import flashgg.Taggers.dumperConfigTools as cfgTools
-cfgTools.addCategories(process.thqLeptonicTagDumper,
+#nominal
+#cfgTools.addCategories(process.thqLeptonicTagDumper,
                        ## categories definition
-                       [("all","1",0)
-                        ],                       
+#                       [("all","1",0)
+#                        ],                       
                        ## variables to be dumped in trees/datasets. Same variables for all categories
-                       variables=variablesToUse,
-                       histograms=[]
-                       )
+#                       variables=variablesToUse,
+#                       histograms=[]
+#                       )
+
+
+tagList=[
+        ["THQLeptonicTag",0]
+]
+
+definedSysts=set()
+process.thqLeptonicTagDumper.classifierCfg.remap=cms.untracked.VPSet()
+for tag in tagList: 
+  tagName=tag[0]
+  tagCats=tag[1]
+  # remap return value of class-based classifier
+  process.thqLeptonicTagDumper.classifierCfg.remap.append( cms.untracked.PSet( src=cms.untracked.string("flashgg%s"%tagName), dst=cms.untracked.string(tagName) ) )
+  for systlabel in systlabels:
+      if not systlabel in definedSysts:
+          # the cut corresponding to the systematics can be defined just once
+          cutstring = "hasSyst(\"%s\") "%(systlabel)
+          definedSysts.add(systlabel)
+      else:
+          cutstring = None
+      if systlabel == "":
+          currentVariables = variablesToUse
+      else:
+          currentVariables = systematicVariables
+      
+      isBinnedOnly = (systlabel !=  "")
+      if ( customize.doPdfWeights or customize.doSystematics ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("vbf_") ) and (systlabel ==  ""):
+          print "Signal MC central value, so dumping PDF weights"
+          dumpPdfWeights = True
+          nPdfWeights = 60
+          nAlphaSWeights = 2
+          nScaleWeights = 9
+      else:
+          print "Data, background MC, or non-central value, or no systematics: no PDF weights"
+          dumpPdfWeights = False
+          nPdfWeights = -1
+          nAlphaSWeights = -1
+          nScaleWeights = -1
+      
+      cfgTools.addCategory(process.thqLeptonicTagDumper,
+                           systlabel,
+                           classname=tagName,
+                           cutbased=cutstring,
+                           subcats=tagCats, 
+                           variables=currentVariables,
+                           histograms=minimalHistograms,
+                           binnedOnly=isBinnedOnly,
+                           dumpPdfWeights=dumpPdfWeights,
+                           nPdfWeights=nPdfWeights,
+                           nAlphaSWeights=nAlphaSWeights,
+                           nScaleWeights=nScaleWeights
+                           )
 
 # Require standard diphoton trigger
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
@@ -227,33 +340,48 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 # ee bad supercluster filter on data
 process.load('RecoMET.METFilters.eeBadScFilter_cfi')
 process.eeBadScFilter.EERecHitSource = cms.InputTag("reducedEgamma","reducedEERecHits") # Saved MicroAOD Collection (data only)
+# Bad Muon filter
+process.load('RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff')
+process.badGlobalMuonTagger.muons = cms.InputTag("flashggSelectedMuons")
+process.cloneGlobalMuonTagger.muons = cms.InputTag("flashggSelectedMuons")
 process.dataRequirements = cms.Sequence()
 if customize.processId == "Data":
         process.dataRequirements += process.hltHighLevel
         process.dataRequirements += process.eeBadScFilter
+        if customize.doMuFilter:
+            process.dataRequirements += process.noBadGlobalMuons
 
 # Split WH and ZH
 process.genFilter = cms.Sequence()
 
+# Split out prompt-fake or fake-fake
+process.finalFilter = cms.Sequence()
+if (customize.processId.count("qcd") or customize.processId.count("gjet")) and customize.processId.count("fake"):
+    process.load("flashgg/Systematics/PromptFakeFilter_cfi")
+    process.finalFilter += process.PromptFakeFilter
+    if (customize.processId.count("promptfake")):
+        process.PromptFakeFilter.doPromptFake = cms.bool(True)
+        process.PromptFakeFilter.doFakeFake =cms.bool(False)
+    elif (customize.processId.count("fakefake")):
+        process.PromptFakeFilter.doPromptFake =cms.bool(False)
+        process.PromptFakeFilter.doFakeFake =cms.bool(True)
+    else:
+        raise Exception,"Mis-configuration of python for prompt-fake filter"
 
 
 if( not hasattr(process,"options") ): process.options = cms.untracked.PSet()
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
-
-process.flashggTHQLeptonicTag.ElectronTag = "flashggElectronSystematics"
-process.flashggTHQLeptonicTag.MuonTag = "flashggMuonSystematics"
+#process.flashggTHQLeptonicTag.ElectronTag = "flashggElectronSystematics"
 process.p = cms.Path(process.dataRequirements*
                      process.genFilter*
                      process.flashggUpdatedIdMVADiPhotons*
                      process.flashggDiPhotonSystematics*
                      #process.flashggMets*
                      #process.flashggMetSystematics*
-                     #process.flashggMuonSystematics*process.flashggElectronSystematics*
-                     process.flashggUnpackedJets*
-                     #process.jetSystematicsSequence*
-                     process.flashggTagSequence*
-                     #*process.systematicsTagSequences*
+                     process.flashggMuonSystematics*process.flashggElectronSystematics*
+                     process.flashggUnpackedJets*process.jetSystematicsSequence*
+                     process.flashggTagSequence*process.systematicsTagSequences*
                      #process.flashggSystTagMerger*
                      #process.finalFilter*
                      process.thqLeptonicTagDumper)
@@ -323,7 +451,7 @@ process.flashggTagSorter.BlindedSelectionPrintout = True
 #print >> processDumpFile, process.dumpPython()
 
 # set default options if needed
-customize.setDefault("maxEvents",2000)
+customize.setDefault("maxEvents",1000)
 customize.setDefault("targetLumi",1.00e+3)
 # call the customization
 customize(process)

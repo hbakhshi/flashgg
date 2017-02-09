@@ -22,13 +22,44 @@ namespace flashgg {
 
         THQLeptonicTag *clone() const { return ( new THQLeptonicTag( *this ) ); }
 
+        const std::vector<edm::Ptr<reco::Vertex> > vertices() const { return vertices_;}
         const std::vector<edm::Ptr<Muon> > muons() const { return Muons_;}
         const std::vector<edm::Ptr<flashgg::Electron> > electrons() const {return Electrons_;}
         const std::vector<edm::Ptr<Jet> > jets() const { return Jets_;}
+        const std::vector<edm::Ptr<Jet> > Jets_EtaSorted() const { return Jets_EtaSorted_;}
         const std::vector<edm::Ptr<Jet> > bJets() const { return BJets_;}
-        const std::vector<edm::Ptr<Jet> > nonbJets() const { return nonBJets_;}
-        float thqleptonicMvaRes() const {return thqleptonicMvaRes_;}
+
         
+        float getElecAlpha(int eleIndex) const{
+            float eleta =  electrons()[eleIndex]->eta();
+
+            //for isolation recalculation        
+            float Aeff = 0;
+            //cmssw/RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt
+            if( fabs(eleta) <= 1.0000 ){
+                Aeff = 0.1703;
+            } else if( fabs(eleta) <= 1.4790 ){
+                Aeff = 0.1715;
+            } else if( fabs(eleta) <= 2.0000 ){
+                Aeff = 0.1213;
+            } else if( fabs(eleta) <= 2.2000 ){
+                Aeff = 0.1230;
+            } else if( fabs(eleta) <= 2.3000 ){
+                Aeff = 0.1635;
+            } else if( fabs(eleta) <= 2.4000 ){
+                Aeff = 0.1937;
+            } else if( fabs(eleta) <= 5.0000 ){
+                Aeff = 0.2393;
+            }
+
+            return Aeff;
+            
+        };
+        /*
+        float getMuoDz(int muIndex) const{
+            mouons()[muIndex]->muonBestTrack()->dz( diPhoton()->vtx()->position() ) ;
+        }
+        */
         // const reco::LeafCandidate getLepton() const{
         //     if( electrons().size() == 1 && muons().size() == 0 ){
         //         return ( *(electrons()[0]) );
@@ -62,37 +93,51 @@ namespace flashgg {
             return LeptonType_;
         }
 
-        const edm::Ptr<Jet> get_bJet() const{
-            if( bJets().size() > 0 )
-                return bJets()[0];
-            
-            edm::Ptr<Jet> ret;
-            return ret;
+        int findIndex(string label) const{
+            ptrdiff_t pos = find(bAssignmentLabels.begin(), bAssignmentLabels.end(), label) - bAssignmentLabels.begin();
+            if( pos < int( bAssignmentLabels.size() ) )
+                return pos;
+            else{
+                //cout << "label : " << label < " not found" << endl;
+                return -1;
+            }
+        }
+        float thqleptonicMvaRes(string label) const {
+            int index = findIndex(label);
+            if(index < 0 )
+                return -100;
+            return thqleptonicMvaRes_[index];
+        }
+        const Ptr<Jet> getFwdJet(string label) const{
+            int index = findIndex(label);
+            if(index < 0 ){
+                edm::Ptr<Jet> ret;
+                return ret;
+            }
+            return fwdJet[index];
+        }
+        const Ptr<Jet> getbJet(string label) const{
+            int index = findIndex(label);
+            if(index < 0 ){
+                edm::Ptr<Jet> ret;
+                return ret;
+            }
+
+            return bJet[index];
+        }
+        float getTopMass(string label) const{
+            int index = findIndex(label);
+            if(index < 0 )
+                return -100;
+
+            return TopMass[findIndex(label)];
         }
 
-        const Ptr<Jet> getFwdJet() const{
-            if( fwdJet.size() > 0 )
-                return fwdJet[0];
-
-            edm::Ptr<Jet> ret;
-            return ret;
-        }
-        
-        const Ptr<Jet> getbJet() const{
-            if( bJet.size() > 0 )
-                return bJet[0];
-
-            edm::Ptr<Jet> ret;
-            return ret;
-        }
         float getFoxWolframMoment_ONE()const{
             return FoxWolframMoment_ONE;
         }
         float getAplanarity() const{
             return Aplanarity;
-        }
-        float getTopMass() const{
-            return TopMass;
         }
         float getMET() const{
             return MET;
@@ -101,29 +146,33 @@ namespace flashgg {
             return MET_Phi;
         }
 
-        void setJets( std::vector<edm::Ptr<Jet> > Jets ) { Jets_ = Jets; }
+        void setJets( std::vector<edm::Ptr<Jet> > Jets, std::vector<edm::Ptr<Jet> > Jets_Eta ) {
+            Jets_ = Jets; 
+            Jets_EtaSorted_ = Jets_Eta;
+        }
         void setBJets( std::vector<edm::Ptr<Jet> > BJets )  { BJets_ = BJets;}
-        void setLightJets( std::vector<edm::Ptr<Jet> > Jets )  { nonBJets_ = Jets;}
+        void setVertices( std::vector<edm::Ptr<reco::Vertex> > vertices ) {
+            vertices_ = vertices;
+        }
+
         void setMuons( std::vector<edm::Ptr<Muon> > Muons ) {
             Muons_ = Muons;
-            if( Muons.size() == 1 )
-                includeWeights( *Muons_[0] );
         }
         void setElectrons( std::vector<edm::Ptr<Electron> > Electrons ) {
             Electrons_ = Electrons;
-            if( Electrons_.size() == 1 )
-                includeWeights( *Electrons_[0] );
         }
-        void setMVAres(float val) {thqleptonicMvaRes_ = val;}
-        void setFwdJet( Ptr<Jet> fwd ) { fwdJet.clear() ; fwdJet.push_back( fwd ) ;}
-        void setbJet( Ptr<Jet> bj ) { bJet.clear() ; bJet.push_back( bj ) ;}
+        void setMVAres(string label, float val , float topMass , Ptr<Jet> fwd , Ptr<Jet> bj ) {
+            bAssignmentLabels.push_back( label);
+            thqleptonicMvaRes_.push_back(val); 
+            TopMass.push_back(topMass);
+            fwdJet.push_back( fwd ) ;
+            bJet.push_back( bj ) ;
+        }
 
 
-        void setValues( float fox , float aplan , float topMass , float met, float metPhi ){
+        void setValues( float fox , float aplan ,  float met, float metPhi ){
             FoxWolframMoment_ONE = fox ;
             Aplanarity = aplan;
-
-            TopMass = topMass;
 
             MET = met ;
             MET_Phi = metPhi ;
@@ -134,16 +183,18 @@ namespace flashgg {
         std::vector<edm::Ptr<Muon> > Muons_;
         std::vector<edm::Ptr<Electron> > Electrons_;
         std::vector<edm::Ptr<Jet> > Jets_;
+        std::vector<edm::Ptr<Jet> > Jets_EtaSorted_;
         std::vector<edm::Ptr<Jet> > BJets_;
-        std::vector<edm::Ptr<Jet> > nonBJets_;
-        float thqleptonicMvaRes_;
+        std::vector<float> thqleptonicMvaRes_;
+        std::vector<edm::Ptr<reco::Vertex> > vertices_;
         //THQLeptonicMVAResult THQLeptonicMVA_;
         int LeptonType_;
+        std::vector< std::string > bAssignmentLabels;
         std::vector< Ptr<Jet> > fwdJet ;
         std::vector< Ptr<Jet> > bJet;
         float FoxWolframMoment_ONE;
         float Aplanarity;
-        float TopMass;
+        std::vector<float> TopMass;
         float MET;
         float MET_Phi;
     };
