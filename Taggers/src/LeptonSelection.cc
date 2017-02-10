@@ -70,6 +70,8 @@ namespace flashgg {
         std::vector<edm::Ptr<flashgg::Muon> > goodMuons;
         std::vector<edm::Ptr<flashgg::Muon> > allGoodMuons= selectAllMuons( muonPointers, vertexPointers, muonEtaThreshold, muonPtThreshold, muPFIsoSumRelThreshold , Loose );
 
+        //cout << "nmuons : " << allGoodMuons.size() << " out of : " << muonPointers.size() <<  muonEtaThreshold << "  " << muonPtThreshold << "  "  << muPFIsoSumRelThreshold << "   " << dRPhoSubLeadMuonThreshold << " " << Loose << endl;
+
         for( unsigned int muonIndex = 0; muonIndex <allGoodMuons.size(); muonIndex++ ) {
             Ptr<flashgg::Muon> muon = allGoodMuons[muonIndex];
             float dRPhoLeadMuon = deltaR( muon->eta(), muon->phi(), dipho->leadingPhoton()->superCluster()->eta(), dipho->leadingPhoton()->superCluster()->phi() ) ;

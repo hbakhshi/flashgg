@@ -150,7 +150,7 @@ namespace flashgg {
             return MET_Phi;
         }
 
-        const Ptr<reco::Vertex> getVertex( int vtx_index ) {
+        const Ptr<reco::Vertex> getVertex( int vtx_index ) const {
             if(vtx_index < 0 ){
                 edm::Ptr<reco::Vertex> ret;
                 return ret;
@@ -158,49 +158,49 @@ namespace flashgg {
             return vertices_[vtx_index];
         }
 
-        int getLeadingMuonVertexDxy( ) {
+        int getLeadingMuonVertexDxy( ) const{
             if (vtx_dxy_.size()>0)
                 return vtx_dxy_[0];
             else
                 return -999;
         }
-        int getLeadingMuonVertexDz( ) {
+        int getLeadingMuonVertexDz( ) const{
             if (vtx_dz_.size()>0)
                 return vtx_dz_[0];
             else
                 return -999;
         }
-        int getSubleadingMuonVertexDxy( ) {
+        int getSubleadingMuonVertexDxy( ) const{
             if (vtx_dxy_.size()>1)
                 return vtx_dxy_[1];
             else
                 return -999;
         }
-        int getSubLeadingMuonVertexDz( ) {
+        int getSubLeadingMuonVertexDz( ) const{
             if (vtx_dz_.size()>1)
                 return vtx_dz_[1];
             else
                 return -999;
         }
-        int getLeadingMuonDiphoVertexDxy( ) {
+        int getLeadingMuonDiphoVertexDxy( ) const{
             if (diphovtx_dxy_.size()>0)
                 return diphovtx_dxy_[0];
             else
                 return -999;
         }
-        int getLeadingMuonDiphoVertexDz( ) {
+        int getLeadingMuonDiphoVertexDz( ) const{
             if (diphovtx_dz_.size()>0)
                 return diphovtx_dz_[0];
             else
                 return -999;
         }
-        int getSubleadingMuonDiphoVertexDxy( ) {
+        int getSubleadingMuonDiphoVertexDxy( ) const{
             if (diphovtx_dxy_.size()>1)
                 return diphovtx_dxy_[1];
             else
                 return -999;
         }
-        int getSubLeadingMuonDiphoVertexDz( ) {
+        int getSubLeadingMuonDiphoVertexDz( ) const{
             if (diphovtx_dz_.size()>1)
                 return diphovtx_dz_[1];
             else
@@ -258,6 +258,9 @@ namespace flashgg {
         void setrho(float rho){
             rho_=rho;
         }
+
+        double bTagWeight;
+        double photonWeights;
     private:
         std::vector<edm::Ptr<Muon> > Muons_;
         std::vector<edm::Ptr<Electron> > Electrons_;

@@ -250,6 +250,7 @@ namespace flashgg {
     default_electronEtaCuts_.push_back( 1.566 );
     default_electronEtaCuts_.push_back( 2.5 );
 
+    leptonEtaThreshold_ = iConfig.getParameter<double>( "leptonEtaThreshold" );
     leptonPtThreshold_ = iConfig.getParameter<double>( "leptonPtThreshold" );
     electronEtaThresholds_ = iConfig.getParameter<vector<double > >( "electronEtaThresholds");
     leadPhoOverMassThreshold_ = iConfig.getParameter<double>( "leadPhoOverMassThreshold" );
@@ -421,12 +422,13 @@ namespace flashgg {
       
       if( hasGoodMuons && !hasVetoElec){
 	LeptonType = 2;
-	thqltags_obj.includeWeights( *goodMuons[0] );
       }
       for( unsigned int muonIndex = 0; muonIndex < goodMuons.size(); muonIndex++ ) {
                 
 	Ptr<flashgg::Muon> muon = goodMuons[muonIndex];
-                    
+
+	thqltags_obj.includeWeights( *goodMuons[muonIndex] );
+	
 	lepton.set( muon->pt(),
 		    muon->eta() ,
 		    muon->phi() ,
@@ -461,9 +463,11 @@ namespace flashgg {
 
       if( hasGoodElec && !hasGoodMuons){
 	LeptonType = 1;
-	thqltags_obj.includeWeights( *goodElectrons[0] );
       }
+
       for( unsigned int ElectronIndex = 0; ElectronIndex < goodElectrons.size(); ElectronIndex++ ) {
+
+	thqltags_obj.includeWeights( *goodElectrons[ElectronIndex] );
                 
 	Ptr<Electron> Electron = goodElectrons[ElectronIndex];
 	lepton.set( Electron->pt(),
@@ -588,13 +592,24 @@ namespace flashgg {
 
 	thqltags_obj.setLeptonType(LeptonType);
 	thqltags_obj.includeWeights( *dipho );
-                
+
+	thqltags_obj.photonWeights = dipho->leadingPhoton()->centralWeight()*dipho->subLeadingPhoton()->centralWeight() ;
+
 	thqltags_obj.setJets( SelJetVect_PtSorted , SelJetVect_EtaSorted);
 	thqltags_obj.setBJets( SelJetVect_BSorted );
+
+	thqltags_obj.bTagWeight = 1.0;
+	for( auto j : SelJetVect_PtSorted )
+	  if( j->hasWeight("JetBTagCutWeight") )
+	      thqltags_obj.bTagWeight *= j->weight( "JetBTagCutWeight" );
+	  else
+	    cout << "BTag weight is not set in jet" << endl;
+
 
 	thqltags_obj.setVertices( vertices->ptrs() );
 
 	thqltags_obj.setMuons( goodLooseMuons );
+	//cout << "nLooseMuons : " << goodLooseMuons.size() << " and nTightMuons : " << goodMuons.size() << " out of : " << theMuons->ptrs().size() << endl;
 	thqltags_obj.setElectrons( vetoElectrons );
 
 	thqltags_obj.setDiPhotonIndex( diphoIndex );
