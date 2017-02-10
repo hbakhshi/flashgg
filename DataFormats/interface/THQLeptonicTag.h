@@ -259,6 +259,8 @@ namespace flashgg {
             rho_=rho;
         }
 
+
+        int nMedium_bJets, nLoose_bJets, nTight_bJets;
         double bTagWeight;
         double photonWeights;
     private:

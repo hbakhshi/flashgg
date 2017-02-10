@@ -599,9 +599,14 @@ namespace flashgg {
 	thqltags_obj.setBJets( SelJetVect_BSorted );
 
 	thqltags_obj.bTagWeight = 1.0;
+
+
+
 	for( auto j : SelJetVect_PtSorted )
-	  if( j->hasWeight("JetBTagCutWeight") )
-	      thqltags_obj.bTagWeight *= j->weight( "JetBTagCutWeight" );
+	  //for(auto itr = j->weightListBegin() ; itr != j->weightListEnd() ; itr++)
+	  //  cout << *itr << endl;
+	  if( j->hasWeight("JetBTagCutWeightCentral") )
+	      thqltags_obj.bTagWeight *= j->weight( "JetBTagCutWeightCentral" );
 	  else
 	    cout << "BTag weight is not set in jet" << endl;
 
@@ -622,13 +627,15 @@ namespace flashgg {
 
 	topReco( &MediumBJetVect_PtSorted );
 	thqltags_obj.setMVAres("Medium" ,  thqLeptonicMvaResult_value_ , topMass , fwdJet , bJet);
+	thqltags_obj.nMedium_bJets = MediumBJetVect_PtSorted.size();
 
 	topReco( &LooseBJetVect_PtSorted );
 	thqltags_obj.setMVAres("Loose" ,  thqLeptonicMvaResult_value_ , topMass , fwdJet , bJet);
+	thqltags_obj.nLoose_bJets = LooseBJetVect_PtSorted.size();
 
 	topReco( &TightBJetVect_PtSorted );
 	thqltags_obj.setMVAres("Tight" ,  thqLeptonicMvaResult_value_ , topMass , fwdJet , bJet);
-
+	thqltags_obj.nTight_bJets = TightBJetVect_PtSorted.size();
 
 	thqltags->push_back( thqltags_obj );
       }//thq tag

@@ -30,7 +30,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 100 )
 from flashgg.Systematics.SystematicsCustomize import *
 jetSystematicsInputTags = createStandardSystematicsProducers(process)
 
-process.load("flashgg/Taggers/flashggTagSequence_cfi")
+process.load("flashgg.Taggers.flashggTagSequence_cfi")
 
 modifyTagSequenceForSystematics(process,jetSystematicsInputTags)
 
@@ -86,18 +86,8 @@ customize.options.register('doMuFilter',
                            )
 
 
-print "Printing defaults"
-print 'doFiducial '+str(customize.doFiducial)
-print 'acceptance '+str(customize.acceptance)
-# import flashgg customization to check if we have signal or background
 from flashgg.MetaData.JobConfig import customize
 customize.parse()
-print "Printing options"
-print 'doFiducial '+str(customize.doFiducial)
-print 'acceptance '+str(customize.acceptance)
-
-
-
 print process.flashggTagSequence
 
 
@@ -110,14 +100,6 @@ print "customize.processId:",customize.processId
 
 # Or use the official tool instead
 useEGMTools(process)
-
-import flashgg.Taggers.THQLeptonicTagVariables as var
-
-variablesToUse = defaultVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables
-print "-------------------------------------------------"
-print "--- Variables to be dumped, including systematic weights ---"
-print variablesToUse
-print "------------------------------------------------------------"
 
 
 ###### Dumper section
@@ -135,14 +117,20 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("test.root"))
 
 process.extraDumpers = cms.Sequence()
+import flashgg.Taggers.THQLeptonicTagVariables as var
+variablesToUse = defaultVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables
+print "-------------------------------------------------"
+print "--- Variables to be dumped, including systematic weights ---"
+print variablesToUse
+print "------------------------------------------------------------"
+
+
 from flashgg.Taggers.tagsDumpers_cfi import *
-#process.load("flashgg.Taggers.globalVariables_cff")
 
 process.thqLeptonicTagDumper = createTagDumper("THQLeptonicTag")
 process.thqLeptonicTagDumper.dumpTrees = customize.dumpTrees
 process.thqLeptonicTagDumper.dumpWorkspace = customize.dumpWorkspace
 process.thqLeptonicTagDumper.nameTemplate ="$PROCESS_$SQRTS_$LABEL_$SUBCAT"
-#process.thqLeptonicTagDumper.globalVariables = process.globalVariables
 
 import flashgg.Taggers.dumperConfigTools as cfgTools
 cfgTools.addCategories(process.thqLeptonicTagDumper,
@@ -178,97 +166,20 @@ if customize.processId == "Data":
         if customize.doMuFilter:
             process.dataRequirements += process.noBadGlobalMuons
 
-# Split WH and ZH
 process.genFilter = cms.Sequence()
-
-
 
 if( not hasattr(process,"options") ): process.options = cms.untracked.PSet()
 process.options.allowUnscheduled = cms.untracked.bool(True)
 
 
-#process.flashggTHQLeptonicTag.ElectronTag = "flashggElectronSystematics"
-#process.flashggTHQLeptonicTag.MuonTag = "flashggMuonSystematics"
 process.p = cms.Path(process.dataRequirements*
                      process.genFilter*
-                     process.flashggUpdatedIdMVADiPhotons*
-                     #process.flashggDiPhotonSystematics*
-                     #process.flashggMets*
-                     #process.flashggMetSystematics*
-                     #process.flashggMuonSystematics*process.flashggElectronSystematics*
-                     #process.flashggUnpackedJets*
-                     #process.jetSystematicsSequence*
-                     #process.flashggTagSequence*
-                     #*process.systematicsTagSequences*
-                     #process.flashggSystTagMerger*
-                     #process.finalFilter*
                      process.thqLeptonicTagDumper)
 
 
 
-print "--- Dumping modules that take diphotons as input: ---"
-mns = process.p.moduleNames()
-for mn in mns:
-    module = getattr(process,mn)
-    if hasattr(module,"src") and type(module.src) == type(cms.InputTag("")) and module.src.value().count("DiPhoton"):
-        print str(module),module.src
-    elif hasattr(module,"DiPhotonTag"):
-        print str(module),module.DiPhotonTag
-print
 printSystematicInfo(process)
 
-# Detailed tag interpretation information printout (blinded)
-process.flashggTagSorter.StoreOtherTagInfo = True
-process.flashggTagSorter.BlindedSelectionPrintout = True
-
-#### BELOW HERE IS MOSTLY DEBUGGING STUFF
-
-#####################################################################
-## Memory and timing, n.b. igprof is very complicated to interpret ##
-##################################################################### 
-
-#from Validation.Performance.TimeMemoryInfo import customise as TimeMemoryCustomize
-#TimeMemoryCustomize(process)
-#process.MessageLogger.cerr.threshold = 'WARNING'
-
-#process.load("IgTools.IgProf.IgProfTrigger")
-#process.igprof.reportEventInterval     = cms.untracked.int32(250)
-#process.igprof.reportToFileAtBeginJob  = cms.untracked.string("|gzip -c>igprof.begin-job.gz")
-#process.igprof.reportToFileAtEvent     = cms.untracked.string("|gzip -c>igprof.%I.%E.%L.%R.event.gz")
-#process.p += process.igprof
-
-################################
-## Dump merged tags to screen ##
-################################
-
-#process.load("flashgg/Taggers/flashggTagTester_cfi")
-#process.flashggTagTester.TagSorter = cms.InputTag("flashggSystTagMerger")
-#process.flashggTagTester.ExpectMultiples = cms.untracked.bool(True)
-#process.p += process.flashggTagTester
-
-############################################
-## Additional details on tag sorter steps ##
-############################################
-
-#process.flashggTagSorter.Debug = True
-
-##############
-## Dump EDM ##
-##############
-
-#process.out = cms.OutputModule("PoolOutputModule", fileName = cms.untracked.string('CustomizeWillChangeThisAnyway.root'),
-#                               outputCommands = cms.untracked.vstring('keep *') # dump everything! small tests only!
-#                               )
-#process.e = cms.EndPath(process.out)
-
-############################
-## Dump the output Python ##
-############################
-#print process.dumpPython()
-#processDumpFile = open('processDump.py', 'w')
-#print >> processDumpFile, process.dumpPython()
-
-# set default options if needed
 customize.setDefault("maxEvents",1000)
 customize.setDefault("targetLumi",1.00e+3)
 # call the customization

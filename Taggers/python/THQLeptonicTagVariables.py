@@ -157,9 +157,9 @@ lepton_variables=[
     "muon1_diphodxy         := ?(muons.size>0)? getLeadingMuonDiphoVertexDxy : -999",
     "muon2_diphodxy         := ?(muons.size>1)? getSubleadingMuonDiphoVertexDxy : -999",
     "muon1_dz              := ?(muons.size>0)? getLeadingMuonVertexDz : -999",
-    "muon2_dz              := ?(muons.size>1)? getSubleadingMuonVertexDz : -999",
+    "muon2_dz              := ?(muons.size>1)? getSubLeadingMuonVertexDz : -999",
     "muon1_diphodz         := ?(muons.size>0)? getLeadingMuonDiphoVertexDz : -999",
-    "muon2_diphodz         := ?(muons.size>1)? getSubleadingMuonDiphoVertexDz : -999",
+    "muon2_diphodz         := ?(muons.size>1)? getSubLeadingMuonDiphoVertexDz : -999",
     "muon1_pxHits           := ?(muons.size>0)? muons.at(0).innerTrack().hitPattern().numberOfValidPixelHits : -999",
     "muon2_pxHits           := ?(muons.size>1)? muons.at(1).innerTrack().hitPattern().numberOfValidPixelHits : -999",
     "muon1_tkLayers         := ?(muons.size>0)? muons.at(0).innerTrack().hitPattern().trackerLayersWithMeasurement : -999",
@@ -178,6 +178,9 @@ jet_variables=[
     "fwdjet1_phi            := ?Jets_EtaSorted.size>0? Jets_EtaSorted.at(0).phi: -999.",
     "fwdjet2_phi            := ?Jets_EtaSorted.size>1? Jets_EtaSorted.at(1).phi: -999.",
 
+    "n_M_bjets                := nMedium_bJets",
+    "n_L_bjets                := nLoose_bJets",
+    "n_T_bjets                := nTight_bJets",
 
     "n_bjets                := bJets.size",
     "bjet1_pt               := ?bJets.size>0? bJets.at(0).pt : -999",
