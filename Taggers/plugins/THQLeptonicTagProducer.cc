@@ -438,26 +438,6 @@ namespace flashgg {
 	particles_LorentzVector.push_back(lepton.LorentzVector());
 	particles_RhoEtaPhiVector.push_back( math::RhoEtaPhiVector( lepton.pt, lepton.eta, lepton.phi ) );
 	
-	int vtxInd = 0;
-	double dzmin = 9999;
-	for( size_t ivtx = 0 ; ivtx < vertices->ptrs().size(); ivtx++ ) {
-	  Ptr<reco::Vertex> vtx = vertices->ptrs()[ivtx];
-	  if( !muon->innerTrack() ) continue; 
-	  if( fabs( muon->innerTrack()->vz() - vtx->position().z() ) < dzmin ) {                    
-	    dzmin = fabs( muon->innerTrack()->vz() - vtx->position().z() );
-	    vtxInd = ivtx;
-	  }
-	}
-	Ptr<reco::Vertex> best_vtx = vertices->ptrs()[vtxInd]; 
-	float a = muon->muonBestTrack()->dxy(best_vtx->position());
-	float b = muon->muonBestTrack()->dz(best_vtx->position());
-	float c = muon->muonBestTrack()->dxy(dipho->vtx()->position());
-	float d = muon->muonBestTrack()->dz(dipho->vtx()->position());
-	if (muonIndex ==1)
-	  thqltags_obj.setLeadingMuonVertices( a, b, c, d) ;
-	else if (muonIndex ==2)
-	  thqltags_obj.setSubleadingMuonVertices( a, b, c, d) ;
-
       }//end of muons loop
 
 
@@ -612,6 +592,36 @@ namespace flashgg {
 
 
 	thqltags_obj.setVertices( vertices->ptrs() );
+
+	for( unsigned int muonIndex = 0; muonIndex < goodLooseMuons.size(); muonIndex++ ) {
+                
+	  Ptr<flashgg::Muon> muon = goodLooseMuons[muonIndex];
+	  
+	  int vtxInd = 0;
+	  double dzmin = 9999;
+	  for( size_t ivtx = 0 ; ivtx < vertices->ptrs().size(); ivtx++ ) {
+	    Ptr<reco::Vertex> vtx = vertices->ptrs()[ivtx];
+	    if( !muon->innerTrack() ) continue; 
+	    if( fabs( muon->innerTrack()->vz() - vtx->position().z() ) < dzmin ) {                    
+	      dzmin = fabs( muon->innerTrack()->vz() - vtx->position().z() );
+	      vtxInd = ivtx;
+	    }
+	  }
+	  Ptr<reco::Vertex> best_vtx = vertices->ptrs()[vtxInd]; 
+	  float a = muon->muonBestTrack()->dxy(best_vtx->position());
+	  float b = muon->muonBestTrack()->dz(best_vtx->position());
+	  float c = muon->muonBestTrack()->dxy(dipho->vtx()->position());
+	  float d = muon->muonBestTrack()->dz(dipho->vtx()->position());
+	  if (muonIndex ==0){
+	    //std::cout  << a << " "<<b<< " "<<c <<" "<<d << std::endl;
+	    thqltags_obj.setLeadingMuonVertices( a, b, c, d) ;
+	    //std::cout  << thqltags_obj.getLeadingMuonVertexDxy() << " "<<thqltags_obj.getLeadingMuonVertexDz() << " " << thqltags_obj.getLeadingMuonDiphoVertexDxy() << " "<< thqltags_obj.getLeadingMuonDiphoVertexDz() << std::endl;
+	  }
+	  else if (muonIndex ==1)
+	    thqltags_obj.setSubleadingMuonVertices( a, b, c, d) ;
+	  
+	}//end of muons loop
+
 
 	thqltags_obj.setMuons( goodLooseMuons );
 	//cout << "nLooseMuons : " << goodLooseMuons.size() << " and nTightMuons : " << goodMuons.size() << " out of : " << theMuons->ptrs().size() << endl;

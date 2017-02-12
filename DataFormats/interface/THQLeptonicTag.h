@@ -158,49 +158,49 @@ namespace flashgg {
             return vertices_[vtx_index];
         }
 
-        int getLeadingMuonVertexDxy( ) const{
+        float getLeadingMuonVertexDxy( ) const{
             if (vtx_dxy_.size()>0)
                 return vtx_dxy_[0];
             else
                 return -999;
         }
-        int getLeadingMuonVertexDz( ) const{
+        float getLeadingMuonVertexDz( ) const{
             if (vtx_dz_.size()>0)
                 return vtx_dz_[0];
             else
                 return -999;
         }
-        int getSubleadingMuonVertexDxy( ) const{
+        float getSubleadingMuonVertexDxy( ) const{
             if (vtx_dxy_.size()>1)
                 return vtx_dxy_[1];
             else
                 return -999;
         }
-        int getSubLeadingMuonVertexDz( ) const{
+        float getSubLeadingMuonVertexDz( ) const{
             if (vtx_dz_.size()>1)
                 return vtx_dz_[1];
             else
                 return -999;
         }
-        int getLeadingMuonDiphoVertexDxy( ) const{
+        float getLeadingMuonDiphoVertexDxy( ) const{
             if (diphovtx_dxy_.size()>0)
                 return diphovtx_dxy_[0];
             else
                 return -999;
         }
-        int getLeadingMuonDiphoVertexDz( ) const{
+        float getLeadingMuonDiphoVertexDz( ) const{
             if (diphovtx_dz_.size()>0)
                 return diphovtx_dz_[0];
             else
                 return -999;
         }
-        int getSubleadingMuonDiphoVertexDxy( ) const{
+        float getSubleadingMuonDiphoVertexDxy( ) const{
             if (diphovtx_dxy_.size()>1)
                 return diphovtx_dxy_[1];
             else
                 return -999;
         }
-        int getSubLeadingMuonDiphoVertexDz( ) const{
+        float getSubLeadingMuonDiphoVertexDz( ) const{
             if (diphovtx_dz_.size()>1)
                 return diphovtx_dz_[1];
             else

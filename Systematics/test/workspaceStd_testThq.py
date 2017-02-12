@@ -29,9 +29,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 100 )
 
 from flashgg.Systematics.SystematicsCustomize import *
 jetSystematicsInputTags = createStandardSystematicsProducers(process)
-
 process.load("flashgg.Taggers.flashggTagSequence_cfi")
-
 modifyTagSequenceForSystematics(process,jetSystematicsInputTags)
 
 systlabels = [""]
@@ -88,6 +86,9 @@ customize.options.register('doMuFilter',
 
 from flashgg.MetaData.JobConfig import customize
 customize.parse()
+
+
+
 print process.flashggTagSequence
 
 
@@ -174,6 +175,7 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 
 process.p = cms.Path(process.dataRequirements*
                      process.genFilter*
+                     #process.flashggUpdatedIdMVADiPhotons*
                      process.thqLeptonicTagDumper)
 
 
