@@ -401,15 +401,18 @@ namespace flashgg {
       std::vector<edm::Ptr<flashgg::Muon> > goodMuons = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
 								     muPFIsoSumRelThreshold_, deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , false);
 
-
-            
-      std::vector<edm::Ptr<Electron> > vetoElectrons = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
+      std::vector<edm::Ptr<Electron> > vetoElectronsNonIso = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
 									  0,0,
+									  deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true ); //evt.isRealData()
+
+      
+      std::vector<edm::Ptr<Electron> > vetoElectrons = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
+									  0,1,
 									  deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true ); //evt.isRealData()
             
 
       std::vector<edm::Ptr<Electron> > goodElectrons = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
-									  0,1,
+									  0,2,
 									  deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true);
 
 
@@ -438,26 +441,6 @@ namespace flashgg {
 	particles_LorentzVector.push_back(lepton.LorentzVector());
 	particles_RhoEtaPhiVector.push_back( math::RhoEtaPhiVector( lepton.pt, lepton.eta, lepton.phi ) );
 	
-	int vtxInd = 0;
-	double dzmin = 9999;
-	for( size_t ivtx = 0 ; ivtx < vertices->ptrs().size(); ivtx++ ) {
-	  Ptr<reco::Vertex> vtx = vertices->ptrs()[ivtx];
-	  if( !muon->innerTrack() ) continue; 
-	  if( fabs( muon->innerTrack()->vz() - vtx->position().z() ) < dzmin ) {                    
-	    dzmin = fabs( muon->innerTrack()->vz() - vtx->position().z() );
-	    vtxInd = ivtx;
-	  }
-	}
-	Ptr<reco::Vertex> best_vtx = vertices->ptrs()[vtxInd]; 
-	float a = muon->muonBestTrack()->dxy(best_vtx->position());
-	float b = muon->muonBestTrack()->dz(best_vtx->position());
-	float c = muon->muonBestTrack()->dxy(dipho->vtx()->position());
-	float d = muon->muonBestTrack()->dz(dipho->vtx()->position());
-	if (muonIndex ==1)
-	  thqltags_obj.setLeadingMuonVertices( a, b, c, d) ;
-	else if (muonIndex ==2)
-	  thqltags_obj.setSubleadingMuonVertices( a, b, c, d) ;
-
       }//end of muons loop
 
 
@@ -613,9 +596,61 @@ namespace flashgg {
 
 	thqltags_obj.setVertices( vertices->ptrs() );
 
+	std::vector <float> a; std::vector <float> b; std::vector <float> c; std::vector <float> d;
+	for( unsigned int muonIndex = 0; muonIndex < goodLooseMuons.size(); muonIndex++ ) {
+                
+	  Ptr<flashgg::Muon> muon = goodLooseMuons[muonIndex];
+	  
+	  int vtxInd = -1;
+	  double dzmin = 9999;
+	  for( size_t ivtx = 0 ; ivtx < vertices->ptrs().size(); ivtx++ ) {
+	    Ptr<reco::Vertex> vtx = vertices->ptrs()[ivtx];
+	    if( !muon->innerTrack() ) continue; 
+	    if( fabs( muon->innerTrack()->vz() - vtx->position().z() ) < dzmin ) {                    
+	      dzmin = fabs( muon->innerTrack()->vz() - vtx->position().z() );
+	      vtxInd = ivtx;
+	    }
+	  }
+	  Ptr<reco::Vertex> best_vtx = vertices->ptrs()[vtxInd]; 
+	  a.push_back(muon->muonBestTrack()->dxy(best_vtx->position()));
+	  b.push_back(muon->muonBestTrack()->dz(best_vtx->position()));
+	  c.push_back(muon->muonBestTrack()->dxy(dipho->vtx()->position()));
+	  d.push_back(muon->muonBestTrack()->dz(dipho->vtx()->position()));
+	}//end of muons loop
+
+	thqltags_obj.setLeptonVertices( "muon", a, b, c, d) ;
+	
+	//std::cout << "new vertex !! "<< thqltags_obj.getSubLeadingLeptonVertexDxy( "muon") << std::endl;
+
 	thqltags_obj.setMuons( goodLooseMuons );
 	//cout << "nLooseMuons : " << goodLooseMuons.size() << " and nTightMuons : " << goodMuons.size() << " out of : " << theMuons->ptrs().size() << endl;
-	thqltags_obj.setElectrons( vetoElectrons );
+
+	a.clear();b.clear();c.clear();d.clear();
+	for( unsigned int ElectronIndex = 0; ElectronIndex < vetoElectronsNonIso.size(); ElectronIndex++ ) {
+                
+	  Ptr<flashgg::Electron> electron = vetoElectronsNonIso[ElectronIndex];
+	  
+	  int vtxInd = -1;
+	  double dzmin = 9999;
+	  for( size_t ivtx = 0 ; ivtx < vertices->ptrs().size(); ivtx++ ) {
+	    Ptr<reco::Vertex> vtx = vertices->ptrs()[ivtx];
+	    if( fabs( electron->gsfTrack()->dz(vtx->position()) ) < dzmin ) {                    
+	      dzmin = fabs(electron->gsfTrack()->dz( vtx->position() )); 
+	      vtxInd = ivtx;
+	    }
+	  }
+	  Ptr<reco::Vertex> best_vtx = vertices->ptrs()[vtxInd]; 
+	  a.push_back(electron->gsfTrack()->dxy(best_vtx->position()));
+	  b.push_back(electron->gsfTrack()->dz(best_vtx->position()));
+	  c.push_back(electron->gsfTrack()->dxy(dipho->vtx()->position()));
+	  d.push_back(electron->gsfTrack()->dz(dipho->vtx()->position()));
+	  int elMissedHits = electron->gsfTrack()->hitPattern().numberOfHits( reco::HitPattern::MISSING_INNER_HITS);
+	  thqltags_obj.setElectronMisHits(elMissedHits);
+	}//end of electrons loop
+
+	thqltags_obj.setLeptonVertices( "electron", a, b, c, d) ;
+
+	thqltags_obj.setElectrons( vetoElectronsNonIso );
 
 	thqltags_obj.setDiPhotonIndex( diphoIndex );
 	thqltags_obj.setSystLabel( systLabel_ );
