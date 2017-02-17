@@ -53,7 +53,7 @@ namespace flashgg {
 
     std::vector<edm::Ptr<Electron> > selectStdElectrons( const std::vector<edm::Ptr<flashgg::Electron> > &ElectronPointers, Ptr<flashgg::DiPhotonCandidate> dipho,
                                                          const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers , double ElectronPtThreshold,  vector<double> EtaCuts,
-                                                         bool useMVARecipe, bool useLooseID,
+                                                         bool useMVARecipe, int idIndex,
                                                          double deltaRPhoElectronThreshold, double DeltaRTrkElec, double deltaMassElectronZThreshold,
                                                          double rho, bool isData);
 

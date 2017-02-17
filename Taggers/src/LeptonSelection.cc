@@ -156,6 +156,7 @@ namespace flashgg {
 
         vector<bool> IDs;
 
+        bool doPassVetoNonIso=false;
         bool doPassVeto=false;
         bool doPassTight=false;
         bool doPassMVA90=false;
@@ -249,6 +250,19 @@ namespace flashgg {
                //&& fabs(elDz) < 0.41
                && elMissedHits <=	2 
                && passConversionVeto
+               ) doPassVetoNonIso = true;
+            
+            if(
+               elfull5x5_sigmaIetaIeta < 0.0115 
+               && fabs(eldEtaInSeed) < 0.00749
+               && fabs(eldPhiIn) < 0.228
+               && elhOverE < 0.356
+               && elRelIsoEA < 0.175
+               && fabs(elooEmooP) < 0.299
+               //&& fabs(elDxy) < 0.0261
+               //&& fabs(elDz) < 0.41
+               && elMissedHits <=	2 
+               && passConversionVeto
                ) doPassVeto = true;
             
             if( 
@@ -268,6 +282,19 @@ namespace flashgg {
 
 	    if(elNonTrigMVA >= 0.357) doPassMVA90 = true;	    
 	    if(elNonTrigMVA >= 0.758) doPassMVA80 = true;
+
+            if(
+               elfull5x5_sigmaIetaIeta < 0.037 
+               && fabs(eldEtaInSeed) < 0.00895 
+               && fabs(eldPhiIn) < 0.213
+               && elhOverE < 0.211
+               && elRelIsoEA < 0.159 
+               //&& fabs(elooEmooP) < 0.15
+               //&& fabs(elDxy) < 0.0261
+               //&& fabs(elDz) < 0.41
+               && elMissedHits <=	3 
+               && passConversionVeto
+               ) doPassVetoNonIso = true;
 
             if(
                elfull5x5_sigmaIetaIeta < 0.037 
@@ -296,6 +323,7 @@ namespace flashgg {
                 ) doPassTight = true;
         }
 
+        IDs.push_back(doPassVetoNonIso);
         IDs.push_back(doPassVeto);
         IDs.push_back(doPassTight);
         IDs.push_back(doPassMVA90);
@@ -307,15 +335,15 @@ namespace flashgg {
 
     std::vector<edm::Ptr<Electron> > selectStdAllElectrons( const std::vector<edm::Ptr<flashgg::Electron> > &ElectronPointers,
                                                             const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers,  double ElectronPtThreshold,
-                                                            vector<double> EtaCuts , bool useMVARecipe, bool useLooseID,
+                                                            vector<double> EtaCuts , bool useMVARecipe, int idIndex,
                                                             double rho, bool isData){
                                                          
         
         assert(EtaCuts.size()==3);
-        int idIndex=0;
-        if (useLooseID) idIndex=0;
-        else idIndex=1;
-        if(useMVARecipe) idIndex+=2;
+        //int idIndex=0;
+        //if (useLooseID) idIndex=0;
+        //else idIndex=1;
+        if(useMVARecipe) idIndex+=3;
         
 
         std::vector<edm::Ptr<flashgg::Electron> > goodElectrons;
@@ -510,7 +538,7 @@ namespace flashgg {
 
     std::vector<edm::Ptr<Electron> > selectStdElectrons( const std::vector<edm::Ptr<flashgg::Electron> > &ElectronPointers, Ptr<flashgg::DiPhotonCandidate> dipho,
                                                       const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers , double ElectronPtThreshold,  vector<double> EtaCuts,
-                                                         bool useMVARecipe, bool useLooseID,
+                                                         bool useMVARecipe, int idIndex,
                                                          double deltaRPhoElectronThreshold, double DeltaRTrkElec, double deltaMassElectronZThreshold,
                                                          double rho, bool isData){
  
@@ -520,7 +548,7 @@ namespace flashgg {
         
         std::vector<edm::Ptr<flashgg::Electron> > goodElectrons;        
         std::vector<edm::Ptr<flashgg::Electron> > allGoodElectrons=selectStdAllElectrons( ElectronPointers, vertexPointers , 
-                                                                                          ElectronPtThreshold, EtaCuts, useMVARecipe, useLooseID,
+                                                                                          ElectronPtThreshold, EtaCuts, useMVARecipe, idIndex,
                                                                                           rho, isData);
         
         for( unsigned int ElectronIndex = 0; ElectronIndex < allGoodElectrons.size(); ElectronIndex++ ) {

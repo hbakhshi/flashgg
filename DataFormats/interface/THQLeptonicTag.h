@@ -9,6 +9,9 @@
 
 using namespace edm;
 
+#include <string>
+#include <map>
+
 namespace flashgg {
 
     class THQLeptonicTag: public DiPhotonTagBase
@@ -59,21 +62,7 @@ namespace flashgg {
         float getrho() const{
             return rho_;
         }
-        /*
-        float getMuoDz(int muIndex) const{
-            mouons()[muIndex]->muonBestTrack()->dz( diPhoton()->vtx()->position() ) ;
-        }
-        */
-        // const reco::LeafCandidate getLepton() const{
-        //     if( electrons().size() == 1 && muons().size() == 0 ){
-        //         return ( *(electrons()[0]) );
-        //     }else if( electrons().size() == 0 && muons().size() == 1 ){
-        //         return ( *(muons()[0]) );
-        //     }
-            
-        //     reco::LeafCandidate ret;
-        //     return ret;
-        // }
+
         int getLeptonCharge() const{
             if( LeptonType_ == 1 )
                 return electrons()[0]->charge();
@@ -158,55 +147,77 @@ namespace flashgg {
             return vertices_[vtx_index];
         }
 
-        float getLeadingMuonVertexDxy( ) const{
-            if (vtx_dxy_.size()>0)
-                return vtx_dxy_[0];
-            else
-                return -999;
-        }
-        float getLeadingMuonVertexDz( ) const{
-            if (vtx_dz_.size()>0)
-                return vtx_dz_[0];
-            else
-                return -999;
-        }
-        float getSubleadingMuonVertexDxy( ) const{
-            if (vtx_dxy_.size()>1)
-                return vtx_dxy_[1];
-            else
-                return -999;
-        }
-        float getSubLeadingMuonVertexDz( ) const{
-            if (vtx_dz_.size()>1)
-                return vtx_dz_[1];
-            else
-                return -999;
-        }
-        float getLeadingMuonDiphoVertexDxy( ) const{
-            if (diphovtx_dxy_.size()>0)
-                return diphovtx_dxy_[0];
-            else
-                return -999;
-        }
-        float getLeadingMuonDiphoVertexDz( ) const{
-            if (diphovtx_dz_.size()>0)
-                return diphovtx_dz_[0];
-            else
-                return -999;
-        }
-        float getSubleadingMuonDiphoVertexDxy( ) const{
-            if (diphovtx_dxy_.size()>1)
-                return diphovtx_dxy_[1];
-            else
-                return -999;
-        }
-        float getSubLeadingMuonDiphoVertexDz( ) const{
-            if (diphovtx_dz_.size()>1)
-                return diphovtx_dz_[1];
+        float getLeadingLeptonVertexDxy( std::string lepton) const{
+            std::map <std::string, std::vector<float> >::const_iterator it = vtx_dxy_.find(lepton);
+            if (it->second.size()>0)
+                return it->second[0];
             else
                 return -999;
         }
 
+        float getSubLeadingLeptonVertexDxy( std::string lepton) const{
+            std::map <std::string, std::vector<float> >::const_iterator it = vtx_dxy_.find(lepton);
+            if (it->second.size()>1)
+                return it->second[1];
+            else
+                return -999;
+        }
+        float getLeadingLeptonVertexDz( std::string lepton) const{
+            std::map <std::string, std::vector<float> >::const_iterator it = vtx_dz_.find(lepton);
+            if (it->second.size()>0)
+                return it->second[0];
+            else
+                return -999;
+        }
+
+        float getSubLeadingLeptonVertexDz( std::string lepton) const{
+            std::map <std::string, std::vector<float> >::const_iterator it = vtx_dz_.find(lepton);
+            if (it->second.size()>1)
+                return it->second[1];
+            else
+                return -999;
+        }
+        float getLeadingLeptonDiphoVertexDxy( std::string lepton) const{
+            std::map <std::string, std::vector<float> >::const_iterator it = diphovtx_dxy_.find(lepton);
+            if (it->second.size()>0)
+                return it->second[0];
+            else
+                return -999;
+        }
+        float getLeadingLeptonDiphoVertexDz( std::string lepton) const{
+            std::map <std::string, std::vector<float> >::const_iterator it = diphovtx_dz_.find(lepton);
+            if (it->second.size()>0)
+                return it->second[0];
+            else
+                return -999;
+        }
+        float getSubLeadingLeptonDiphoVertexDxy( std::string lepton ) const{
+            std::map <std::string, std::vector<float> >::const_iterator it = diphovtx_dxy_.find(lepton);
+            if (it->second.size()>1)
+                return it->second[1];
+            else
+                return -999;
+        }
+        float getSubLeadingLeptonDiphoVertexDz( std::string lepton) const{
+            std::map <std::string, std::vector<float> >::const_iterator it = diphovtx_dz_.find(lepton);
+            if (it->second.size()>1)
+                return it->second[1];
+            else
+                return -999;
+        }
+        float getLeadingElectronMisHits( ) const{
+            if (eleMisHits_.size()>0)
+                return eleMisHits_[0];
+            else
+                return -999;
+        }
+        float getSubLeadingElectronMisHits( ) const{
+            if (eleMisHits_.size()>1)
+                return eleMisHits_[1];
+            else
+                return -999;
+        }
+        
         void setJets( std::vector<edm::Ptr<Jet> > Jets, std::vector<edm::Ptr<Jet> > Jets_Eta ) {
             Jets_ = Jets; 
             Jets_EtaSorted_ = Jets_Eta;
@@ -216,19 +227,14 @@ namespace flashgg {
             vertices_ = vertices;
         }
 
-        void setLeadingMuonVertices( float a, float b, float c, float d) {
-            vtx_dxy_.push_back(a);
-            vtx_dz_.push_back(b);
-            diphovtx_dxy_.push_back(c);
-            diphovtx_dz_.push_back(d);
-        }
-        void setSubleadingMuonVertices( float a, float b, float c, float d) {
-            vtx_dxy_.push_back(a);
-            vtx_dz_.push_back(b);
-            diphovtx_dxy_.push_back(c);
-            diphovtx_dz_.push_back(d);
-        }
+        void setLeptonVertices( std::string lepton, std::vector<float> a, std::vector<float> b, std::vector<float> c, std::vector<float> d) {
 
+            vtx_dxy_.insert(std::make_pair(lepton,a));
+            vtx_dz_.insert(std::make_pair(lepton,b));
+            diphovtx_dxy_.insert(std::make_pair(lepton,c));
+            diphovtx_dz_.insert(std::make_pair(lepton,d));
+            
+        }
 
         void setMuons( std::vector<edm::Ptr<Muon> > Muons ) {
             Muons_ = Muons;
@@ -258,8 +264,11 @@ namespace flashgg {
         void setrho(float rho){
             rho_=rho;
         }
-
-
+        
+        void setElectronMisHits(float misHits){
+            eleMisHits_.push_back(misHits);
+        }
+        
         int nMedium_bJets, nLoose_bJets, nTight_bJets;
         double bTagWeight;
         double photonWeights;
@@ -271,8 +280,9 @@ namespace flashgg {
         std::vector<edm::Ptr<Jet> > BJets_;
         std::vector<float> thqleptonicMvaRes_;
         std::vector<edm::Ptr<reco::Vertex> > vertices_;
-        std::vector<float> vtx_dxy_; std::vector<float> vtx_dz_;
-        std::vector<float> diphovtx_dxy_; std::vector<float> diphovtx_dz_;
+        std::map <std::string, std::vector<float> > vtx_dxy_; std::map <std::string, std::vector<float> > vtx_dz_;
+        std::map <std::string, std::vector<float> > diphovtx_dxy_; std::map <std::string, std::vector<float> > diphovtx_dz_;
+        std::vector<float> eleMisHits_;
         //THQLeptonicMVAResult THQLeptonicMVA_;
         float rho_;
         int LeptonType_;

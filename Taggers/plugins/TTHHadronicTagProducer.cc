@@ -287,11 +287,11 @@ namespace flashgg {
                                                      true, true, elMiniIsoEBThreshold_, elMiniIsoEEThreshold_,
                                                      TransverseImpactParam_EB, LongitudinalImpactParam_EB, TransverseImpactParam_EE, LongitudinalImpactParam_EE,
                                                      rho_, evt.isRealData() );
-        } else {
-            goodElectrons = selectStdAllElectrons(theElectrons->ptrs(), vertices->ptrs(), leptonPtThreshold_, electronEtaThresholds_,
-                                                  useElectronMVARecipe_, useElectronLooseID_,
-                                                  rho_, evt.isRealData() );
-        }
+        } //else {
+          //  goodElectrons = selectStdAllElectrons(theElectrons->ptrs(), vertices->ptrs(), leptonPtThreshold_, electronEtaThresholds_,
+          //                                        useElectronMVARecipe_, useElectronLooseID_,
+          //                                        rho_, evt.isRealData() );
+        // }
         
         
         for( unsigned int diphoIndex = 0; diphoIndex < diPhotons->size(); diphoIndex++ ) {
