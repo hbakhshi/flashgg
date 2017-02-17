@@ -288,8 +288,8 @@ namespace flashgg {
                && fabs(eldEtaInSeed) < 0.00895 
                && fabs(eldPhiIn) < 0.213
                && elhOverE < 0.211
-               && elRelIsoEA < 0.159 
-               //&& fabs(elooEmooP) < 0.15
+               //&& elRelIsoEA < 0.159 
+               && fabs(elooEmooP) < 0.15
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
                && elMissedHits <=	3 

@@ -145,6 +145,10 @@ lepton_variables=[
     "ele1_NeutralHadronEt   := ?(electrons.size>0)? electrons.at(0).pfIsolationVariables().sumNeutralHadronEt: -999",
     "ele1_PhotonEt          := ?(electrons.size>0)? electrons.at(0).pfIsolationVariables().sumPhotonEt: -999",
     "ele2_PhotonEt          := ?(electrons.size>1)? electrons.at(1).pfIsolationVariables().sumPhotonEt: -999",
+    "ele1_PassTight         := ?(electrons.size>0)? ElePassTight.at(0) : -999",
+    "ele2_PassTight         := ?(electrons.size>1)? ElePassTight.at(1) : -999",
+    "ele1_PassIso           := ?(electrons.size>0)? ElePassIso.at(0) : -999",
+    "ele2_PassIso           := ?(electrons.size>1)? ElePassIso.at(1) : -999",
     "n_muons                := muons.size",
     "muon1_pt               := ?(muons.size>0)? muons.at(0).pt : -999",
     "muon2_pt               := ?(muons.size>1)? muons.at(1).pt : -999",
@@ -173,7 +177,9 @@ lepton_variables=[
     "muon1_pxHits           := ?(muons.size>0)? muons.at(0).innerTrack().hitPattern().numberOfValidPixelHits : -999",
     "muon2_pxHits           := ?(muons.size>1)? muons.at(1).innerTrack().hitPattern().numberOfValidPixelHits : -999",
     "muon1_tkLayers         := ?(muons.size>0)? muons.at(0).innerTrack().hitPattern().trackerLayersWithMeasurement : -999",
-    "muon2_tkLayers         := ?(muons.size>1)? muons.at(1).innerTrack().hitPattern().trackerLayersWithMeasurement : -999"
+    "muon2_tkLayers         := ?(muons.size>1)? muons.at(1).innerTrack().hitPattern().trackerLayersWithMeasurement : -999",
+    "muon1_PassTight        := ?(muons.size>0)? MuPassTight.at(0) : -999",
+    "muon2_PassTight        := ?(muons.size>1)? MuPassTight.at(1) : -999"
 
     
 

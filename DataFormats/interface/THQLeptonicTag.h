@@ -236,11 +236,17 @@ namespace flashgg {
             
         }
 
-        void setMuons( std::vector<edm::Ptr<Muon> > Muons ) {
+        void setMuons( std::vector<edm::Ptr<Muon> > Muons , std::vector<int> passTight ) {
             Muons_ = Muons;
+            assert( Muons.size() == passTight.size() );
+            MuPassTight_ = passTight;
         }
-        void setElectrons( std::vector<edm::Ptr<Electron> > Electrons ) {
+        void setElectrons( std::vector<edm::Ptr<Electron> > Electrons , std::vector<int> passTight, std::vector<int> passIso ) {
             Electrons_ = Electrons;
+            assert( passTight.size() == Electrons.size() );
+            ElePassTight_ = passTight ;
+            assert( ElePassTight_.size() == passIso.size() );
+            ElePassIso_ = passIso;
         }
         void setMVAres(string label, float val , float topMass , Ptr<Jet> fwd , Ptr<Jet> bj ) {
             bAssignmentLabels.push_back( label);
@@ -272,7 +278,21 @@ namespace flashgg {
         int nMedium_bJets, nLoose_bJets, nTight_bJets;
         double bTagWeight;
         double photonWeights;
+        const std::vector<int> ElePassIso() const{
+            return ElePassIso_;
+        }
+        const std::vector<int> ElePassTight() const{
+            return ElePassTight_;
+        }
+        const std::vector<int> MuPassTight() const{
+            return MuPassTight_;
+        }
     private:
+
+        std::vector<int> ElePassIso_;
+        std::vector<int> ElePassTight_ ;
+        std::vector<int> MuPassTight_ ;
+
         std::vector<edm::Ptr<Muon> > Muons_;
         std::vector<edm::Ptr<Electron> > Electrons_;
         std::vector<edm::Ptr<Jet> > Jets_;

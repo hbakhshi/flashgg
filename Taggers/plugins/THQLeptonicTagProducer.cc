@@ -401,6 +401,11 @@ namespace flashgg {
       std::vector<edm::Ptr<flashgg::Muon> > goodMuons = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
 								     muPFIsoSumRelThreshold_, deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , false);
 
+      std::vector<int> looseMus_PassTight;
+      for(auto mu: goodLooseMuons)
+	looseMus_PassTight.push_back( std::find( goodMuons.begin() , goodMuons.end() , mu ) != goodMuons.end() );
+
+
       std::vector<edm::Ptr<Electron> > vetoElectronsNonIso = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
 									  0,0,
 									  deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true ); //evt.isRealData()
@@ -414,6 +419,13 @@ namespace flashgg {
       std::vector<edm::Ptr<Electron> > goodElectrons = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
 									  0,2,
 									  deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true);
+
+      std::vector<int> vetoElectrons_PassTight;
+      std::vector<int> vetoElectrons_PassIso;
+      for(auto ele : vetoElectronsNonIso ){
+	vetoElectrons_PassTight.push_back( std::find( goodElectrons.begin() , goodElectrons.end() , ele ) != goodElectrons.end() );
+	vetoElectrons_PassIso.push_back( std::find( vetoElectrons.begin() , vetoElectrons.end() , ele ) != vetoElectrons.end() );
+      }
 
 
       hasGoodElec = ( goodElectrons.size() == 1 ); hasVetoElec = ( vetoElectrons.size() > 0 );
@@ -622,7 +634,7 @@ namespace flashgg {
 	
 	//std::cout << "new vertex !! "<< thqltags_obj.getSubLeadingLeptonVertexDxy( "muon") << std::endl;
 
-	thqltags_obj.setMuons( goodLooseMuons );
+	thqltags_obj.setMuons( goodLooseMuons , looseMus_PassTight );
 	//cout << "nLooseMuons : " << goodLooseMuons.size() << " and nTightMuons : " << goodMuons.size() << " out of : " << theMuons->ptrs().size() << endl;
 
 	a.clear();b.clear();c.clear();d.clear();
@@ -650,7 +662,7 @@ namespace flashgg {
 
 	thqltags_obj.setLeptonVertices( "electron", a, b, c, d) ;
 
-	thqltags_obj.setElectrons( vetoElectronsNonIso );
+	thqltags_obj.setElectrons( vetoElectronsNonIso , vetoElectrons_PassTight , vetoElectrons_PassIso );
 
 	thqltags_obj.setDiPhotonIndex( diphoIndex );
 	thqltags_obj.setSystLabel( systLabel_ );
