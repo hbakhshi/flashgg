@@ -9,7 +9,7 @@ using namespace edm;
 namespace flashgg {
 
     std::vector<edm::Ptr<flashgg::Muon> > selectAllMuons( const std::vector<edm::Ptr<flashgg::Muon> > &muonPointers, 
-            const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers, double muonEtaThreshold, double muonPtThreshold, double muPFIsoSumRelThreshold )
+                                                          const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers, double muonEtaThreshold, double muonPtThreshold, double muPFIsoSumRelThreshold , bool Loose)
     {
 
         std::vector<edm::Ptr<flashgg::Muon> > goodMuons;
@@ -30,21 +30,27 @@ namespace flashgg {
             if( fabs( muon->eta() ) > muonEtaThreshold ) continue; 
             if( muon->pt() < muonPtThreshold ) continue; 
 
-            int vtxInd = 0;
-            double dzmin = 9999;
-            for( size_t ivtx = 0 ; ivtx < vertexPointers.size(); ivtx++ ) {
-                Ptr<reco::Vertex> vtx = vertexPointers[ivtx];
-                if( !muon->innerTrack() ) continue; 
-                if( fabs( muon->innerTrack()->vz() - vtx->position().z() ) < dzmin ) {                    
-                    dzmin = fabs( muon->innerTrack()->vz() - vtx->position().z() );
-                    vtxInd = ivtx;
+
+            if( Loose ){
+                if( !muon::isLooseMuon( *muon ) ) continue; 
+            }
+            else{
+                int vtxInd = 0;
+                double dzmin = 9999;
+                for( size_t ivtx = 0 ; ivtx < vertexPointers.size(); ivtx++ ) {
+                    Ptr<reco::Vertex> vtx = vertexPointers[ivtx];
+                    if( !muon->innerTrack() ) continue; 
+                    if( fabs( muon->innerTrack()->vz() - vtx->position().z() ) < dzmin ) {                    
+                        dzmin = fabs( muon->innerTrack()->vz() - vtx->position().z() );
+                        vtxInd = ivtx;
+                    }
                 }
+
+                Ptr<reco::Vertex> best_vtx = vertexPointers[vtxInd];            
+
+                if( !muon::isTightMuon( *muon, *best_vtx ) ) continue; 
             }
 
-            Ptr<reco::Vertex> best_vtx = vertexPointers[vtxInd];            
-
-            if( !muon::isTightMuon( *muon, *best_vtx ) ) continue; 
-            
             double muPFIsoSumRel = ( muon->pfIsolationR04().sumChargedHadronPt 
                                      + max( 0.,muon->pfIsolationR04().sumNeutralHadronEt 
                                             + muon->pfIsolationR04().sumPhotonEt - 0.5 * muon->pfIsolationR04().sumPUPt ) ) / ( muon->pt() );
@@ -58,11 +64,13 @@ namespace flashgg {
 
     std::vector<edm::Ptr<flashgg::Muon> > selectMuons( const std::vector<edm::Ptr<flashgg::Muon> > &muonPointers, Ptr<flashgg::DiPhotonCandidate> dipho,
             const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers, double muonEtaThreshold, double muonPtThreshold, double muPFIsoSumRelThreshold,
-            double dRPhoLeadMuonThreshold, double dRPhoSubLeadMuonThreshold )
+                                                       double dRPhoLeadMuonThreshold, double dRPhoSubLeadMuonThreshold , bool Loose )
     {
 
         std::vector<edm::Ptr<flashgg::Muon> > goodMuons;
-        std::vector<edm::Ptr<flashgg::Muon> > allGoodMuons= selectAllMuons( muonPointers, vertexPointers, muonEtaThreshold, muonPtThreshold, muPFIsoSumRelThreshold );
+        std::vector<edm::Ptr<flashgg::Muon> > allGoodMuons= selectAllMuons( muonPointers, vertexPointers, muonEtaThreshold, muonPtThreshold, muPFIsoSumRelThreshold , Loose );
+
+        //cout << "nmuons : " << allGoodMuons.size() << " out of : " << muonPointers.size() <<  muonEtaThreshold << "  " << muonPtThreshold << "  "  << muPFIsoSumRelThreshold << "   " << dRPhoSubLeadMuonThreshold << " " << Loose << endl;
 
         for( unsigned int muonIndex = 0; muonIndex <allGoodMuons.size(); muonIndex++ ) {
             Ptr<flashgg::Muon> muon = allGoodMuons[muonIndex];
@@ -148,8 +156,9 @@ namespace flashgg {
 
         vector<bool> IDs;
 
-        bool doPassLoose=false;
-        bool doPassMedium=false;
+        bool doPassVetoNonIso=false;
+        bool doPassVeto=false;
+        bool doPassTight=false;
         bool doPassMVA90=false;
         bool doPassMVA80=false;
         
@@ -231,30 +240,43 @@ namespace flashgg {
             if(fabs(eleta) >= 0.8 && elNonTrigMVA >= 0.899) doPassMVA80 = true;
 
             if(
-               elfull5x5_sigmaIetaIeta < 0.011
-               && fabs(eldEtaInSeed) < 0.00477
-               && fabs(eldPhiIn) < 0.222
-               && elhOverE < 0.298
-               && elRelIsoEA < 0.0994
-               && fabs(elooEmooP) < 0.241
+               elfull5x5_sigmaIetaIeta < 0.0115 
+               && fabs(eldEtaInSeed) < 0.00749
+               && fabs(eldPhiIn) < 0.228
+               && elhOverE < 0.356
+               //&& elRelIsoEA < 0.175
+               && fabs(elooEmooP) < 0.299
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
-               && elMissedHits <=	1 
+               && elMissedHits <=	2 
                && passConversionVeto
-               ) doPassLoose = true;
+               ) doPassVetoNonIso = true;
+            
+            if(
+               elfull5x5_sigmaIetaIeta < 0.0115 
+               && fabs(eldEtaInSeed) < 0.00749
+               && fabs(eldPhiIn) < 0.228
+               && elhOverE < 0.356
+               && elRelIsoEA < 0.175
+               && fabs(elooEmooP) < 0.299
+               //&& fabs(elDxy) < 0.0261
+               //&& fabs(elDz) < 0.41
+               && elMissedHits <=	2 
+               && passConversionVeto
+               ) doPassVeto = true;
             
             if( 
                elfull5x5_sigmaIetaIeta < 0.00998
-               && fabs(eldEtaInSeed) < 0.00311
-               && fabs(eldPhiIn) < 0.103
-               && elhOverE < 0.253
-               && elRelIsoEA < 0.0695
-               && fabs(elooEmooP) < 0.134
+               && fabs(eldEtaInSeed) < 0.00308
+               && fabs(eldPhiIn) < 0.0816
+               && elhOverE < 0.0414
+               && elRelIsoEA < 0.0588
+               && fabs(elooEmooP) <0.0129 
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
                && elMissedHits <=	1 
                && passConversionVeto
-                ) doPassMedium = true;
+                ) doPassTight = true;
             
         }else{
 
@@ -262,34 +284,48 @@ namespace flashgg {
 	    if(elNonTrigMVA >= 0.758) doPassMVA80 = true;
 
             if(
-               elfull5x5_sigmaIetaIeta < 0.0314
-               && fabs(eldEtaInSeed) < 0.00868
+               elfull5x5_sigmaIetaIeta < 0.037 
+               && fabs(eldEtaInSeed) < 0.00895 
                && fabs(eldPhiIn) < 0.213
-               && elhOverE < 0.101
-               && elRelIsoEA < 0.107
-               && fabs(elooEmooP) < 0.14
+               && elhOverE < 0.211
+               //&& elRelIsoEA < 0.159 
+               && fabs(elooEmooP) < 0.15
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
-               && elMissedHits <=	1 
+               && elMissedHits <=	3 
                && passConversionVeto
-               ) doPassLoose = true;
+               ) doPassVetoNonIso = true;
+
+            if(
+               elfull5x5_sigmaIetaIeta < 0.037 
+               && fabs(eldEtaInSeed) < 0.00895 
+               && fabs(eldPhiIn) < 0.213
+               && elhOverE < 0.211
+               && elRelIsoEA < 0.159 
+               && fabs(elooEmooP) < 0.15
+               //&& fabs(elDxy) < 0.0261
+               //&& fabs(elDz) < 0.41
+               && elMissedHits <=	3 
+               && passConversionVeto
+               ) doPassVeto = true;
             
             if( 
-               elfull5x5_sigmaIetaIeta < 0.0298
-               && fabs(eldEtaInSeed) < 0.00609
-               && fabs(eldPhiIn) < 0.045
-               && elhOverE < 0.0878
-               && elRelIsoEA < 0.0821
-               && fabs(elooEmooP) < 0.13
+               elfull5x5_sigmaIetaIeta < 0.0292
+               && fabs(eldEtaInSeed) < 0.00605
+               && fabs(eldPhiIn) < 0.0394
+               && elhOverE < 0.0641
+               && elRelIsoEA < 0.0571
+               && fabs(elooEmooP) < 0.129
                //&& fabs(elDxy) < 0.0261
                //&& fabs(elDz) < 0.41
                && elMissedHits <=	1 
                && passConversionVeto
-                ) doPassMedium = true;
+                ) doPassTight = true;
         }
 
-        IDs.push_back(doPassLoose);
-        IDs.push_back(doPassMedium);
+        IDs.push_back(doPassVetoNonIso);
+        IDs.push_back(doPassVeto);
+        IDs.push_back(doPassTight);
         IDs.push_back(doPassMVA90);
         IDs.push_back(doPassMVA80);
 
@@ -297,17 +333,19 @@ namespace flashgg {
         
     }
 
+
+
     std::vector<edm::Ptr<Electron> > selectStdAllElectrons( const std::vector<edm::Ptr<flashgg::Electron> > &ElectronPointers,
                                                             const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers,  double ElectronPtThreshold,
-                                                            vector<double> EtaCuts , bool useMVARecipe, bool useLooseID,
+                                                            vector<double> EtaCuts , bool useMVARecipe, int idIndex,
                                                             double rho, bool isData){
                                                          
         
         assert(EtaCuts.size()==3);
-        int idIndex=0;
-        if (useLooseID) idIndex=0;
-        else idIndex=1;
-        if(useMVARecipe) idIndex+=2;
+        //int idIndex=0;
+        //if (useLooseID) idIndex=0;
+        //else idIndex=1;
+        if(useMVARecipe) idIndex+=3;
         
 
         std::vector<edm::Ptr<flashgg::Electron> > goodElectrons;
@@ -324,8 +362,8 @@ namespace flashgg {
             vector<bool> IDs;
             if(!isData){//for MC use the stored Egamma IDs
                 IDs.clear();
-                IDs.push_back(Electron->passLooseId());
-                IDs.push_back(Electron->passMediumId());
+                IDs.push_back(Electron->passVetoId());
+                IDs.push_back(Electron->passTightId());
                 IDs.push_back(Electron->passMVAMediumId());
                 IDs.push_back(Electron->passMVATightId());
             } else {//for data use calculated IDs : FIXME saghosh : for data MicroAOD not containing latest egamma ids
@@ -502,7 +540,7 @@ namespace flashgg {
 
     std::vector<edm::Ptr<Electron> > selectStdElectrons( const std::vector<edm::Ptr<flashgg::Electron> > &ElectronPointers, Ptr<flashgg::DiPhotonCandidate> dipho,
                                                       const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers , double ElectronPtThreshold,  vector<double> EtaCuts,
-                                                         bool useMVARecipe, bool useLooseID,
+                                                         bool useMVARecipe, int idIndex,
                                                          double deltaRPhoElectronThreshold, double DeltaRTrkElec, double deltaMassElectronZThreshold,
                                                          double rho, bool isData){
  
@@ -512,7 +550,7 @@ namespace flashgg {
         
         std::vector<edm::Ptr<flashgg::Electron> > goodElectrons;        
         std::vector<edm::Ptr<flashgg::Electron> > allGoodElectrons=selectStdAllElectrons( ElectronPointers, vertexPointers , 
-                                                                                          ElectronPtThreshold, EtaCuts, useMVARecipe, useLooseID,
+                                                                                          ElectronPtThreshold, EtaCuts, useMVARecipe, idIndex,
                                                                                           rho, isData);
         
         for( unsigned int ElectronIndex = 0; ElectronIndex < allGoodElectrons.size(); ElectronIndex++ ) {

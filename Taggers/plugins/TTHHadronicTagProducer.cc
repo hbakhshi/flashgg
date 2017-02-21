@@ -292,22 +292,23 @@ namespace flashgg {
         std::vector<edm::Ptr<Electron> > goodElectrons ;
 
         //if( !useStdLeptonID_) {
-             // goodElectrons = selectAllElectrons( theElectrons->ptrs(), vertices->ptrs(), leptonPtThreshold_, 
-             //                                     TransverseImpactParam_, LongitudinalImpactParam_, nonTrigMVAThresholds_, nonTrigMVAEtaCuts_,
-             //                                     electronIsoThreshold_, electronNumOfHitsThreshold_, electronEtaThresholds_ );
-            //goodElectrons = selectAllElectronsSum16( theElectrons->ptrs(), vertices->ptrs(), 
-            //                                       leptonPtThreshold_, electronEtaThresholds_,
-            //                                       true, true, elMiniIsoEBThreshold_, elMiniIsoEEThreshold_);
-            //goodElectrons = selectAllElectronsSum16( theElectrons->ptrs(), vertices->ptrs(), leptonPtThreshold_, electronEtaThresholds_,
-            //                                         true, true, elMiniIsoEBThreshold_, elMiniIsoEEThreshold_,
-            //                                         TransverseImpactParam_EB, LongitudinalImpactParam_EB, TransverseImpactParam_EE, LongitudinalImpactParam_EE,
-            //                                         rho_, evt.isRealData() );
+        // goodElectrons = selectAllElectrons( theElectrons->ptrs(), vertices->ptrs(), leptonPtThreshold_, 
+        //                                     TransverseImpactParam_, LongitudinalImpactParam_, nonTrigMVAThresholds_, nonTrigMVAEtaCuts_,
+        //                                     electronIsoThreshold_, electronNumOfHitsThreshold_, electronEtaThresholds_ );
+        //goodElectrons = selectAllElectronsSum16( theElectrons->ptrs(), vertices->ptrs(), 
+        //                                       leptonPtThreshold_, electronEtaThresholds_,
+        //                                       true, true, elMiniIsoEBThreshold_, elMiniIsoEEThreshold_);
+        //goodElectrons = selectAllElectronsSum16( theElectrons->ptrs(), vertices->ptrs(), leptonPtThreshold_, electronEtaThresholds_,
+        //                                         true, true, elMiniIsoEBThreshold_, elMiniIsoEEThreshold_,
+        //                                         TransverseImpactParam_EB, LongitudinalImpactParam_EB, TransverseImpactParam_EE, LongitudinalImpactParam_EE,
+        //                                         rho_, evt.isRealData() );
         //} else {
-            goodElectrons = selectStdAllElectrons(theElectrons->ptrs(), vertices->ptrs(), leptonPtThreshold_, electronEtaThresholds_,
-                                                  useElectronMVARecipe_, useElectronLooseID_,
-                                                  rho_, evt.isRealData() );
-            //}
-        
+        goodElectrons = selectStdAllElectrons(theElectrons->ptrs(), vertices->ptrs(), leptonPtThreshold_, electronEtaThresholds_,
+                                              useElectronMVARecipe_, useElectronLooseID_,
+                                              rho_, evt.isRealData() );
+
+        //}
+            
         
         for( unsigned int diphoIndex = 0; diphoIndex < diPhotons->size(); diphoIndex++ ) {
 
@@ -352,17 +353,17 @@ namespace flashgg {
             double leadPhoPtCut = leadPhoPtThreshold_;
             double subleadPhoPtCut = subleadPhoPtThreshold_;
             if( leadPhoUseVariableTh_ )
-            { 
-                leadPhoPtCut = leadPhoOverMassThreshold_ * dipho->mass(); 
-                if(useTTHHadronicMVA_){
-                    leadPhoPtCut = leadPhoOverMassTTHHMVAThreshold_ * dipho->mass();
+                { 
+                    leadPhoPtCut = leadPhoOverMassThreshold_ * dipho->mass(); 
+                    if(useTTHHadronicMVA_){
+                        leadPhoPtCut = leadPhoOverMassTTHHMVAThreshold_ * dipho->mass();
+                    }
                 }
-            }
             if( subleadPhoUseVariableTh_ )
-            { subleadPhoPtCut = subleadPhoOverMassThreshold_ * dipho->mass(); }
+                { subleadPhoPtCut = subleadPhoOverMassThreshold_ * dipho->mass(); }
             double diphoMVAcut = MVAThreshold_;
             if(useTTHHadronicMVA_){
-                    diphoMVAcut = MVATTHHMVAThreshold_;
+                diphoMVAcut = MVATTHHMVAThreshold_;
             }
 
             if( dipho->leadingPhoton()->pt() < leadPhoPtCut || dipho->subLeadingPhoton()->pt() < subleadPhoPtCut ) { continue; }
@@ -422,22 +423,22 @@ namespace flashgg {
                 BJetVect.clear();
                 BJetVect = BJetTTHHMVAVect;
 
-                 if(njets_btagloose_ >= bjetsLooseNumberTTHHMVAThreshold_ && njets_btagmedium_ >= bjetsNumberTTHHMVAThreshold_ && jetcount_ >= jetsNumberTTHHMVAThreshold_ && _MVAMethod != ""){
+                if(njets_btagloose_ >= bjetsLooseNumberTTHHMVAThreshold_ && njets_btagmedium_ >= bjetsNumberTTHHMVAThreshold_ && jetcount_ >= jetsNumberTTHHMVAThreshold_ && _MVAMethod != ""){
 
-                     tthMvaVal_ = TThMva_->EvaluateMVA( _MVAMethod.c_str() );
-                     //                mvares_tth = TThMva_->EvaluateMVA( "BDT" );
+                    tthMvaVal_ = TThMva_->EvaluateMVA( _MVAMethod.c_str() );
+                    //                mvares_tth = TThMva_->EvaluateMVA( "BDT" );
 
-                     /*
-                    cout << "input variables : " << endl;
-                    cout << "nJets_ = " << nJets_ << endl;
-                    cout << "maxBTagVal_ = " << maxBTagVal_ << endl;
-                    cout << "secondMaxBTagVal_ = " << secondMaxBTagVal_ << endl;
-                    cout << "leadJetPt_ = " << leadJetPt_ << endl;
+                    /*
+                      cout << "input variables : " << endl;
+                      cout << "nJets_ = " << nJets_ << endl;
+                      cout << "maxBTagVal_ = " << maxBTagVal_ << endl;
+                      cout << "secondMaxBTagVal_ = " << secondMaxBTagVal_ << endl;
+                      cout << "leadJetPt_ = " << leadJetPt_ << endl;
 
-                    cout << "mva result :" << endl;
-                    cout << "tthMvaVal_ = " << tthMvaVal_  << endl;
-                     */
-                 }
+                      cout << "mva result :" << endl;
+                      cout << "tthMvaVal_ = " << tthMvaVal_  << endl;
+                    */
+                }
             }
 
             bool isTTHHadronicTagged = false;
