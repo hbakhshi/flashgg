@@ -27,6 +27,8 @@
 
 //#include "flashgg/DataFormats/interface/TagTruthBase.h"
 #include "flashgg/DataFormats/interface/VBFTagTruth.h"
+
+#include "flashgg/DataFormats/interface/TagTruthBase.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 #include "flashgg/Taggers/interface/SemiLepTopQuark.h"
@@ -66,6 +68,7 @@ namespace flashgg {
     EDGetTokenT<View<Photon> > photonToken_;
     EDGetTokenT<View<reco::Vertex> > vertexToken_;
     EDGetTokenT<View<flashgg::Met> > METToken_;
+    EDGetTokenT<View<reco::GenParticle> > genParticleToken_;
     EDGetTokenT<double> rhoTag_;
     string systLabel_;
 
@@ -237,6 +240,7 @@ namespace flashgg {
     mvaResultToken_( consumes<View<flashgg::DiPhotonMVAResult> >( iConfig.getParameter<InputTag> ( "MVAResultTag" ) ) ),
     vertexToken_( consumes<View<reco::Vertex> >( iConfig.getParameter<InputTag> ( "VertexTag" ) ) ),
     METToken_( consumes<View<flashgg::Met> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
+    genParticleToken_( consumes<View<reco::GenParticle> >( iConfig.getParameter<InputTag> ( "GenParticleTag" ) ) ),
     rhoTag_( consumes<double>( iConfig.getParameter<InputTag>( "rhoTag" ) ) ),
     systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
     MVAMethod_    ( iConfig.getParameter<string> ( "MVAMethod"    ) )
@@ -299,6 +303,7 @@ namespace flashgg {
       tokenJets_.push_back(token);
     }
     produces<vector<THQLeptonicTag> >();
+    produces<vector<TagTruthBase> >();
   }
 
   void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
@@ -326,12 +331,31 @@ namespace flashgg {
     evt.getByToken( mvaResultToken_, mvaResults );
 
     std::auto_ptr<vector<THQLeptonicTag> > thqltags( new vector<THQLeptonicTag> );
-
+    
     Handle<View<reco::Vertex> > vertices;
     evt.getByToken( vertexToken_, vertices );
 
     Handle<View<flashgg::Met> > METs;
     evt.getByToken( METToken_, METs );
+
+
+    std::auto_ptr<vector<TagTruthBase> > truths( new vector<TagTruthBase> );
+
+    Point higgsVtx;
+
+    if( ! evt.isRealData() ) {
+      Handle<View<reco::GenParticle> > genParticles;
+      evt.getByToken( genParticleToken_, genParticles );
+      for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
+	int pdgid = genParticles->ptrAt( genLoop )->pdgId();
+	if( pdgid == 25 || pdgid == 22 ) {
+	  higgsVtx = genParticles->ptrAt( genLoop )->vertex();
+	  break;
+	}
+      }
+    }
+    edm::RefProd<vector<TagTruthBase> > rTagTruth = evt.getRefBeforePut<vector<TagTruthBase> >();
+    unsigned int idx = 0;
 
 
     assert( diPhotons->size() == mvaResults->size() );
@@ -685,6 +709,13 @@ namespace flashgg {
 	thqltags_obj.nTight_bJets = TightBJetVect_PtSorted.size();
 
 	thqltags->push_back( thqltags_obj );
+
+	if( ! evt.isRealData() ) {
+	  TagTruthBase truth_obj;
+	  truth_obj.setGenPV( higgsVtx );
+	  truths->push_back( truth_obj );
+	  thqltags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<TagTruthBase> >( rTagTruth, idx++ ) ) );
+	}
       }//thq tag
       else {
 	if(false)
@@ -699,11 +730,10 @@ namespace flashgg {
       LooseBJetVect.clear(); LooseBJetVect_PtSorted.clear(); 
       MediumBJetVect.clear(); MediumBJetVect_PtSorted.clear();
       TightBJetVect.clear(); TightBJetVect_PtSorted.clear();
-
-            
     }//diPho loop end !
         
     evt.put( thqltags );
+    evt.put( truths );
   }
     
 }

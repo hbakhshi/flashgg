@@ -53,13 +53,13 @@ customize.options.register('acceptance',
                            'acceptance'
                            )
 customize.options.register('doSystematics',
-                           True,
+                           False,
                            VarParsing.VarParsing.multiplicity.singleton,
                            VarParsing.VarParsing.varType.bool,
                            'doSystematics'
                            )
 customize.options.register('doPdfWeights',
-                           True,
+                           False,
                            VarParsing.VarParsing.multiplicity.singleton,
                            VarParsing.VarParsing.varType.bool,
                            'doPdfWeights'
@@ -109,8 +109,8 @@ from flashgg.MetaData.samples_utils import SamplesManager
 
 process.source = cms.Source ("PoolSource",
                              fileNames = cms.untracked.vstring(
-        #"root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISummer16-2_4_1-25ns_Moriond17/2_4_1/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170114_100016/0000/myMicroAODOutputFile_2.root"
-        "root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2/2_3_0/DoubleEG/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2-2_3_0-v0-Run2016B-23Sep2016-v3/161114_162631/0000/myMicroAODOutputFile_122.root"
+        "root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISummer16-2_4_1-25ns_Moriond17/2_4_1/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170114_100016/0000/myMicroAODOutputFile_2.root"
+        #"root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2/2_3_0/DoubleEG/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2-2_3_0-v0-Run2016B-23Sep2016-v3/161114_162631/0000/myMicroAODOutputFile_122.root"
         #"root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISummer16-2_4_1-25ns_Moriond17/2_4_1/THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170114_100138/0000/myMicroAODOutputFile_13.root"
         )
                              )
@@ -119,8 +119,11 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string("test.root"))
 
 process.extraDumpers = cms.Sequence()
+
+import flashgg.Taggers.dumperConfigTools as cfgTools
+
 import flashgg.Taggers.THQLeptonicTagVariables as var
-variablesToUse = defaultVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables
+variablesToUse = minimalVariables + defaultVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables
 print "-------------------------------------------------"
 print "--- Variables to be dumped, including systematic weights ---"
 print variablesToUse
@@ -134,7 +137,6 @@ process.thqLeptonicTagDumper.dumpTrees = customize.dumpTrees
 process.thqLeptonicTagDumper.dumpWorkspace = customize.dumpWorkspace
 process.thqLeptonicTagDumper.nameTemplate ="$PROCESS_$SQRTS_$LABEL_$SUBCAT"
 
-import flashgg.Taggers.dumperConfigTools as cfgTools
 cfgTools.addCategories(process.thqLeptonicTagDumper,
                        ## categories definition
                        [("all","1",0)
@@ -143,6 +145,71 @@ cfgTools.addCategories(process.thqLeptonicTagDumper,
                        variables=variablesToUse,
                        histograms=[]
                        )
+
+
+##### TAGDUMPER
+process.load("flashgg.Taggers.diphotonTagDumper_cfi") ##  import diphotonTagDumper 
+process.tagsDumper.className = "DiPhotonTagDumper"
+process.tagsDumper.src = "flashggSystTagMerger"
+#process.tagsDumper.src = "flashggTagSystematics"
+process.tagsDumper.processId = "test"
+process.tagsDumper.dumpTrees = customize.dumpTrees
+process.tagsDumper.dumpWorkspace = customize.dumpWorkspace
+process.tagsDumper.dumpHistos = False
+process.tagsDumper.quietRooFit = True
+process.tagsDumper.nameTemplate = cms.untracked.string("$PROCESS_$SQRTS_$CLASSNAME_$SUBCAT_$LABEL")
+
+tagList=[
+    ["THQLeptonicTag",0]
+    ]
+
+definedSysts=set()
+process.tagsDumper.classifierCfg.remap=cms.untracked.VPSet()
+for tag in tagList: 
+  tagName=tag[0]
+  tagCats=tag[1]
+  # remap return value of class-based classifier
+  process.tagsDumper.classifierCfg.remap.append( cms.untracked.PSet( src=cms.untracked.string("flashgg%s"%tagName), dst=cms.untracked.string(tagName) ) )
+  for systlabel in systlabels:
+      if not systlabel in definedSysts:
+          # the cut corresponding to the systematics can be defined just once
+          cutstring = "hasSyst(\"%s\") "%(systlabel)
+          definedSysts.add(systlabel)
+      else:
+          cutstring = None
+      if systlabel == "":
+          currentVariables = variablesToUse
+      else:
+          currentVariables = systematicVariables
+      
+      isBinnedOnly = (systlabel !=  "")
+      if ( customize.doPdfWeights or customize.doSystematics ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("vbf_") ) and (systlabel ==  ""):
+          print "Signal MC central value, so dumping PDF weights"
+          dumpPdfWeights = True
+          nPdfWeights = 60
+          nAlphaSWeights = 2
+          nScaleWeights = 9
+      else:
+          print "Data, background MC, or non-central value, or no systematics: no PDF weights"
+          dumpPdfWeights = False
+          nPdfWeights = -1
+          nAlphaSWeights = -1
+          nScaleWeights = -1
+      
+      cfgTools.addCategory(process.tagsDumper,
+                           systlabel,
+                           classname=tagName,
+                           cutbased=cutstring,
+                           subcats=tagCats, 
+                           variables=currentVariables,
+                           histograms=minimalHistograms,
+                           binnedOnly=isBinnedOnly,
+                           dumpPdfWeights=dumpPdfWeights,
+                           nPdfWeights=nPdfWeights,
+                           nAlphaSWeights=nAlphaSWeights,
+                           nScaleWeights=nScaleWeights
+                           )
+
 
 # Require standard diphoton trigger
 from HLTrigger.HLTfilters.hltHighLevel_cfi import hltHighLevel
@@ -177,7 +244,8 @@ process.options.allowUnscheduled = cms.untracked.bool(True)
 process.p = cms.Path(process.dataRequirements*
                      process.genFilter*
                      #process.flashggUpdatedIdMVADiPhotons*
-                     process.thqLeptonicTagDumper)
+                     #process.thqLeptonicTagDumper*
+                     process.tagsDumper)
 
 
 

@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import sys
+import subprocess
 
 from ROOT import TFile, TTree, TH1, gDirectory, TList, TDirectory, gROOT, TObject
 
@@ -50,6 +51,10 @@ class Merger:
                 contents += self.loop(d)
 
         return contents
+
+    def hadd_workspaces(self):
+        target = "WS_" + self.Name + ".root"
+        print subprocess.check_output(['hadd_workspaces', target ] + self.Jobs )
 
     def fhadd(self, force=False, verbose=False, slow=True):
         """ taken from https://root.cern.ch/phpBB3/viewtopic.php?t=14881
@@ -150,20 +155,30 @@ class Merger:
             f.Close()
 
 jobs = None
-with open("data_jobs_3/task_config.json", "r" ) as cfin:
+with open("sig_jobs_3/task_config.json", "r" ) as cfin:
     task_config = json.load(cfin)
     jobs = task_config["jobs"]
 
 
-dataset_names = [ "Run2016B-23Sep2016",
-                  "Run2016C-23Sep2016",
-                  "Run2016D-23Sep2016",
-                  "Run2016E-23Sep2016",
-                  "Run2016F-23Sep2016",
-                  "Run2016G-23Sep2016",
-                  "Run2016H-PromptReco-v2",
-                  "Run2016H-PromptReco-v3"
+# FOR DATA
+# dataset_names = [ "Run2016B-23Sep2016",
+#                   "Run2016C-23Sep2016",
+#                   "Run2016D-23Sep2016",
+#                   "Run2016E-23Sep2016",
+#                   "Run2016F-23Sep2016",
+#                   "Run2016G-23Sep2016",
+#                   "Run2016H-PromptReco-v2",
+#                   "Run2016H-PromptReco-v3"
+#                   ]
+
+#FOR SIGNALS
+dataset_names = [ "VBFHToGG_M125_13TeV_powheg_pythia8",
+                  "GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8",
+                  "ttHToGG_M125_13TeV_powheg_pythia8_v2",
+                  "THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1",
+                  "THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1"
                   ]
+
 datasets = { ds:Merger(ds) for ds in dataset_names }
 
 for job in jobs:
@@ -188,6 +203,7 @@ for ds_n in datasets:
     
 
     ds.fhadd()
+    ds.hadd_workspaces()
 
     print "Done"
 

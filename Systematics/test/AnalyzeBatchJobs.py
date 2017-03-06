@@ -5,7 +5,7 @@ import shutil
 from ROOT import TFile, TTree
 
 jobs = None
-with open("data_jobs_3/task_config.json", "r" ) as cfin:
+with open("sig_jobs_3/task_config.json", "r" ) as cfin:
     task_config = json.load(cfin)
     jobs = task_config["jobs"]
 
@@ -32,18 +32,23 @@ for job in jobs:
             cp = True
 
         else:
-            d = f.GetDirectory("thqLeptonicTagDumper")
+            d = f.GetDirectory("tagsDumper")
             if not d:
                 cp = True
                 status[ batchId[0] ] = "no dir"
+            else :
+                d = d.GetDirectory("trees")
+                if not d:
+                    cp = True
+                    status[batchId[0] ] = "no trees dir"
             f.Close()
         
         # if cp :
             # os.remove(  str(outfile) )
     if cp :
-        shutil.copy2( str(batchId[0])+".sh" , "./runit2/" )
+        shutil.copy2( str(batchId[0])+".sh" , "./runit3/" )
         if OutFileIsThere:
-            shutil.move(  str(outfile) , "./runit2/" )
+            shutil.move(  str(outfile) , "./runit3/" )
     
 for j in status :
     print j
