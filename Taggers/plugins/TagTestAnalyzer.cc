@@ -32,6 +32,7 @@
 #include "flashgg/DataFormats/interface/VHLooseTag.h"
 #include "flashgg/DataFormats/interface/VHHadronicTag.h"
 #include "flashgg/DataFormats/interface/VBFTagTruth.h"
+#include "flashgg/DataFormats/interface/THQLeptonicTagTruth.h"
 #include "flashgg/DataFormats/interface/ZPlusJetTag.h"
 
 using namespace std;

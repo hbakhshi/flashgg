@@ -26,7 +26,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 //#include "flashgg/DataFormats/interface/TagTruthBase.h"
-#include "flashgg/DataFormats/interface/VBFTagTruth.h"
+#include "flashgg/DataFormats/interface/THQLeptonicTagTruth.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 #include "flashgg/Taggers/interface/SemiLepTopQuark.h"
@@ -66,6 +66,8 @@ namespace flashgg {
     EDGetTokenT<View<Photon> > photonToken_;
     EDGetTokenT<View<reco::Vertex> > vertexToken_;
     EDGetTokenT<View<flashgg::Met> > METToken_;
+    EDGetTokenT<View<reco::GenParticle> > genParticleToken_;
+    EDGetTokenT<View<reco::GenJet> > genJetToken_;
     EDGetTokenT<double> rhoTag_;
     string systLabel_;
 
@@ -237,6 +239,8 @@ namespace flashgg {
     mvaResultToken_( consumes<View<flashgg::DiPhotonMVAResult> >( iConfig.getParameter<InputTag> ( "MVAResultTag" ) ) ),
     vertexToken_( consumes<View<reco::Vertex> >( iConfig.getParameter<InputTag> ( "VertexTag" ) ) ),
     METToken_( consumes<View<flashgg::Met> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
+    genParticleToken_( consumes<View<reco::GenParticle> >( iConfig.getParameter<InputTag> ( "GenParticleTag" ) ) ),
+    genJetToken_ ( consumes<View<reco::GenJet> >( iConfig.getParameter<InputTag> ( "GenJetTag" ) ) ),
     rhoTag_( consumes<double>( iConfig.getParameter<InputTag>( "rhoTag" ) ) ),
     systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
     MVAMethod_    ( iConfig.getParameter<string> ( "MVAMethod"    ) )
@@ -299,6 +303,7 @@ namespace flashgg {
       tokenJets_.push_back(token);
     }
     produces<vector<THQLeptonicTag> >();
+    produces<vector<THQLeptonicTagTruth> >();
   }
 
   void THQLeptonicTagProducer::produce( Event &evt, const EventSetup & )
@@ -332,6 +337,18 @@ namespace flashgg {
 
     Handle<View<flashgg::Met> > METs;
     evt.getByToken( METToken_, METs );
+
+    Handle<View<reco::GenParticle> > genParticles;
+    Handle<View<reco::GenJet> > genJets;
+
+    std::auto_ptr<vector<THQLeptonicTagTruth> > truths( new vector<THQLeptonicTagTruth> );
+    Point higgsVtx;
+
+    if( ! evt.isRealData() ) {
+         }
+
+    edm::RefProd<vector<THQLeptonicTagTruth> > rTagTruth = evt.getRefBeforePut<vector<THQLeptonicTagTruth> >();
+    unsigned int idx = 0;
 
 
     assert( diPhotons->size() == mvaResults->size() );
@@ -685,6 +702,291 @@ namespace flashgg {
 	thqltags_obj.nTight_bJets = TightBJetVect_PtSorted.size();
 
 	thqltags->push_back( thqltags_obj );
+	
+	if( ! evt.isRealData() ) {
+	  
+	  evt.getByToken( genParticleToken_, genParticles );
+	  evt.getByToken( genJetToken_, genJets );
+
+	  THQLeptonicTagTruth truth_obj;
+	  truth_obj.setDiPhoton ( dipho ); 
+
+	  for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
+	    int pdgid = genParticles->ptrAt( genLoop )->pdgId();
+	    if( pdgid == 25 || pdgid == 22 ) {
+	      higgsVtx = genParticles->ptrAt( genLoop )->vertex();
+	      break;
+	    }
+	  }
+	  truth_obj.setGenPV( higgsVtx );
+
+	  unsigned int index_leadq       = std::numeric_limits<unsigned int>::max();
+	  unsigned int index_subleadq    = std::numeric_limits<unsigned int>::max();
+	  unsigned int index_subsubleadq    = std::numeric_limits<unsigned int>::max();
+	  float pt_leadq = 0., pt_subleadq = 0., pt_subsubleadq = 0.;
+
+	  // --------
+	  //Partons
+	  for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
+	    edm::Ptr<reco::GenParticle> part = genParticles->ptrAt( genLoop );
+	    if( part->isHardProcess() ) {
+	      if( abs( part->pdgId() ) <= 5 ) {
+		if( part->pt() > pt_leadq ) {
+		  index_subleadq = index_leadq;
+		  pt_subleadq = pt_leadq;
+		  index_leadq = genLoop;
+		  pt_leadq = part->pt();
+		} else if( part->pt() > pt_subleadq ) {
+		  index_subsubleadq  = index_subleadq;
+		  pt_subsubleadq  = pt_subleadq;
+		  index_subleadq = genLoop;
+		  pt_subleadq  = part->pt();
+		}else if( part->pt() > pt_subsubleadq ){
+		  index_subsubleadq = genLoop;
+		  pt_subleadq  = part->pt();
+		}
+	      }
+	    }
+	  }
+          if( index_leadq < std::numeric_limits<unsigned int>::max() ) { truth_obj.setLeadingParton( genParticles->ptrAt( index_leadq ) ); }
+	  if( index_subleadq < std::numeric_limits<unsigned int>::max() ) { truth_obj.setSubLeadingParton( genParticles->ptrAt( index_subleadq ) ); }
+	  if( index_subsubleadq < std::numeric_limits<unsigned int>::max()) { truth_obj.setSubSubLeadingParton( genParticles->ptrAt( index_subsubleadq ));}
+	  
+
+	  unsigned int index_gp_leadjet = std::numeric_limits<unsigned int>::max();
+	  unsigned int index_gp_subleadjet = std::numeric_limits<unsigned int>::max();
+	  unsigned int index_gp_leadphoton = std::numeric_limits<unsigned int>::max();
+	  unsigned int index_gp_subleadphoton = std::numeric_limits<unsigned int>::max();
+          unsigned int index_gp_leadmuon = std::numeric_limits<unsigned int>::max();
+	  unsigned int index_gp_subleadmuon = std::numeric_limits<unsigned int>::max();
+	  unsigned int index_gp_leadelectron = std::numeric_limits<unsigned int>::max();
+	  unsigned int index_gp_subleadelectron = std::numeric_limits<unsigned int>::max();
+          
+	  float dr_gp_leadjet = 999.;
+	  float dr_gp_subleadjet = 999.;
+	  float dr_gp_leadphoton = 999.;
+	  float dr_gp_subleadphoton = 999.;
+	  float dr_gp_leadmuon = 999.;
+	  float dr_gp_subleadmuon = 999.;
+	  float dr_gp_leadelectron = 999.;
+	  float dr_gp_subleadelectron = 999.;
+	    
+	  if (SelJetVect_PtSorted.size()>0)truth_obj.setLeadingJet( SelJetVect_PtSorted[0] );
+	  if (SelJetVect_PtSorted.size()>1)truth_obj.setSubLeadingJet( SelJetVect_PtSorted[1] );
+	  if (SelJetVect_PtSorted.size()>2)truth_obj.setSubSubLeadingJet( SelJetVect_PtSorted[2] );
+	  if (SelJetVect_PtSorted.size()>0)truth_obj.setLeadingJet( SelJetVect_PtSorted[0] );
+	  if (SelJetVect_PtSorted.size()>1)truth_obj.setSubLeadingJet( SelJetVect_PtSorted[1] );
+	  if (thqltags_obj.muons().size()>0)truth_obj.setLeadingMuon( thqltags_obj.muons()[0] );
+	  if (thqltags_obj.muons().size()>1)truth_obj.setSubLeadingMuon( thqltags_obj.muons()[1] );
+	  if (thqltags_obj.electrons().size()>0)truth_obj.setLeadingElectron( thqltags_obj.electrons()[0] );
+	  if (thqltags_obj.electrons().size()>1)truth_obj.setSubLeadingElectron( thqltags_obj.electrons()[1] );
+	  // --------
+	  //GEN-RECO Level Matching
+	  for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) 
+	    {
+	      edm::Ptr<reco::GenParticle> part = genParticles->ptrAt( genLoop );
+	      if( part->isHardProcess()) 
+		{
+		  float dr;
+		  if (truth_obj.hasLeadingJet()) {
+		    dr = deltaR( truth_obj.leadingJet()->eta(), truth_obj.leadingJet()->phi(), part->eta(), part->phi() );
+		    if( dr < dr_gp_leadjet ) 
+		      {
+			dr_gp_leadjet = dr;
+			index_gp_leadjet = genLoop;
+		      }
+		  }
+		  
+		  if (truth_obj.hasSubLeadingJet()) {
+		    dr = deltaR( truth_obj.subLeadingJet()->eta(), truth_obj.subLeadingJet()->phi(), part->eta(), part->phi() );
+		    if( dr < dr_gp_subleadjet ) 
+		      {
+			dr_gp_subleadjet = dr;
+			index_gp_subleadjet = genLoop;
+		      }
+		  }
+		  
+		  if (truth_obj.hasDiPhoton()) {
+		    dr = deltaR( truth_obj.diPhoton()->leadingPhoton()->eta(), truth_obj.diPhoton()->leadingPhoton()->phi(), part->eta(), part->phi() );
+		    if( dr < dr_gp_leadphoton ) 
+		      {
+			dr_gp_leadphoton = dr;
+			index_gp_leadphoton = genLoop;
+		      }
+		    dr = deltaR( truth_obj.diPhoton()->subLeadingPhoton()->eta(), truth_obj.diPhoton()->subLeadingPhoton()->phi(), part->eta(), part->phi() );
+		    if( dr < dr_gp_subleadphoton ) 
+		      {
+			dr_gp_subleadphoton = dr;
+			index_gp_subleadphoton = genLoop;
+		      }
+		  }
+		   
+		  if (truth_obj.hasLeadingMuon()) {
+		    dr = deltaR( truth_obj.leadingMuon()->eta(), truth_obj.leadingMuon()->phi(), part->eta(), part->phi() );
+		    if( dr < dr_gp_leadmuon ) 
+		      {
+			dr_gp_leadmuon = dr;
+			index_gp_leadmuon = genLoop;
+		      }
+		  }
+		  
+		  if (truth_obj.hasSubLeadingMuon()) {
+		    dr = deltaR( truth_obj.subLeadingMuon()->eta(), truth_obj.subLeadingMuon()->phi(), part->eta(), part->phi() );
+		    if( dr < dr_gp_subleadmuon ) 
+		      {
+			dr_gp_subleadmuon = dr;
+			index_gp_subleadmuon = genLoop;
+		      }
+		  }
+		  
+		  if (truth_obj.hasLeadingElectron()) {
+		    dr = deltaR( truth_obj.leadingElectron()->eta(), truth_obj.leadingElectron()->phi(), part->eta(), part->phi() );
+		    if( dr < dr_gp_leadelectron ) 
+		      {
+			dr_gp_leadelectron = dr;
+			index_gp_leadelectron = genLoop;
+		      }
+		  }
+		  
+		  if (truth_obj.hasSubLeadingElectron()) {
+		    dr = deltaR( truth_obj.subLeadingElectron()->eta(), truth_obj.subLeadingElectron()->phi(), part->eta(), part->phi() );
+		    if( dr < dr_gp_subleadelectron ) 
+		      {
+			dr_gp_subleadelectron = dr;
+			index_gp_subleadelectron = genLoop;
+		      }
+		  }
+		  
+		}
+	    }
+	  
+	  if( index_gp_leadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToLeadingJet( genParticles->ptrAt( index_gp_leadjet ) ); }
+	  if( index_gp_subleadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToSubLeadingJet( genParticles->ptrAt( index_gp_subleadjet ) ); }
+	  if( index_gp_leadphoton < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToLeadingPhoton( genParticles->ptrAt( index_gp_leadphoton ) ); }
+	  if( index_gp_subleadphoton < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestParticleToSubLeadingPhoton( genParticles->ptrAt( index_gp_subleadphoton ) ); }
+	  
+	  if( index_gp_leadmuon < std::numeric_limits<unsigned int>::max() ) 
+	    {
+	      const reco::GenParticle *mcMom;
+	      mcMom = static_cast<const reco::GenParticle *>(genParticles->ptrAt( index_gp_leadmuon )->mother());
+	      if (mcMom){
+		if( abs(genParticles->ptrAt( index_gp_leadmuon )->pdgId())==13 
+		    && genParticles->ptrAt( index_gp_leadmuon )->status()==1  
+		    && abs( mcMom->pdgId())==24 ) 
+		  { truth_obj.setClosestParticleToLeadingMuon( genParticles->ptrAt( index_gp_leadmuon ) ); }
+	      }
+	    }
+	    
+	  if( index_gp_subleadmuon < std::numeric_limits<unsigned int>::max() ) {
+	      const reco::GenParticle *mcMom;
+	      mcMom = static_cast<const reco::GenParticle *>(genParticles->ptrAt( index_gp_subleadmuon )->mother());
+	      if (mcMom){
+		if( abs(genParticles->ptrAt( index_gp_subleadmuon )->pdgId())==13 
+		    && genParticles->ptrAt( index_gp_subleadmuon )->status()==1  
+		    && abs( mcMom->pdgId())==24 ) 
+		  { truth_obj.setClosestParticleToSubLeadingMuon( genParticles->ptrAt( index_gp_subleadmuon ) ); }
+	      }
+	    }
+	  if( index_gp_leadelectron < std::numeric_limits<unsigned int>::max() ) 
+	    {
+	      const reco::GenParticle *mcMom;
+	      mcMom = static_cast<const reco::GenParticle *>(genParticles->ptrAt( index_gp_leadelectron )->mother());
+	      if (mcMom){
+		if( abs(genParticles->ptrAt( index_gp_leadelectron )->pdgId())==11 
+		    && genParticles->ptrAt( index_gp_leadelectron )->status()==1  
+		    && abs( mcMom->pdgId())==24 ) 
+		  { truth_obj.setClosestParticleToLeadingElectron( genParticles->ptrAt( index_gp_leadelectron ) ); }
+	      }
+	    }
+	    
+	  if( index_gp_subleadelectron < std::numeric_limits<unsigned int>::max() ) {
+	      const reco::GenParticle *mcMom;
+	      mcMom = static_cast<const reco::GenParticle *>(genParticles->ptrAt( index_gp_subleadelectron )->mother());
+	      if (mcMom){
+		if( abs(genParticles->ptrAt( index_gp_subleadelectron )->pdgId())==11 
+		    && genParticles->ptrAt( index_gp_subleadelectron )->status()==1  
+		    && abs( mcMom->pdgId())==24 ) 
+		  { truth_obj.setClosestParticleToSubLeadingElectron( genParticles->ptrAt( index_gp_subleadelectron ) ); }
+	      }
+	    }
+
+	  unsigned int index_gj_leadjet = std::numeric_limits<unsigned int>::max();
+	  unsigned int index_gj_subleadjet = std::numeric_limits<unsigned int>::max();
+
+	  float dr_gj_leadjet = 999.;
+	  float dr_gj_subleadjet = 999.;
+          // --------
+	  //GEN Jet-RECO Jet Matching
+	  for( unsigned int gjLoop = 0 ; gjLoop < genJets->size() ; gjLoop++ ) 
+	    {
+	      edm::Ptr <reco::GenJet> gj = genJets->ptrAt( gjLoop );
+	      float dr = deltaR( SelJetVect_PtSorted[0]->eta(), SelJetVect_PtSorted[0]->phi(), gj->eta(), gj->phi() );
+	      if( dr < dr_gj_leadjet ) 
+		{
+		  dr_gj_leadjet = dr;
+		  index_gj_leadjet = gjLoop;
+		}
+	      dr = deltaR( SelJetVect_PtSorted[1]->eta(), SelJetVect_PtSorted[1]->phi(), gj->eta(), gj->phi() );
+	      if( dr < dr_gj_subleadjet ) 
+		{
+		dr_gj_subleadjet = dr;
+		index_gj_subleadjet = gjLoop;
+	      }
+	    }
+	  if( index_gj_leadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestGenJetToLeadingJet( genJets->ptrAt( index_gj_leadjet ) ); }
+	  if( index_gj_subleadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestGenJetToSubLeadingJet( genJets->ptrAt( index_gj_subleadjet ) ); }
+          
+	  // --------
+	  //Parton-Jet Matching
+	  //Lead
+	  std::vector<edm::Ptr<reco::GenParticle>> ptOrderedPartons;
+	  for (unsigned int genLoop(0);genLoop < genParticles->size();genLoop++) 
+	    {
+	      edm::Ptr<reco::GenParticle> gp = genParticles->ptrAt(genLoop);
+	      bool isGluon = abs( gp->pdgId() ) < 7 && gp->numberOfMothers() == 0;
+	      bool isQuark = gp->pdgId() == 21 && gp->numberOfMothers() == 0;
+	      if (isGluon || isQuark) {
+		unsigned int insertionIndex(0);
+		for (unsigned int parLoop(0);parLoop<ptOrderedPartons.size();parLoop++) {
+		  if (gp->pt() < ptOrderedPartons[parLoop]->pt()) { insertionIndex = parLoop + 1; }
+		}
+		ptOrderedPartons.insert( ptOrderedPartons.begin() + insertionIndex, gp);
+	      }
+	    }
+	  if ( ptOrderedPartons.size() > 0 ) 
+	    {
+	      float dr(999.0);
+	      unsigned pIndex(0);
+	      for (unsigned partLoop(0);partLoop<ptOrderedPartons.size();partLoop++) {
+		float deltaR_temp = deltaR(SelJetVect_PtSorted[0]->eta(),SelJetVect_PtSorted[0]->phi(),
+					   ptOrderedPartons[partLoop]->eta(),ptOrderedPartons[partLoop]->phi());
+		if (deltaR_temp < dr) {dr = deltaR_temp; pIndex = partLoop;}
+	      }
+	      truth_obj.setClosestPartonToLeadingJet( ptOrderedPartons[pIndex] );
+	    }
+	  // --------
+	  //Parton-Jet Matching
+	  //Sublead
+	  if (ptOrderedPartons.size() > 0) 
+	    {
+	      float dr(999.0);
+	      unsigned pIndex(0);
+	      for (unsigned partLoop(0);partLoop<ptOrderedPartons.size();partLoop++) {
+		float deltaR_temp = deltaR(SelJetVect_PtSorted[1]->eta(),SelJetVect_PtSorted[1]->phi(),
+					   ptOrderedPartons[partLoop]->eta(),ptOrderedPartons[partLoop]->phi());
+		if (deltaR_temp < dr) {dr = deltaR_temp; pIndex = partLoop;}
+	      }
+	      std::cout  << "closest " << dr << std::endl;
+	      truth_obj.setClosestPartonToSubLeadingJet( ptOrderedPartons[pIndex] );
+	    }
+	  
+	  std::cout<< index_gp_leadmuon << " "<< index_gp_leadjet <<" "<< index_gp_subleadjet <<" "<< index_gp_leadphoton << index_gp_subleadphoton <<" "<<index_gj_leadjet <<  " "<< index_gj_subleadjet << " "<< dr_gp_leadjet << " "<<dr_gp_subleadjet << " "<<dr_gp_leadphoton << " "<<dr_gp_subleadphoton<<" "<< dr_gj_leadjet <<" "<< dr_gj_subleadjet<<std::endl;
+
+
+	  truths->push_back( truth_obj );
+	  thqltags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<THQLeptonicTagTruth> >( rTagTruth, idx++ ) ) );
+	}// ! evt.isRealData() loop end ! 
+	
       }//thq tag
       else {
 	if(false)
@@ -704,6 +1006,7 @@ namespace flashgg {
     }//diPho loop end !
         
     evt.put( thqltags );
+    evt.put( truths );
   }
     
 }
