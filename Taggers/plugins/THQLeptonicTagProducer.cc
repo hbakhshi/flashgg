@@ -344,8 +344,6 @@ namespace flashgg {
     std::auto_ptr<vector<THQLeptonicTagTruth> > truths( new vector<THQLeptonicTagTruth> );
     Point higgsVtx;
 
-    if( ! evt.isRealData() ) {
-         }
 
     edm::RefProd<vector<THQLeptonicTagTruth> > rTagTruth = evt.getRefBeforePut<vector<THQLeptonicTagTruth> >();
     unsigned int idx = 0;
