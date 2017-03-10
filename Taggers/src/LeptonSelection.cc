@@ -360,15 +360,15 @@ namespace flashgg {
             
             //vector<bool> IDs=EgammaIDs(Electron, vertexPointers, rho );
             vector<bool> IDs;
-            if(!isData){//for MC use the stored Egamma IDs
+            //if(!isData){//for MC use the stored Egamma IDs // fixed with reminiAOD microAOD, no special case reqd for data
                 IDs.clear();
                 IDs.push_back(Electron->passVetoId());
                 IDs.push_back(Electron->passTightId());
                 IDs.push_back(Electron->passMVAMediumId());
                 IDs.push_back(Electron->passMVATightId());
-            } else {//for data use calculated IDs : FIXME saghosh : for data MicroAOD not containing latest egamma ids
-                IDs=EgammaIDs(Electron, vertexPointers, rho );
-            }
+                //} else {//for data use calculated IDs : FIXME saghosh : for data MicroAOD not containing latest egamma ids
+                //IDs=EgammaIDs(Electron, vertexPointers, rho );
+                //}
             
             if(!IDs[idIndex]) continue;
 
@@ -423,15 +423,15 @@ namespace flashgg {
 
             //vector<bool> IDs=EgammaIDs(Electron, vertexPointers, rho ); 
             vector<bool> IDs;
-            if(!isData){//for MC use the stored Egamma IDs
+            //if(!isData){//for MC use the stored Egamma IDs //fixed with reminiAOD microAOD, no special case reqd for data
                 IDs.clear();
                 IDs.push_back(Electron->passLooseId());
                 IDs.push_back(Electron->passMediumId());
                 IDs.push_back(Electron->passMVAMediumId());
                 IDs.push_back(Electron->passMVATightId());
-            } else {//for data use calculated IDs : FIXME saghosh : for data MicroAOD not containing latest egamma ids
-                IDs=EgammaIDs(Electron, vertexPointers, rho );
-            }
+                //} else {//for data use calculated IDs : FIXME saghosh : for data MicroAOD not containing latest egamma ids
+                //IDs=EgammaIDs(Electron, vertexPointers, rho );
+                //}
             
             if(!IDs[idIndex]) continue;
 
