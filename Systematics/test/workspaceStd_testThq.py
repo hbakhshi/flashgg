@@ -120,7 +120,7 @@ process.TFileService = cms.Service("TFileService",
 
 process.extraDumpers = cms.Sequence()
 import flashgg.Taggers.THQLeptonicTagVariables as var
-variablesToUse = defaultVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables
+variablesToUse = minimalVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables
 print "-------------------------------------------------"
 print "--- Variables to be dumped, including systematic weights ---"
 print variablesToUse
@@ -154,19 +154,19 @@ process.hltHighLevel= hltHighLevel.clone(HLTPaths = cms.vstring("HLT_Diphoton30_
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # ee bad supercluster filter on data
-# Bad Muon filter
-process.load('RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff')
-process.badGlobalMuonTagger.muons = cms.InputTag("flashggSelectedMuons")
-process.cloneGlobalMuonTagger.muons = cms.InputTag("flashggSelectedMuons")
-
 process.load('RecoMET.METFilters.eeBadScFilter_cfi')
 process.eeBadScFilter.EERecHitSource = cms.InputTag("reducedEgamma","reducedEERecHits") # Saved MicroAOD Collection (data only)
+# Bad Muon filter
+process.load('RecoMET.METFilters.badGlobalMuonTaggersMiniAOD_cff')
+process.badGlobalMuonTaggerMAOD.muons = cms.InputTag("flashggSelectedMuons")
+process.cloneGlobalMuonTaggerMAOD.muons = cms.InputTag("flashggSelectedMuons")
+
 process.dataRequirements = cms.Sequence()
 if customize.processId == "Data":
         process.dataRequirements += process.hltHighLevel
         process.dataRequirements += process.eeBadScFilter
         if customize.doMuFilter:
-            process.dataRequirements += process.noBadGlobalMuons
+            process.dataRequirements += process.noBadGlobalMuonsMAOD
 
 process.genFilter = cms.Sequence()
 

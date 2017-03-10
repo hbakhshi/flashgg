@@ -44,7 +44,7 @@ photon_variables=[
     "dipho_lead_hoe         := diPhoton.leadingPhoton.hadronicOverEm",
     "dipho_lead_sigmaEoE    := diPhoton.leadingPhoton.sigEOverE",
     "dipho_lead_ptoM        := diPhoton.leadingPhoton.pt/diPhoton.mass",
-    "dipho_leadR9           := diPhoton.leadingPhoton.r9",
+    "dipho_leadR9           := diPhoton.leadingPhoton.full5x5_r9",
     "dipho_leadIDMVA        := diPhoton.leadingView.phoIdMvaWrtChosenVtx",
     "dipho_lead_elveto      := diPhoton.leadingPhoton.passElectronVeto",
     "dipho_lead_prompt      := diPhoton.leadingPhoton.genMatchType",
@@ -77,7 +77,7 @@ photon_variables=[
     "dipho_sublead_hoe      := diPhoton.subLeadingPhoton.hadronicOverEm",
     "dipho_sublead_sigmaEoE := diPhoton.subLeadingPhoton.sigEOverE",
     "dipho_sublead_ptoM     := diPhoton.subLeadingPhoton.pt/diPhoton.mass",
-    "dipho_subleadR9        := diPhoton.subLeadingPhoton.r9",
+    "dipho_subleadR9        := diPhoton.subLeadingPhoton.full5x5_r9",
     "dipho_subleadIDMVA     := diPhoton.subLeadingView.phoIdMvaWrtChosenVtx",
     "dipho_sublead_elveto   := diPhoton.subLeadingPhoton.passElectronVeto",
     "dipho_sulead_prompt    := diPhoton.subLeadingPhoton.genMatchType",
@@ -236,4 +236,36 @@ for label in ["HighestBTagVal", "Medium" , "Loose" , "Tight"]:
 
 
 truth_variables=[
+
+    "dR_Photon1_J1       := tagTruth().dR_Ph1_1_FggJet()",
+    "dR_Photon1_J2       := tagTruth().dR_Ph1_2_FggJet()",
+    "dR_Photon1_J3       := tagTruth().dR_Ph1_3_FggJet()",
+    "dR_Photon2_J1       := tagTruth().dR_Ph2_1_FggJet()",
+    "dR_Photon2_J2       := tagTruth().dR_Ph2_2_FggJet()",
+    "dR_Photon2_J3       := tagTruth().dR_Ph2_3_FggJet()",
+    "dRToNearestPartonJ1 := tagTruth().dR_partonMatchingToJ1()",
+    "dRToNearestPartonJ2 := tagTruth().dR_partonMatchingToJ2()",
+    "dRToNearestPartonJ3 := tagTruth().dR_partonMatchingToJ3()",
+    "numberOfLSSMatches  := tagTruth().numberOfMatchesAfterDRCut(0.5)",
+    "numberOfLSMatches   := tagTruth().numberOfLeadingAndSubLeadingMatchesAfterDRCut(0.5)",
+    "numberOfLMatches    := tagTruth().numberOfLeadingMatchesAfterDRCut(0.5)",
+    
+    # tag truth information
+    "pt_genJetMatchingToJ1                := tagTruth().pt_genJetMatchingToJ1",
+    "pt_genJetMatchingToJ2                := tagTruth().pt_genJetMatchingToJ2",
+    "pt_genJetMatchingToJ3                := tagTruth().pt_genJetMatchingToJ3",
+    "eta_genJetMatchingToJ1               := tagTruth().eta_genJetMatchingToJ1",
+    "eta_genJetMatchingToJ2               := tagTruth().eta_genJetMatchingToJ2",
+    "eta_genJetMatchingToJ3               := tagTruth().eta_genJetMatchingToJ3",
+    "hasClosestGenJetToLeadingJet         := tagTruth().hasClosestGenJetToLeadingJet",
+    "hasClosestGenJetToSubLeadingJet      := tagTruth().hasClosestGenJetToSubLeadingJet",
+    "hasClosestParticleToLeadingJet       := tagTruth().hasClosestParticleToLeadingJet",
+    "hasClosestParticleToSubLeadingJet    := tagTruth().hasClosestParticleToSubLeadingJet",
+    "hasClosestParticleToLeadingPhoton    := tagTruth().hasClosestParticleToLeadingPhoton",
+    "hasClosestParticleToSubLeadingPhoton := tagTruth().hasClosestParticleToSubLeadingPhoton",
+    "hasClosestParticleToLeadingMuon      := tagTruth().hasClosestParticleToLeadingMuon",
+    "hasClosestParticleToSubLeadingMuon      := tagTruth().hasClosestParticleToSubLeadingMuon",
+    "hasClosestParticleToLeadingElectron      := tagTruth().hasClosestParticleToLeadingElectron",
+    "hasClosestParticleToSubLeadingElectron      := tagTruth().hasClosestParticleToSubLeadingElectron"
+    
     ]

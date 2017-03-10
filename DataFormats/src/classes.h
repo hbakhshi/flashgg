@@ -36,6 +36,7 @@
 #include "flashgg/DataFormats/interface/PhotonJetCandidate.h" //Martina
 #include "flashgg/DataFormats/interface/TagTruthBase.h"
 #include "flashgg/DataFormats/interface/VBFTagTruth.h"
+#include "flashgg/DataFormats/interface/THQLeptonicTagTruth.h"
 #include "flashgg/DataFormats/interface/VHTagTruth.h" //mplaner
 #include "flashgg/DataFormats/interface/WeightedObject.h"
 #include "flashgg/DataFormats/interface/PDFWeightObject.h"
@@ -228,6 +229,10 @@ namespace  {
         flashgg::VBFTagTruth vbftt;
         std::vector<flashgg::VBFTagTruth> vec_vbftt;
         edm::Wrapper<std::vector<flashgg::VBFTagTruth> > wrp_vec_vbftt;
+        
+        flashgg::THQLeptonicTagTruth thqlt;
+        std::vector<flashgg::THQLeptonicTagTruth> vec_thqlt;
+        edm::Wrapper<std::vector<flashgg::THQLeptonicTagTruth> > wrp_vec_thqlt;
 
         flashgg::VHTagTruth vhtt;
         std::vector<flashgg::VHTagTruth> vec_vhtt;

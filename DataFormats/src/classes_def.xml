@@ -123,6 +123,11 @@
 </class>
 <class name="std::vector<flashgg::VBFTagTruth>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VBFTagTruth> >"/>
+<class name="flashgg::THQLeptonicTagTruth" ClassVersion="0">
+ <version ClassVersion="0" checksum="615950447"/>
+</class>
+<class name="std::vector<flashgg::THQLeptonicTagTruth>"/>
+<class name="edm::Wrapper<std::vector<flashgg::THQLeptonicTagTruth> >"/>
 <class name="flashgg::VHLooseTag" ClassVersion="14">
  <version ClassVersion="14" checksum="1861363899"/>
  <version ClassVersion="13" checksum="3345591704"/>
