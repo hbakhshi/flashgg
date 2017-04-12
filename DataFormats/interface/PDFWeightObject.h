@@ -19,7 +19,9 @@ namespace flashgg {
         vector<uint16_t> pdf_weight_container;
 
 	vector<uint16_t> pdfnlo_weight_container;
-
+	
+	vector<uint16_t> ctcv_weight_container;
+	
 	vector<uint16_t> alpha_s_container;
 
 	vector<uint16_t> qcd_scale_container;
