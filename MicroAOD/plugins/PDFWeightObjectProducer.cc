@@ -45,6 +45,7 @@ namespace flashgg {
         vector<int> alpha_indices;
         vector<int> scale_indices;
         vector<int> pdfnlo_indices;
+        vector<int> ctcv_indices;
         PDFWeightsHelper pdfweightshelper_;//tool from HepMCCandAlgos/interface/PDFWeightsHelper
         unsigned int nPdfEigWeights_;
         edm::FileInPath mc2hessianCSV;
@@ -94,6 +95,7 @@ namespace flashgg {
         scale_indices.clear();
         alpha_indices.clear();
         pdfnlo_indices.clear();
+        ctcv_indices.clear();
 
 		Handle<LHERunInfoProduct> run;
 		typedef vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
@@ -187,6 +189,7 @@ namespace flashgg {
         string pdfvar   = "PDF_variation";
         string alphavar;  //only for thq samples
         string pdfnlovar; //only for thq samples (could be extended to the rest of samples)
+        string ctcvvar;   //only for thq samples 
         if (!isStandardSample_){
             pdfvar = pdfset_;
             scalevar = "Central scale variation";
@@ -194,6 +197,7 @@ namespace flashgg {
                 pdfvar = "NNPDF30_lo_as_0130.LHgrid";
                 alphavar = "NNPDF30_lo_as_0118.LHgrid";
                 pdfnlovar = "NNPDF30_nlo_as_0118.LHgrid";
+                ctcvvar = "mg_reweighting";
             }
         }
 
@@ -208,8 +212,8 @@ namespace flashgg {
                 boost::optional<std::string> weightgroupname1 = v.second.get_optional<std::string>("<xmlattr>.name");
                 boost::optional<std::string> weightgroupname2 = v.second.get_optional<std::string>("<xmlattr>.type");
                 
-                //if (weightgroupname1) cout <<  weightgroupname1.get() <<endl;
-                //if (weightgroupname2) cout <<  weightgroupname2.get() <<endl;
+                if (weightgroupname1) cout <<  weightgroupname1.get() <<endl;
+                if (weightgroupname2) cout <<  weightgroupname2.get() <<endl;
 
                 // -- PDFs + alpha_s weights
                 if ( (weightgroupname1 && weightgroupname1.get() == pdfvar)  || (weightgroupname2 && weightgroupname2.get() == pdfvar)) {               
@@ -295,6 +299,24 @@ namespace flashgg {
                             PDFWeightProducer::pdfnlo_indices.push_back( id );
                         }
                 }// end loop over pdf nlo weights
+                
+                
+                // -- ctcv weights                                                                                                                                                                        
+                if ( isThqSample_ && ( (weightgroupname1 && weightgroupname1.get() == ctcvvar)  || ( weightgroupname2 && weightgroupname2.get() == ctcvvar) ) ) {
+                    
+                    BOOST_FOREACH(boost::property_tree::ptree::value_type &vs,subtree)
+                        if (vs.first == "weight") {
+                            
+                            string strwid  = vs.second.get<std::string>("<xmlattr>.id");
+                            //std::cout << strwid.data() << std::endl;
+                            std::vector<string> strwids;
+                            boost::split(strwids, strwid, boost::is_any_of("_"));
+                            //std::cout << strwids[2].data() << std::endl;
+                            int id = boost::lexical_cast<int>(strwids[2]);
+                            
+                            PDFWeightProducer::ctcv_indices.push_back( id );
+                        }
+                }// end loop over ctcv weights
             }
         }
     }
@@ -368,8 +390,8 @@ namespace flashgg {
                 }
             }
              
-            // --- Get PDF NLO scale weights
             if (isThqSample_){ 
+                // --- Get PDF NLO scale weights
                 for( unsigned int k = 0 ; k < PDFWeightProducer::pdfnlo_indices.size() ; k++ ) {
                     int id_k = PDFWeightProducer::pdfnlo_indices[k];
                     if ( id_i == id_k ) {
@@ -378,6 +400,17 @@ namespace flashgg {
                         pdfWeight.pdfnlo_weight_container.push_back( nloweight_16 );
                     }
                 }
+                
+                // --- Get ctcv weights
+                for( unsigned int k = 0 ; k < PDFWeightProducer::ctcv_indices.size() ; k++ ) {
+                    int id_k = PDFWeightProducer::ctcv_indices[k];
+                    if ( id_i == id_k ) {
+                        float ctcvweight = LHEEventHandle->weights()[i].wgt;
+                        uint16_t ctcvweight_16 = MiniFloatConverter::float32to16( ctcvweight );
+                        pdfWeight.ctcv_weight_container.push_back( ctcvweight_16 );
+                    }
+                }
+                
             }
             
 		}// end loop over lhe weights
