@@ -217,6 +217,15 @@ namespace flashgg {
             else
                 return -999;
         }
+
+        
+        float getAlphaUp() const { return alphaUp_; }
+        float getAlphaDown() const { return alphaDown_; }
+        float getScaleUp(unsigned i) const { return scaleUp_[i]; }
+        float getScaleDown(unsigned i) const { return scaleDown_[i]; }
+        float getPdf(unsigned i) const { return pdf_[i]; }
+        float getPdfNLO() const { return pdfnlo_; }
+        float getCtCv(unsigned i) const { return ctcv_[i]; }
         
         void setJets( std::vector<edm::Ptr<Jet> > Jets, std::vector<edm::Ptr<Jet> > Jets_Eta ) {
             Jets_ = Jets; 
@@ -287,6 +296,15 @@ namespace flashgg {
         const std::vector<int> MuPassTight() const{
             return MuPassTight_;
         }
+
+        void setAlphaUp(float val) { alphaUp_ = val; }
+        void setAlphaDown(float val) { alphaDown_ = val; }
+        void setScaleUp(unsigned i, float val) { scaleUp_[i] = val; }
+        void setScaleDown(unsigned i, float val) { scaleDown_[i] = val; }
+        void setPdf(unsigned i, float val) { pdf_[i] = val; }
+        void setPdfNLO(float val) { pdfnlo_ = val; }
+        void setCtCv(unsigned i, float val) { ctcv_[i] = val; }
+
     private:
 
         std::vector<int> ElePassIso_;
@@ -314,6 +332,15 @@ namespace flashgg {
         std::vector<float> TopMass;
         float MET;
         float MET_Phi;
+
+        
+        float alphaUp_;
+        float alphaDown_;
+        float scaleUp_[3];
+        float scaleDown_[3];
+        float pdf_[60];
+        float pdfnlo_;
+        float ctcv_[50];
     };
 }
 
