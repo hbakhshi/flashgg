@@ -207,7 +207,7 @@ print "customize.processId:",customize.processId
 useEGMTools(process)
 
 # Only run systematics for signal events
-if customize.processId.count("h_") or customize.processId.count("vbf_") or customize.processId.count("thq") or customize.processId.count("Acceptance"): # convention: ggh vbf wzh (wh zh) tth thq thw
+if customize.processId.count("h_") or customize.processId.count("vbf_") or customize.processId.count("thq") or customize.processId.count("thw") or customize.processId.count("Acceptance"): # convention: ggh vbf wzh (wh zh) tth thq thw
     print "Signal MC, so adding systematics and dZ"
     if customize.doHTXS:
         variablesToUse = minimalVariablesHTXS
@@ -313,7 +313,7 @@ process.extraDumpers = cms.Sequence()
 import flashgg.Taggers.dumperConfigTools as cfgTools
 
 import flashgg.Taggers.THQLeptonicTagVariables as var
-variablesToUse = minimalVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables + var.theoweight_variables
+variablesToUse = minimalVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables + var.theoweight_variables + defaultVariables
 print "-------------------------------------------------"
 print "--- Variables to be dumped, including systematic weights ---"
 print variablesToUse
@@ -413,14 +413,14 @@ for tag in tagList:
           if customize.doHTXS:
               currentVariables = systematicVariablesHTXS
           else:    
-              currentVariables = systematicVariables
+              currentVariables = systematicVariables + var.thqSystematicVariables
       if tagName == "NoTag":
           if customize.doHTXS:
               currentVariables = ["stage0cat[72,9.5,81.5] := tagTruth().HTXSstage0cat"]
           else:
               currentVariables = []
-      isBinnedOnly = (systlabel !=  "")
-      if ( customize.doPdfWeights or customize.doSystematics ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("thq") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "th_125" or customize.processId == "bbh_125"):
+      isBinnedOnly = False #(systlabel !=  "")
+      if ( customize.doPdfWeights  ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("thq")  or customize.processId.count("thw") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "th_125" or customize.processId == "bbh_125"):
           print "Signal MC central value, so dumping PDF weights"
           dumpPdfWeights = True
           nPdfWeights = 60

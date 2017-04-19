@@ -270,6 +270,27 @@ truth_variables=[
     
     ]
 
+
+# thqSystematicVariables = [
+#     "diphoMVA[20,-1,1] := diPhotonMVA().result",
+#     "n_jets[5,0,5] := jets.size",
+#     "n_M_bjets[3,0,3] := nMedium_bJets",
+#     "LeptonType[3,0,3]:=getLeptonType()",
+#     "MET[10,0,300]    :=getMET()",
+# ]
+thqSystematicVariables = [
+    "diphoMVA := diPhotonMVA().result",
+    "n_jets := jets.size",
+    "n_M_bjets := nMedium_bJets",
+    "LeptonType:=getLeptonType()",
+    "MET    :=getMET()",
+]
+for label in ["Medium" ]: #"HighestBTagVal", "Loose" , "Tight"]:
+    thqSystematicVariables.append('fwdJetEta_{0}             := ?thqleptonicMvaRes("{0}")>-10.? getFwdJet("{0}").eta : -999'.format(label) )
+    thqSystematicVariables.append('MVA_{0}                   := thqleptonicMvaRes("{0}")'.format(label) )
+    thqSystematicVariables.append('bJetPt_{0}              := ?thqleptonicMvaRes("{0}")>-10.? getbJet("{0}").pt : -999'.format(label) )
+
+
 theoweight_variables=[
     "alphaUp   := getAlphaUp()",
     "alphaDown := getAlphaDown()",

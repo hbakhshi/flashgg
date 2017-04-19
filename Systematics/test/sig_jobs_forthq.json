@@ -1,6 +1,6 @@
 {
     "processes" : {
-        "vbf_125"  : [ "/VBFHToGG_M-125_13TeV_powheg_pythia8/"  ],
+        "vbf_125"  : [ "/VBFHToGG_M-125_13TeV_powheg_pythia8"  ],
         "ggh_125"  : [ "/GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8" ],
 	"tth_125"  : [ "/ttHToGG_M125_13TeV_powheg_pythia8_v2" ],
 	"thq_125"  : [ "/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/gkrintir-RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1-0efeb5e617ae574b38567680a8a692b6/USER" ],

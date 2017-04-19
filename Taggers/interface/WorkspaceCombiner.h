@@ -117,6 +117,9 @@ private :
 
     vector<string> histoPaths;
 
+    string cut;
+    std::vector<std::string> varsToKeep;
+    RooArgSet selectedVars;
 };
 
 
