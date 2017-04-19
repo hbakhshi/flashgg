@@ -269,3 +269,19 @@ truth_variables=[
     "hasClosestParticleToSubLeadingElectron      := tagTruth().hasClosestParticleToSubLeadingElectron"
     
     ]
+
+theoweight_variables=[
+    "alphaUp   := getAlphaUp()",
+    "alphaDown := getAlphaDown()",
+    "pdfnlo    := getPdfNLO()"
+]
+
+for i in range(3):
+    theoweight_variables += ["scaleUp_%i := getScaleUp(%i)" % (i,i),"scaleDown_%i := getScaleDown(%i)" % (i,i)]
+
+for i in range(60):
+    theoweight_variables +=["pdf_%i := getPdf(%i)" % (i,i)]
+
+for i in range(50):
+    theoweight_variables +=["ctcv_%i := getCtCv(%i)" % (i,i)]
+
