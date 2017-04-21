@@ -1,10 +1,11 @@
 {
     "processes" : {
-        "vbf_125"  : [ "/VBFHToGG_M-125_13TeV_powheg_pythia8"  ],
-        "ggh_125"  : [ "/GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8" ],
-	"tth_125"  : [ "/ttHToGG_M125_13TeV_powheg_pythia8_v2" ],
-	"thq_125"  : [ "/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/gkrintir-RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1-0efeb5e617ae574b38567680a8a692b6/USER" ],
-        "thw_125"  : [ "/THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1"]
+        "vbf_125"  : [ [ "/VBFHToGG_M-125_13TeV_powheg_pythia8" , { "args" :["outputFile=output_VBF.root"] } ] ],
+        "ggh_125"  : [ [ "/GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8" , { "args" :["outputFile=output_GGH.root"] } ] ],
+	"tth_125"  : [ [ "/ttHToGG_M125_13TeV_powheg_pythia8_v2" , { "args" :["outputFile=output_TTH.root"] } ] ],
+	"thq_125"  : [ [ "/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/gkrintir-RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1-464178e98f7081ef9ee69fb3d9db5fc0/USER" , { "args" :["outputFile=output_THQ.root"] } ] ],
+        "thw_125"  : [ [ "/THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/gkrintir-RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1-464178e98f7081ef9ee69fb3d9db5fc0/USER" , { "args" :["outputFile=output_THW.root"] } ] ],
+	"vh_125" : [ ["/VHToGG_M125_13TeV_amcatnloFXFX_madspin_pythia8/sethzenz-RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1-91f695d98afd34b3751740a965bf460b/USER" , { "args" :["outputFile=output_VH.root"] } ]]
        },	
         "cmdLine" : "campaign=RunIISummer16-2_4_1-25ns_Moriond17"
 }

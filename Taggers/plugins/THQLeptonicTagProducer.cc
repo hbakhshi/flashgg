@@ -42,6 +42,7 @@
 #include "TLorentzVector.h"
 #include "TMath.h"
 #include "TMVA/Reader.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 // https://github.com/cms-analysis/flashgg/commit/f327ca16c29b4ced8eaf8c309cb9218fac265963 (fixing the tth taggers)
 using namespace std;
@@ -57,6 +58,8 @@ namespace flashgg {
 
     THQLeptonicTagProducer( const ParameterSet & );
   private:
+    bool IsTH;
+    edm::EDGetTokenT< LHEEventProduct > token_lhe;
     void produce( Event &, const EventSetup & ) override;
 
     std::vector<edm::EDGetTokenT<View<flashgg::Jet> > > tokenJets_;
@@ -235,6 +238,7 @@ namespace flashgg {
   };
 
   THQLeptonicTagProducer::THQLeptonicTagProducer( const ParameterSet &iConfig ) :
+    IsTH( iConfig.getParameter<bool>("IsTH") ),
     diPhotonToken_( consumes<View<flashgg::DiPhotonCandidate> >( iConfig.getParameter<InputTag> ( "DiPhotonTag" ) ) ),
     inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets" ) ),
     electronToken_( consumes<View<flashgg::Electron> >( iConfig.getParameter<InputTag>( "ElectronTag" ) ) ),
@@ -249,6 +253,11 @@ namespace flashgg {
     systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
     MVAMethod_    ( iConfig.getParameter<string> ( "MVAMethod"    ) )
   {
+
+    if(IsTH){
+      token_lhe = consumes<LHEEventProduct>( InputTag( "source" )  );
+    }
+
     double default_Zmass_ = 91.9;
     double default_deltaMassElectronZThreshold_ = 10.;
 
@@ -703,10 +712,20 @@ namespace flashgg {
 	thqltags_obj.setMVAres("Tight" ,  thqLeptonicMvaResult_value_ , topMass , fwdJet , bJet);
 	thqltags_obj.nTight_bJets = TightBJetVect_PtSorted.size();
 
-	thqltags->push_back( thqltags_obj );
 	
 	if( ! evt.isRealData() ) {
-	  
+
+	  if(IsTH){
+	    edm::Handle<LHEEventProduct> product_lhe;
+	    evt.getByToken(token_lhe, product_lhe);
+
+	    
+	    for (uint i = 446 ; i < product_lhe->weights().size() ; i++){
+	      thqltags_obj.setCtCv(i-446,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
+	      //cout << i << "_ctcv(" << product_lhe->weights()[i].id << ") :"  << thqltags_obj.getCtCv(i-446) << " : " << product_lhe->weights()[i].wgt << "/" << product_lhe->originalXWGTUP () << "=" << product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () << endl;
+	    }
+	  }
+
 	  Handle<vector<flashgg::PDFWeightObject> > WeightHandle;
 	  evt.getByToken( weightToken_, WeightHandle );
 	  
@@ -722,28 +741,30 @@ namespace flashgg {
 	    vector<uint16_t> compressed_ctcvweights = (*WeightHandle)[weight_index].ctcv_weight_container;
 	    std::vector<float> uncompressed_ctcvweights = (*WeightHandle)[weight_index].uncompress( compressed_ctcvweights );
 	    //std::cout << "size !! "<< uncompressed.size() << " "<< uncompressed_alpha.size() << " "<<uncompressed_scale.size()<<" " << uncompressed_nloweights.size() << " "  <<uncompressed_ctcvweights.size() << std::endl;
+	    float central_w = uncompressed_scale[0];
 	    
-	    for( unsigned int j=1; j<(*WeightHandle)[weight_index].pdf_weight_container.size();j++ ) {
-	      thqltags_obj.setPdf(j-1,uncompressed[j]/uncompressed[0]);
+
+	    for( unsigned int j=0; j<(*WeightHandle)[weight_index].pdf_weight_container.size();j++ ) {
+	      thqltags_obj.setPdf(j,uncompressed[j]/ central_w );
 	    }
-	    for( unsigned int j=1; j<(*WeightHandle)[weight_index].ctcv_weight_container.size();j++ ) {
-	      thqltags_obj.setCtCv(j-1,uncompressed_ctcvweights[j]/uncompressed_ctcvweights[0]);
-	    }
+	    // for( unsigned int j=1; j<(*WeightHandle)[weight_index].ctcv_weight_container.size();j++ ) {
+	    //   thqltags_obj.setCtCv(j,uncompressed_ctcvweights[j]/ central_w );
+	    // }
 	    if (uncompressed_alpha.size()>1)
 	      {
-		thqltags_obj.setAlphaUp(uncompressed_alpha[0]/uncompressed[0]);
-		thqltags_obj.setAlphaDown(uncompressed_alpha[1]/uncompressed[0]);
+		thqltags_obj.setAlphaUp(uncompressed_alpha[0]/central_w );
+		thqltags_obj.setAlphaDown(uncompressed_alpha[1]/ central_w );
 	      }
 	    else
-	      thqltags_obj.setAlphaDown(uncompressed_alpha[0]/uncompressed[0]); //for th samples 
-	    thqltags_obj.setScaleUp(0,uncompressed_scale[1]/uncompressed_scale[0]);
-	    thqltags_obj.setScaleDown(0,uncompressed_scale[2]/uncompressed_scale[0]);
-	    thqltags_obj.setScaleUp(1,uncompressed_scale[3]/uncompressed_scale[0]);
-	    thqltags_obj.setScaleDown(1,uncompressed_scale[6]/uncompressed_scale[0]);
-	    thqltags_obj.setScaleUp(2,uncompressed_scale[4]/uncompressed_scale[0]);
-	    thqltags_obj.setScaleDown(2,uncompressed_scale[8]/uncompressed_scale[0]);
+	      thqltags_obj.setAlphaDown(uncompressed_alpha[0]/ central_w );
+	    thqltags_obj.setScaleUp(0,uncompressed_scale[1]/central_w );
+	    thqltags_obj.setScaleDown(0,uncompressed_scale[2]/ central_w );
+	    thqltags_obj.setScaleUp(1,uncompressed_scale[3]/ central_w );
+	    thqltags_obj.setScaleDown(1,uncompressed_scale[6]/ central_w );
+	    thqltags_obj.setScaleUp(2,uncompressed_scale[4]/ central_w );
+	    thqltags_obj.setScaleDown(2,uncompressed_scale[8]/central_w );
 	    if (uncompressed_nloweights.size()>0)
-	      thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/uncompressed_nloweights[0]);
+	      thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/ central_w);
 	    
 	  }//end of reading PDF weights
 	  
@@ -760,6 +781,7 @@ namespace flashgg {
 	      break;
 	    }
 	  }
+
 	  truth_obj.setGenPV( higgsVtx );
 
 	  if(SelJetVect_PtSorted.size() > 1){
@@ -1027,7 +1049,7 @@ namespace flashgg {
 	  
 	    //std::cout<< index_gp_leadmuon << " "<< index_gp_leadjet <<" "<< index_gp_subleadjet <<" "<< index_gp_leadphoton << index_gp_subleadphoton <<" "<<index_gj_leadjet <<  " "<< index_gj_subleadjet << " "<< dr_gp_leadjet << " "<<dr_gp_subleadjet << " "<<dr_gp_leadphoton << " "<<dr_gp_subleadphoton<<" "<< dr_gj_leadjet <<" "<< dr_gj_subleadjet<<std::endl;
 	  }
-
+	  thqltags->push_back( thqltags_obj );
 	  truths->push_back( truth_obj );
 	  thqltags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<THQLeptonicTagTruth> >( rTagTruth, idx++ ) ) );
 	}// ! evt.isRealData() loop end ! 

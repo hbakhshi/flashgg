@@ -183,6 +183,8 @@ if customize.thqTagsOnly:
     process.flashggTagSequence.remove(process.flashggVBFMVA)
     process.flashggTagSequence.remove(process.flashggVBFDiPhoDiJetMVA)
 
+    if customize.processId.count("thq") or customize.processId.count("thw"):
+        process.flashggTHQLeptonicTag.IsTH = True
 
 print 'here we print the tag sequence after'
 print process.flashggTagSequence
@@ -226,10 +228,13 @@ if customize.processId.count("h_") or customize.processId.count("vbf_") or custo
             phosystlabels.append("MvaShift%s01sigma" % direction)
 #            phosystlabels.append("MvaLinearSyst%s01sigma" % direction)
             phosystlabels.append("SigmaEOverEShift%s01sigma" % direction)
-            phosystlabels.append("MaterialCentral%s01sigma" % direction)
+            phosystlabels.append("MaterialCentralBarrel%s01sigma" % direction)
+            phosystlabels.append("MaterialOuterBarrel%s01sigma" % direction)
             phosystlabels.append("MaterialForward%s01sigma" % direction)
             phosystlabels.append("FNUFEB%s01sigma" % direction)
             phosystlabels.append("FNUFEE%s01sigma" % direction)
+            phosystlabels.append("MCScaleGain6EB%s01sigma" % direction)
+            phosystlabels.append("MCScaleGain1EB%s01sigma" % direction)
             jetsystlabels.append("JEC%s01sigma" % direction)
             jetsystlabels.append("JER%s01sigma" % direction)
             jetsystlabels.append("PUJIDShift%s01sigma" % direction)
@@ -298,9 +303,10 @@ from flashgg.MetaData.samples_utils import SamplesManager
 
 process.source = cms.Source ("PoolSource",
                              fileNames = cms.untracked.vstring(
+        "root://eoscms.cern.ch//eos/cms/store/group/phys_top/gkrintir/flashgg/RunIISummer16-2_4_2-25ns_Moriond17/2_4_2/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170413_104447/0000/myMicroAODOutputFile_1.root"
+        #"root://eoscms.cern.ch//eos/cms/store/group/phys_top/gkrintir/flashgg/RunIISummer16-2_4_2-25ns_Moriond17/2_4_2/THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170413_155336/0000/myMicroAODOutputFile_10.root"
         #"root://eoscms.cern.ch//eos/cms/store/group/phys_top/gkrintir/flashgg/RunIISummer16-2_4_2-25ns_Moriond17/2_4_2/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170413_104447/0000/myMicroAODOutputFile_1.root"
         #"root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2/2_3_0/DoubleEG/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2-2_3_0-v0-Run2016B-23Sep2016-v3/161114_162631/0000/myMicroAODOutputFile_122.root"
-        "root://eoscms.cern.ch//eos/cms/store/group/phys_top/gkrintir/flashgg/RunIISummer16-2_4_2-25ns_Moriond17/2_4_2/THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170413_155336/0000/myMicroAODOutputFile_10.root"
         #"root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/sethzenz/flashgg/RunIISummer16-2_4_1-25ns_Moriond17/2_4_1/VBFHToGG_M-125_13TeV_powheg_pythia8/RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170114_092754/0000/myMicroAODOutputFile_10.root"
         )
                              )
@@ -422,7 +428,7 @@ for tag in tagList:
       isBinnedOnly = False #(systlabel !=  "")
       if ( customize.doPdfWeights  ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("thq")  or customize.processId.count("thw") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "th_125" or customize.processId == "bbh_125"):
           print "Signal MC central value, so dumping PDF weights"
-          dumpPdfWeights = True
+          dumpPdfWeights = False #True
           nPdfWeights = 60
           nAlphaSWeights = 2
           nScaleWeights = 9
@@ -480,9 +486,16 @@ if (customize.processId.count("wh") or customize.processId.count("zh")) and not 
     process.VHFilter.chooseW = bool(customize.processId.count("wh"))
     process.VHFilter.chooseZ = bool(customize.processId.count("zh"))
 
-if (customize.processId == "th_125" or customize.processId == "bbh_125"):
+if customize.processId.count("thq") or customize.processId.count("thw") or customize.processId == "bbh_125":
     process.load("flashgg/Systematics/CentralHiggsFilter_cfi")
     process.genFilter += process.CentralHiggsFilter
+
+#pythia8 has an unanticipated EM showering feature, check have two photons from hard scatter
+process.penultimateFilter= cms.Sequence()
+if customize.processId.count("thq") or customize.processId.count("thw"): # for this sample the filter removes also H -> ZG
+    process.load("flashgg/Systematics/HardProcessFinalStateFilter_cfi")
+#    process.HardProcessFinalStateFilter.debug = True
+    process.penultimateFilter += process.HardProcessFinalStateFilter
 
 # Split out prompt-fake or fake-fake
 process.finalFilter = cms.Sequence()
@@ -506,12 +519,25 @@ process.p = cms.Path(process.dataRequirements*
                      process.flashggMuonSystematics*process.flashggElectronSystematics*
                      (process.flashggUnpackedJets*process.jetSystematicsSequence)*
                      (process.flashggTagSequence*process.systematicsTagSequences)*
+                     #process.flashggTagSorter*
                      process.flashggSystTagMerger*
+                     process.penultimateFilter*
                      process.finalFilter*
                      process.tagsDumper)
 
 
+#if( not hasattr(process,"options") ): process.options = cms.untracked.PSet()
+#process.options.allowUnscheduled = cms.untracked.bool(True)
 
+print "--- Dumping modules that take diphotons as input: ---"
+mns = process.p.moduleNames()
+for mn in mns:
+    module = getattr(process,mn)
+    if hasattr(module,"src") and type(module.src) == type(cms.InputTag("")) and module.src.value().count("DiPhoton"):
+        print str(module),module.src
+    elif hasattr(module,"DiPhotonTag"):
+        print str(module),module.DiPhotonTag
+print
 printSystematicInfo(process)
 
 customize.setDefault("maxEvents",1000)

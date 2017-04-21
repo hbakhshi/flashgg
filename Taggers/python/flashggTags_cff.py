@@ -207,6 +207,7 @@ flashggTTHLeptonicTag = cms.EDProducer("FlashggTTHLeptonicTagProducer",
                                        HTXSTags     = HTXSInputTags
                                        )
 flashggTHQLeptonicTag = cms.EDProducer("FlashggTHQLeptonicTagProducer",
+                                       IsTH = cms.bool(False),
                                        DiPhotonTag=cms.InputTag('flashggPreselectedDiPhotons'),
                                        SystLabel=cms.string(""),
                                        MVAResultTag=cms.InputTag('flashggDiPhotonMVA'),
