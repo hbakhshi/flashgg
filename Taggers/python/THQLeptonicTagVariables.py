@@ -355,7 +355,7 @@ thqSystematicVariables = [
     "n_jets := jets.size",
     "n_M_bjets := nMedium_bJets",
     "LeptonType:=getLeptonType()",
-    "MET    :=getMET_Pt()",
+    "MET    :=getMET_Pt(\"SolvedMET\")",
 ]
 for label in ["Medium" ]: #"HighestBTagVal", "Loose" , "Tight"]:
     thqSystematicVariables.append('fwdJetEta_{0}             := ?thqleptonicMvaRes("{0}")>-10.? getFwdJet("{0}").eta : -999'.format(label) )
