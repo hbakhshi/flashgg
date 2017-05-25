@@ -229,9 +229,9 @@ jet_variables=[
     "jet1_e                 := ?jets.size>0? jets.at(0).energy : -999",
     "jet2_e                 := ?jets.size>1? jets.at(1).energy : -999",
     "jet3_e                 := ?jets.size>2? jets.at(2).energy : -999",
-    "recoMET_pt             :=getRECOMET().pt()",
+    "recoMET_pt             :=getRECOMET().getCorPt()",
     "recoMET_eta            :=getRECOMET().eta()",
-    "recoMET_phi            :=getRECOMET().phi()",
+    "recoMET_phi            :=getRECOMET().getCorPhi()",
     "recoMET_e              :=getRECOMET().energy()",
 
     
