@@ -29,6 +29,7 @@ dipho_variables=[
     "dipho_pt               := diPhoton.pt",
     "dipho_phi              := diPhoton.phi",
     "dipho_eta              := diPhoton.eta",
+    "dipho_e                := diPhoton.energy",
     "dipho_PtoM             := diPhoton.pt/diPhoton.mass",
     "cosphi                 := diPhotonMVA.CosPhi",
     "sigmaMrvoM             := diPhotonMVA.sigmarv",
@@ -113,6 +114,8 @@ lepton_variables=[
     "ele2_eta               := ?(electrons.size>1)? electrons.at(1).superCluster().eta : -999",
     "ele1_phi               := ?(electrons.size>0)? electrons.at(0).superCluster().phi : -999",
     "ele2_phi               := ?(electrons.size>1)? electrons.at(1).superCluster().phi : -999",
+    "ele1_e                 := ?(electrons.size>0)? electrons.at(0).energy : -999",
+    "ele2_e                 := ?(electrons.size>1)? electrons.at(1).energy : -999",
     "ele1_ch                := ?(electrons.size>0)? electrons.at(0).charge : -999",
     "ele2_ch                := ?(electrons.size>1)? electrons.at(1).charge : -999",
     "ele1_sigmaIetaIeta     := ?(electrons.size>0)? electrons.at(0).full5x5_sigmaIetaIeta : -999",
@@ -156,6 +159,8 @@ lepton_variables=[
     "muon2_eta              := ?(muons.size>1)? muons.at(1).eta : -999",
     "muon1_phi              := ?(muons.size>0)? muons.at(0).phi : -999",
     "muon2_phi              := ?(muons.size>1)? muons.at(1).phi : -999",
+    "muon1_e                := ?(muons.size>0)? muons.at(0).energy : -999",
+    "muon2_e                := ?(muons.size>1)? muons.at(1).energy : -999",
     "muon1_ch               := ?(muons.size>0)? muons.at(0).charge : -999",
     "muon2_ch               := ?(muons.size>1)? muons.at(1).charge : -999",
     "muon1_iso              := ?(muons.size>0)? (muons.at(0).pfIsolationR04().sumChargedHadronPt+ max( 0.,muons.at(0).pfIsolationR04().sumNeutralHadronEt + muons.at(0).pfIsolationR04().sumPhotonEt - 0.5 * muons.at(0).pfIsolationR04().sumPUPt)) / ( muons.at(0).pt ) : -999.",
@@ -193,6 +198,8 @@ jet_variables=[
     "fwdjet2_eta            := ?Jets_EtaSorted.size>1? Jets_EtaSorted.at(1).eta:-999.",
     "fwdjet1_phi            := ?Jets_EtaSorted.size>0? Jets_EtaSorted.at(0).phi: -999.",
     "fwdjet2_phi            := ?Jets_EtaSorted.size>1? Jets_EtaSorted.at(1).phi: -999.",
+    "fwdjet1_e              := ?Jets_EtaSorted.size>0? Jets_EtaSorted.at(0).energy: -999.",
+    "fwdjet2_e              := ?Jets_EtaSorted.size>1? Jets_EtaSorted.at(1).energy: -999.",
 
     "n_M_bjets                := nMedium_bJets",
     "n_L_bjets                := nLoose_bJets",
@@ -205,6 +212,8 @@ jet_variables=[
     "bjet2_eta              := ?bJets.size>1? bJets.at(1).eta:-999.",
     "bjet1_phi              := ?bJets.size>0? bJets.at(0).phi: -999.",
     "bjet2_phi              := ?bJets.size>1? bJets.at(1).phi: -999.",
+    "bjet1_e                := ?bJets.size>0? bJets.at(0).energy: -999.",
+    "bjet2_e                := ?bJets.size>1? bJets.at(1).energy: -999.",
 
     # new variables
     "n_jets                 := jets.size",
@@ -217,6 +226,14 @@ jet_variables=[
     "jet1_phi               := ?jets.size>0? jets.at(0).phi : -999",
     "jet2_phi               := ?jets.size>1? jets.at(1).phi : -999",
     "jet3_phi               := ?jets.size>2? jets.at(2).phi : -999",
+    "jet1_e                 := ?jets.size>0? jets.at(0).energy : -999",
+    "jet2_e                 := ?jets.size>1? jets.at(1).energy : -999",
+    "jet3_e                 := ?jets.size>2? jets.at(2).energy : -999",
+    "recoMET_pt             :=getRECOMET().pt()",
+    "recoMET_eta            :=getRECOMET().eta()",
+    "recoMET_phi            :=getRECOMET().phi()",
+    "recoMET_e              :=getRECOMET().energy()",
+
     
 ]
 
@@ -225,8 +242,8 @@ thqmva_variables=[
     "photonWeights          := photonWeights",
     "FoxWolf                :=getFoxWolframMoment_ONE",
     "Aplanarity             :=getAplanarity()",
-    "MET                    :=getMET()",
-    "METPhi                 :=getMET_Phi()"
+    "MET                    :=getMET_Pt(\"SolvedMET\")",
+    "METPhi                 :=getMET_Phi(\"SolvedMET\")"
 ]
 
 for label in ["HighestBTagVal", "Medium" , "Loose" , "Tight"]:
@@ -237,12 +254,12 @@ for label in ["HighestBTagVal", "Medium" , "Loose" , "Tight"]:
 
 truth_variables=[
 
-    "dR_Photon1_J1       := tagTruth().dR_Ph1_1_FggJet()",
-    "dR_Photon1_J2       := tagTruth().dR_Ph1_2_FggJet()",
-    "dR_Photon1_J3       := tagTruth().dR_Ph1_3_FggJet()",
-    "dR_Photon2_J1       := tagTruth().dR_Ph2_1_FggJet()",
-    "dR_Photon2_J2       := tagTruth().dR_Ph2_2_FggJet()",
-    "dR_Photon2_J3       := tagTruth().dR_Ph2_3_FggJet()",
+    "Photon1_J1_dR       := tagTruth().dR_Ph1_1_FggJet()",
+    "Photon1_J2_dR       := tagTruth().dR_Ph1_2_FggJet()",
+    "Photon1_J3_dR       := tagTruth().dR_Ph1_3_FggJet()",
+    "Photon2_J1_dR        := tagTruth().dR_Ph2_1_FggJet()",
+    "Photon2_J2_dR        := tagTruth().dR_Ph2_2_FggJet()",
+    "Photon2_J3_dR        := tagTruth().dR_Ph2_3_FggJet()",
     "dRToNearestPartonJ1 := tagTruth().dR_partonMatchingToJ1()",
     "dRToNearestPartonJ2 := tagTruth().dR_partonMatchingToJ2()",
     "dRToNearestPartonJ3 := tagTruth().dR_partonMatchingToJ3()",
@@ -251,23 +268,78 @@ truth_variables=[
     "numberOfLMatches    := tagTruth().numberOfLeadingMatchesAfterDRCut(0.5)",
     
     # tag truth information
-    "pt_genJetMatchingToJ1                := tagTruth().pt_genJetMatchingToJ1",
-    "pt_genJetMatchingToJ2                := tagTruth().pt_genJetMatchingToJ2",
-    "pt_genJetMatchingToJ3                := tagTruth().pt_genJetMatchingToJ3",
-    "eta_genJetMatchingToJ1               := tagTruth().eta_genJetMatchingToJ1",
-    "eta_genJetMatchingToJ2               := tagTruth().eta_genJetMatchingToJ2",
-    "eta_genJetMatchingToJ3               := tagTruth().eta_genJetMatchingToJ3",
-    "hasClosestGenJetToLeadingJet         := tagTruth().hasClosestGenJetToLeadingJet",
-    "hasClosestGenJetToSubLeadingJet      := tagTruth().hasClosestGenJetToSubLeadingJet",
-    "hasClosestParticleToLeadingJet       := tagTruth().hasClosestParticleToLeadingJet",
-    "hasClosestParticleToSubLeadingJet    := tagTruth().hasClosestParticleToSubLeadingJet",
-    "hasClosestParticleToLeadingPhoton    := tagTruth().hasClosestParticleToLeadingPhoton",
-    "hasClosestParticleToSubLeadingPhoton := tagTruth().hasClosestParticleToSubLeadingPhoton",
-    "hasClosestParticleToLeadingMuon      := tagTruth().hasClosestParticleToLeadingMuon",
-    "hasClosestParticleToSubLeadingMuon      := tagTruth().hasClosestParticleToSubLeadingMuon",
-    "hasClosestParticleToLeadingElectron      := tagTruth().hasClosestParticleToLeadingElectron",
-    "hasClosestParticleToSubLeadingElectron      := tagTruth().hasClosestParticleToSubLeadingElectron"
+    "genJetMatchingToJ1_pt                := ?tagTruth().hasClosestGenJetToLeadingJet? tagTruth().closestGenJetToLeadingJet().pt : -9999.",
+    "genJetMatchingToJ2_pt                := ?tagTruth().hasClosestGenJetToSubLeadingJet? tagTruth().closestGenJetToSubLeadingJet().pt : -9999.",
+    "genJetMatchingToJ3_pt                := ?tagTruth().hasClosestGenJetToSubSubLeadingJet? tagTruth().closestGenJetToSubSubLeadingJet().pt : -9999.",
+    "genJetMatchingToJ1_eta               := ?tagTruth().hasClosestGenJetToLeadingJet? tagTruth().closestGenJetToLeadingJet().eta : -9999.",
+    "genJetMatchingToJ2_eta               := ?tagTruth().hasClosestGenJetToSubLeadingJet? tagTruth().closestGenJetToSubLeadingJet().eta : -9999.",
+    "genJetMatchingToJ3_eta               := ?tagTruth().hasClosestGenJetToSubSubLeadingJet? tagTruth().closestGenJetToSubSubLeadingJet().eta : -9999.",
+    "genJetMatchingToJ1_phi               := ?tagTruth().hasClosestGenJetToLeadingJet? tagTruth().closestGenJetToLeadingJet().phi : -9999.",
+    "genJetMatchingToJ2_phi               := ?tagTruth().hasClosestGenJetToSubLeadingJet? tagTruth().closestGenJetToSubLeadingJet().phi : -9999.",
+    "genJetMatchingToJ3_phi               := ?tagTruth().hasClosestGenJetToSubSubLeadingJet? tagTruth().closestGenJetToSubSubLeadingJet().phi : -9999.",
+    "genJetMatchingToJ1_e                 := ?tagTruth().hasClosestGenJetToLeadingJet? tagTruth().closestGenJetToLeadingJet().energy : -9999.",
+    "genJetMatchingToJ2_e                 := ?tagTruth().hasClosestGenJetToSubLeadingJet? tagTruth().closestGenJetToSubLeadingJet().energy : -9999.",
+    "genJetMatchingToJ3_e                 := ?tagTruth().hasClosestGenJetToSubSubLeadingJet? tagTruth().closestGenJetToSubSubLeadingJet().energy : -9999.",
+    "partonMatchingToJ1_pt                := ?tagTruth().hasClosestPartonToLeadingJet? tagTruth().closestPartonToLeadingJet().pt : -9999.",
+    "partonMatchingToJ2_pt                := ?tagTruth().hasClosestPartonToSubLeadingJet? tagTruth().closestPartonToSubLeadingJet().pt : -9999.",
+    "partonMatchingToJ3_pt                := ?tagTruth().hasClosestPartonToSubSubLeadingJet? tagTruth().closestPartonToSubSubLeadingJet().pt : -9999.",
+    "partonMatchingToJ1_eta               := ?tagTruth().hasClosestPartonToLeadingJet? tagTruth().closestPartonToLeadingJet().eta : -9999.",
+    "partonMatchingToJ2_eta               := ?tagTruth().hasClosestPartonToSubLeadingJet? tagTruth().closestPartonToSubLeadingJet().eta : -9999.",
+    "partonMatchingToJ3_eta               := ?tagTruth().hasClosestPartonToSubSubLeadingJet? tagTruth().closestPartonToSubSubLeadingJet().eta : -9999.",
+    "partonMatchingToJ1_phi               := ?tagTruth().hasClosestPartonToLeadingJet? tagTruth().closestPartonToLeadingJet().phi : -9999.",
+    "partonMatchingToJ2_phi               := ?tagTruth().hasClosestPartonToSubLeadingJet? tagTruth().closestPartonToSubLeadingJet().phi : -9999.",
+    "partonMatchingToJ3_phi               := ?tagTruth().hasClosestPartonToSubSubLeadingJet? tagTruth().closestPartonToSubSubLeadingJet().phi : -9999.",
+    "partonMatchingToJ1_e                 := ?tagTruth().hasClosestPartonToLeadingJet? tagTruth().closestPartonToLeadingJet().energy : -9999.",
+    "partonMatchingToJ2_e                 := ?tagTruth().hasClosestPartonToSubLeadingJet? tagTruth().closestPartonToSubLeadingJet().energy : -9999.",
+    "partonMatchingToJ3_e                 := ?tagTruth().hasClosestPartonToSubSubLeadingJet? tagTruth().closestPartonToSubSubLeadingJet().energy : -9999.",
     
+    "genParticleMatchingToLeadingMuon_pt          := ?tagTruth().hasClosestParticleToLeadingMuon? tagTruth().closestParticleToLeadingMuon().pt : -9999.",
+    "genParticleMatchingToSubLeadingMuon_pt       := ?tagTruth().hasClosestParticleToSubLeadingMuon? tagTruth().closestParticleToSubLeadingMuon().pt : -9999.",
+    "genParticleMatchingToLeadingMuon_eta         := ?tagTruth().hasClosestParticleToLeadingMuon? tagTruth().closestParticleToLeadingMuon().eta : -9999.",
+    "genParticleMatchingToSubLeadingMuon_eta      := ?tagTruth().hasClosestParticleToSubLeadingMuon? tagTruth().closestParticleToSubLeadingMuon().eta : -9999.",
+    "genParticleMatchingToLeadingMuon_phi         := ?tagTruth().hasClosestParticleToLeadingMuon? tagTruth().closestParticleToLeadingMuon().phi : -9999.",
+    "genParticleMatchingToSubLeadingMuon_phi      := ?tagTruth().hasClosestParticleToSubLeadingMuon? tagTruth().closestParticleToSubLeadingMuon().phi : -9999.",
+    "genParticleMatchingToLeadingMuon_e           := ?tagTruth().hasClosestParticleToLeadingMuon? tagTruth().closestParticleToLeadingMuon().energy : -9999.",
+    "genParticleMatchingToSubLeadingMuon_e        := ?tagTruth().hasClosestParticleToSubLeadingMuon? tagTruth().closestParticleToSubLeadingMuon().energy : -9999.",
+    "genParticleMatchingToLeadingElectron_pt      := ?tagTruth().hasClosestParticleToLeadingElectron? tagTruth().closestParticleToLeadingElectron().pt : -9999.",
+    "genParticleMatchingToSubLeadingElectron_pt   := ?tagTruth().hasClosestParticleToSubLeadingElectron? tagTruth().closestParticleToSubLeadingElectron().pt : -9999.",
+    "genParticleMatchingToLeadingElectron_eta     := ?tagTruth().hasClosestParticleToLeadingElectron? tagTruth().closestParticleToLeadingElectron().eta : -9999.",
+    "genParticleMatchingToSubLeadingElectron_eta  := ?tagTruth().hasClosestParticleToSubLeadingElectron? tagTruth().closestParticleToSubLeadingElectron().eta : -9999.",
+    "genParticleMatchingToLeadingElectron_phi     := ?tagTruth().hasClosestParticleToLeadingElectron? tagTruth().closestParticleToLeadingElectron().phi : -9999.",
+    "genParticleMatchingToSubLeadingElectron_phi  := ?tagTruth().hasClosestParticleToSubLeadingElectron? tagTruth().closestParticleToSubLeadingElectron().phi : -9999.",
+    "genParticleMatchingToLeadingElectron_e       := ?tagTruth().hasClosestParticleToLeadingElectron? tagTruth().closestParticleToLeadingElectron().energy : -9999.",
+    "genParticleMatchingToSubLeadingElectron_e    := ?tagTruth().hasClosestParticleToSubLeadingElectron? tagTruth().closestParticleToSubLeadingElectron().energy : -9999.",
+    
+    "genPromptParticleMatchingToLeadingMuon_pt          := ?tagTruth().hasClosestPromptParticleToLeadingMuon? tagTruth().closestPromptParticleToLeadingMuon().pt : -9999.",
+    "genPromptParticleMatchingToSubLeadingMuon_pt       := ?tagTruth().hasClosestPromptParticleToSubLeadingMuon? tagTruth().closestPromptParticleToSubLeadingMuon().pt : -9999.",
+    "genPromptParticleMatchingToLeadingMuon_eta         := ?tagTruth().hasClosestPromptParticleToLeadingMuon? tagTruth().closestPromptParticleToLeadingMuon().eta : -9999.",
+    "genPromptParticleMatchingToSubLeadingMuon_eta      := ?tagTruth().hasClosestPromptParticleToSubLeadingMuon? tagTruth().closestPromptParticleToSubLeadingMuon().eta : -9999.",
+    "genPromptParticleMatchingToLeadingMuon_phi         := ?tagTruth().hasClosestPromptParticleToLeadingMuon? tagTruth().closestPromptParticleToLeadingMuon().phi : -9999.",
+    "genPromptParticleMatchingToSubLeadingMuon_phi      := ?tagTruth().hasClosestPromptParticleToSubLeadingMuon? tagTruth().closestPromptParticleToSubLeadingMuon().phi : -9999.",
+    "genPromptParticleMatchingToLeadingMuon_e           := ?tagTruth().hasClosestPromptParticleToLeadingMuon? tagTruth().closestPromptParticleToLeadingMuon().energy : -9999.",
+    "genPromptParticleMatchingToSubLeadingMuon_e        := ?tagTruth().hasClosestPromptParticleToSubLeadingMuon? tagTruth().closestPromptParticleToSubLeadingMuon().energy : -9999.",
+    "genPromptParticleMatchingToLeadingElectron_pt      := ?tagTruth().hasClosestPromptParticleToLeadingElectron? tagTruth().closestPromptParticleToLeadingElectron().pt : -9999.",
+    "genPromptParticleMatchingToSubLeadingElectron_pt   := ?tagTruth().hasClosestPromptParticleToSubLeadingElectron? tagTruth().closestPromptParticleToSubLeadingElectron().pt : -9999.",
+    "genPromptParticleMatchingToLeadingElectron_eta     := ?tagTruth().hasClosestPromptParticleToLeadingElectron? tagTruth().closestPromptParticleToLeadingElectron().eta : -9999.",
+    "genPromptParticleMatchingToSubLeadingElectron_eta  := ?tagTruth().hasClosestPromptParticleToSubLeadingElectron? tagTruth().closestPromptParticleToSubLeadingElectron().eta : -9999.",
+    "genPromptParticleMatchingToLeadingElectron_phi     := ?tagTruth().hasClosestPromptParticleToLeadingElectron? tagTruth().closestPromptParticleToLeadingElectron().phi : -9999.",
+    "genPromptParticleMatchingToSubLeadingElectron_phi  := ?tagTruth().hasClosestPromptParticleToSubLeadingElectron? tagTruth().closestPromptParticleToSubLeadingElectron().phi : -9999.",
+    "genPromptParticleMatchingToLeadingElectron_e       := ?tagTruth().hasClosestPromptParticleToLeadingElectron? tagTruth().closestPromptParticleToLeadingElectron().energy : -9999.",
+    "genPromptParticleMatchingToSubLeadingElectron_e    := ?tagTruth().hasClosestPromptParticleToSubLeadingElectron? tagTruth().closestPromptParticleToSubLeadingElectron().energy : -9999.",
+
+
+    "genMET_pt                            := getMET_Pt(\"allNus\")",
+    "genMET_eta                           := getMET_Eta(\"allNus\")",
+    "genMET_phi                           := getMET_Phi(\"allNus\")",
+    "genMET_e                             := getMET_E(\"allNus\")",
+    "promptGenMET_pt                      := getMET_Pt(\"allPromptNus\")",
+    "promptGenMET_eta                     := getMET_Eta(\"allPromptNus\")",
+    "promptGenMET_phi                     := getMET_Phi(\"allPromptNus\")",
+    "promptGenMET_e                       := getMET_E(\"allPromptNus\")",
+    "GenMETTrue_pt                        := getMET_Pt(\"genMetTrue\")",
+    "genMETTrue_eta                       := getMET_Eta(\"genMetTrue\")",
+    "genMETTrue_phi                       := getMET_Phi(\"genMetTrue\")",
+    "genMETTrue_e                         := getMET_E(\"genMetTrue\")"    
     ]
 
 
@@ -283,7 +355,7 @@ thqSystematicVariables = [
     "n_jets := jets.size",
     "n_M_bjets := nMedium_bJets",
     "LeptonType:=getLeptonType()",
-    "MET    :=getMET()",
+    "MET    :=getMET_Pt(\"SolvedMET\")",
 ]
 for label in ["Medium" ]: #"HighestBTagVal", "Loose" , "Tight"]:
     thqSystematicVariables.append('fwdJetEta_{0}             := ?thqleptonicMvaRes("{0}")>-10.? getFwdJet("{0}").eta : -999'.format(label) )
