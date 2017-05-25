@@ -252,6 +252,10 @@ namespace flashgg {
         bool hasClosestParticleToSubLeadingMuon() const { return closestParticleToSubLeadingMuon_.isNonnull(); }
         bool hasClosestParticleToLeadingElectron() const { return closestParticleToLeadingElectron_.isNonnull(); }
         bool hasClosestParticleToSubLeadingElectron() const { return closestParticleToSubLeadingElectron_.isNonnull(); }
+        bool hasClosestPromptParticleToLeadingMuon() const { return closestPromptParticleToLeadingMuon_.isNonnull(); }
+        bool hasClosestPromptParticleToSubLeadingMuon() const { return closestPromptParticleToSubLeadingMuon_.isNonnull(); }
+        bool hasClosestPromptParticleToLeadingElectron() const { return closestPromptParticleToLeadingElectron_.isNonnull(); }
+        bool hasClosestPromptParticleToSubLeadingElectron() const { return closestParticleToSubLeadingElectron_.isNonnull(); }
         bool hasDiPhoton() const { return diPhoton_.isNonnull(); }
         bool hasLeadingJet() const { return leadingJet_.isNonnull(); }
         bool hasSubLeadingJet() const { return subLeadingJet_.isNonnull(); }
@@ -267,6 +271,7 @@ namespace flashgg {
         bool hasSubLeadingMuon() const { return subLeadingMuon_.isNonnull(); }
         bool hasLeadingElectron() const { return leadingElectron_.isNonnull(); }
         bool hasSubLeadingElectron() const { return subLeadingElectron_.isNonnull(); }
+        //bool hasGenMET() const { return genMET_.isNonnull(); }
 
         //Getter methods
         const edm::Ptr<reco::GenParticle> leadingParton() const { return leadingParton_; }
@@ -299,8 +304,44 @@ namespace flashgg {
         const edm::Ptr<reco::GenParticle> closestPartonToSubSubLeadingJet() const { return closestPartonToSubSubLeadingJet_; }
         const edm::Ptr<reco::GenParticle> closestParticleToLeadingPhoton() const { return closestParticleToLeadingPhoton_; }
         const edm::Ptr<reco::GenParticle> closestParticleToSubLeadingPhoton() const { return closestParticleToSubLeadingPhoton_; }
+        const edm::Ptr<reco::GenParticle> closestParticleToLeadingMuon() const { return closestParticleToLeadingMuon_; }
+        const edm::Ptr<reco::GenParticle> closestParticleToSubLeadingMuon() const { return closestParticleToSubLeadingMuon_; }
+        const edm::Ptr<reco::GenParticle> closestParticleToLeadingElectron() const { return closestParticleToLeadingElectron_; }
+        const edm::Ptr<reco::GenParticle> closestParticleToSubLeadingElectron() const { return closestParticleToSubLeadingElectron_; }
+        const edm::Ptr<reco::GenParticle> closestPromptParticleToLeadingMuon() const { return closestPromptParticleToLeadingMuon_; }
+        const edm::Ptr<reco::GenParticle> closestPromptParticleToSubLeadingMuon() const { return closestPromptParticleToSubLeadingMuon_; }
+        const edm::Ptr<reco::GenParticle> closestPromptParticleToLeadingElectron() const { return closestPromptParticleToLeadingElectron_; }
+        const edm::Ptr<reco::GenParticle> closestPromptParticleToSubLeadingElectron() const { return closestPromptParticleToSubLeadingElectron_; }
+        /*
+        float getMET_Pt(string label) const{
+            int index = findMETIndex(label);
+            if(index < 0 )
+                return -100;
 
-
+            return genMET_Pt_[findMETIndex(label)];
+        }
+        float getMET_Eta(string label) const{
+            int index = findMETIndex(label);
+            if(index < 0 )
+                return -100;
+            
+            return genMET_Eta_[findMETIndex(label)];
+        }
+        float getMET_Phi(string label) const{
+            int index = findMETIndex(label);
+            if(index < 0 )
+                return -100;
+            
+            return genMET_Phi_[findMETIndex(label)];
+        }
+        float getMET_E(string label) const{
+            int index = findMETIndex(label);
+            if(index < 0 )
+                return -100;
+            
+            return genMET_E_[findMETIndex(label)];
+        }
+        */
         //Setter methods
         void setClosestGenJetToLeadingJet( const edm::Ptr<reco::GenJet> &val ) { closestGenJetToLeadingJet_ = val; }
         void setClosestGenJetToSubLeadingJet( const edm::Ptr<reco::GenJet> &val ) { closestGenJetToSubLeadingJet_ = val; }
@@ -317,6 +358,10 @@ namespace flashgg {
         void setClosestParticleToSubLeadingMuon( const edm::Ptr<reco::GenParticle> &val ) { closestParticleToSubLeadingMuon_ = val; }
         void setClosestParticleToLeadingElectron( const edm::Ptr<reco::GenParticle> &val ) { closestParticleToLeadingElectron_ = val; }
         void setClosestParticleToSubLeadingElectron( const edm::Ptr<reco::GenParticle> &val ) { closestParticleToSubLeadingElectron_ = val; }
+        void setClosestPromptParticleToLeadingMuon( const edm::Ptr<reco::GenParticle> &val ) { closestPromptParticleToLeadingMuon_ = val; }
+        void setClosestPromptParticleToSubLeadingMuon( const edm::Ptr<reco::GenParticle> &val ) { closestPromptParticleToSubLeadingMuon_ = val; }
+        void setClosestPromptParticleToLeadingElectron( const edm::Ptr<reco::GenParticle> &val ) { closestPromptParticleToLeadingElectron_ = val; }
+        void setClosestPromptParticleToSubLeadingElectron( const edm::Ptr<reco::GenParticle> &val ) { closestPromptParticleToSubLeadingElectron_ = val; }
         void setLeadingParton( const edm::Ptr<reco::GenParticle> &val ) { leadingParton_ = val; }
         void setSubLeadingParton( const edm::Ptr<reco::GenParticle> &val ) { subLeadingParton_ = val; }
         void setSubSubLeadingParton( const edm::Ptr<reco::GenParticle> &val ) { subSubLeadingParton_ = val; }
@@ -334,7 +379,12 @@ namespace flashgg {
         void setSubLeadingMuon   ( const edm::Ptr<flashgg::Muon> &val ) { subLeadingMuon_    = val; }
         void setLeadingElectron      ( const edm::Ptr<flashgg::Electron> &val ) { leadingElectron_       = val; }
         void setSubLeadingElectron   ( const edm::Ptr<flashgg::Electron> &val ) { subLeadingElectron_    = val; }
-        
+        /*
+        void setMETValues(  string label, float metPt, float metEta, float metPhi, float metE ){
+            metAssignmentLabels.push_back( label);
+            genMET_Pt_.push_back(metPt) ;  genMET_Eta_.push_back(metEta) ; genMET_Phi_.push_back(metPhi) ; genMET_E_.push_back(metE);
+        }
+        */
         //Counts
         unsigned int numberOfPartons() const {return ptOrderedPartons_.size();} 
         unsigned int numberOfGenJets() const {return ptOrderedGenJets_.size();} 
@@ -383,6 +433,16 @@ namespace flashgg {
         THQLeptonicTagTruth *clone() const;
 
     private:
+        /*
+        int findMETIndex(string label) const{
+            ptrdiff_t pos = find(metAssignmentLabels.begin(), metAssignmentLabels.end(), label) - metAssignmentLabels.begin();
+            if( pos < int( metAssignmentLabels.size() ) )
+                return pos;
+            else{
+                return -1;
+            }
+        }
+        */
         edm::Ptr<reco::GenJet> closestGenJetToLeadingJet_;
         edm::Ptr<reco::GenJet> closestGenJetToSubLeadingJet_;
         edm::Ptr<reco::GenJet> closestGenJetToSubSubLeadingJet_;
@@ -398,6 +458,10 @@ namespace flashgg {
         edm::Ptr<reco::GenParticle> closestParticleToSubLeadingMuon_;
         edm::Ptr<reco::GenParticle> closestParticleToLeadingElectron_;
         edm::Ptr<reco::GenParticle> closestParticleToSubLeadingElectron_;
+        edm::Ptr<reco::GenParticle> closestPromptParticleToLeadingMuon_;
+        edm::Ptr<reco::GenParticle> closestPromptParticleToSubLeadingMuon_;
+        edm::Ptr<reco::GenParticle> closestPromptParticleToLeadingElectron_;
+        edm::Ptr<reco::GenParticle> closestPromptParticleToSubLeadingElectron_;
 
         edm::Ptr<flashgg::Jet> leadingJet_;
         edm::Ptr<flashgg::Jet> subLeadingJet_;
@@ -417,7 +481,8 @@ namespace flashgg {
         edm::Ptr<flashgg::Muon> subLeadingMuon_;
         edm::Ptr<flashgg::Electron> leadingElectron_;
         edm::Ptr<flashgg::Electron> subLeadingElectron_;
-        
+        //std::vector<float> genMET_Pt_; std::vector<float> genMET_Eta_; std::vector<float> genMET_Phi_; std::vector<float> genMET_E_;
+
         std::vector<edm::Ptr<reco::GenParticle>> ptOrderedPartons_;
         std::vector<edm::Ptr<reco::GenJet>> ptOrderedGenJets_;
         std::vector<edm::Ptr<flashgg::Jet>> ptOrderedFggJets_;
