@@ -36,8 +36,10 @@ void WorkspaceCombiner::Init( string outputFileName_, vector<string> inputfiles_
 
     outputFileName = outputFileName_;
 
-    this->cut = "(CMS_hgg_mass > 100 && CMS_hgg_mass < 180)&&(LeptonType == 1 || LeptonType == 2) && (diphoMVA > -0.4)&&(n_jets >= 2) &&(n_M_bjets==1)&&(MET > 30)  &&MVA_Medium > 0 ";
-    varsToKeep = {"CMS_hgg_mass", "diphoMVA", "dZ" , "weight"};
+    this->cut = "(CMS_hgg_mass > 100 && CMS_hgg_mass < 180)&&(LeptonType == 1 || LeptonType == 2) && (diphoMVA > -0.4)&&(n_jets >= 2) &&(n_M_bjets==1)&&(MET > 30)"; //  &&MVA_Medium > 0 ";
+    varsToKeep = {"CMS_hgg_mass", "diphoMVA", "dZ" , "weight" , "fwdjet1_eta" , "n_jets" , "n_M_bjets" , "n_L_bjets" };
+    for( uint i = 0 ; i < 70 ; i++ )
+        varsToKeep.push_back( "ctcv_" + std::to_string( i ) );
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -113,7 +115,7 @@ void WorkspaceCombiner::GetWorkspaces( TDirectoryFile *tdfile )
                     //     newName = newName.ReplaceAll( old , "mrg_");
                     //allDataClone[std::string(dataset->GetName())]
                     allDataClone[std::string(newName)] = ( ( RooDataSet * )dataset->reduce( Cut(this->cut.c_str()) , SelectVars(selectedVars) , Name( newName ) ) );
-                  std::cout << "pushing back dataset " << *dataset << std::endl;
+                    std::cout << "pushing back dataset " << *dataset << std::endl;
                  }
             }
             for( std::list<RooAbsData *>::iterator it = allData.begin(); it != allData.end(); ++it ) {

@@ -44,23 +44,87 @@
 #include "TMVA/Reader.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "TCanvas.h"
+#include <map>
 // https://github.com/cms-analysis/flashgg/commit/f327ca16c29b4ced8eaf8c309cb9218fac265963 (fixing the tth taggers)
 using namespace std;
 using namespace edm;
 
 
+
 namespace flashgg {
+  class CTCVWeightedVariable {
+  public:
+    CTCVWeightedVariable( string name , string title , int nBins , double min , double max ){
+      Name = name;
+      edm::Service<TFileService> fs;
+      Directory = fs->mkdir( name ) ; 
+      for (uint i = 0 ; i < 70 ; i++){
+  	Histos.push_back( Directory.make< TH1D >( ("ctcv_"+to_string(i)).c_str() , (title + "," + to_string(i)).c_str() , nBins , min, max ) );
+      }
+    };
+
+    void Fill( double value , std::vector<double> weights){
+      Histos[0]->Fill( value );
+      for( uint i = 0 ; i < weights.size() ; i++)
+  	Histos[i+1]->Fill( value , weights[i] );
+    };
+
+    void Write(){
+      Directory.make< TCanvas >( ("Canvas_"+Name).c_str() );
+      for( auto h : Histos )
+    	h->DrawNormalized();
+    }
+
+    TFileDirectory Directory;
+    vector< TH1* > Histos ;
+    string Name;
+  };
+
+
   class THQLeptonicTagProducer : public EDProducer
   {
 
   public:
     typedef math::XYZPoint Point;
-
+    map< string , CTCVWeightedVariable* > CTCVWeightedVariables;
+    
     THQLeptonicTagProducer( const ParameterSet & );
   private:
     bool IsTH;
     edm::EDGetTokenT< LHEEventProduct > token_lhe;
     void produce( Event &, const EventSetup & ) override;
+    virtual void beginJob() override{
+      if(IsTH){
+    	CTCVWeightedVariables["photon1pt"] = new CTCVWeightedVariable("photon1pt" , "photon1pt" , 20 , 20 , 300 );
+    	CTCVWeightedVariables["photon2pt"] = new CTCVWeightedVariable("photon2pt" , "photon2pt" , 20 , 20 , 300 );
+    	CTCVWeightedVariables["diPhotonPt"] = new CTCVWeightedVariable("diPhotonPt" , "diPhotonPt" , 20 , 20 , 300 );
+    	CTCVWeightedVariables["diPhotonEta"] = new CTCVWeightedVariable("diPhotonEta" , "diPhotonEta" , 10 , 0 , 4 );
+    	CTCVWeightedVariables["diPhotonMVA"] = new CTCVWeightedVariable("diPhotonMVA" , "diPhotonMVA" , 20 , -1 , 1 );
+    	CTCVWeightedVariables["LeptonPt"] = new CTCVWeightedVariable("LeptonPt" , "LeptonPt" , 20 , 20 , 220 );
+    	CTCVWeightedVariables["LeptonEta"] = new CTCVWeightedVariable("LeptonPt" , "LeptonEta" , 5 , 0 , 2.5 );
+    	CTCVWeightedVariables["nJets"] = new CTCVWeightedVariable("nJets" , "nJets" , 5 , 0 , 5 );
+    	CTCVWeightedVariables["nbJets"] = new CTCVWeightedVariable("nbJets" , "nbJets" , 5 , 0 , 5 );
+    	CTCVWeightedVariables["MET"] = new CTCVWeightedVariable("MET" , "MET" , 10 , 30 , 230 );
+    	CTCVWeightedVariables["jPrimeEta"] = new CTCVWeightedVariable("jPrimeEta" , "jPrimeEta" , 5, 0 , 5 );
+      }
+    };
+
+    virtual void endJob() override{
+      CTCVWeightedVariables["photon1pt"]->Write();
+      CTCVWeightedVariables["photon2pt"]->Write();
+      CTCVWeightedVariables["diPhotonPt"]->Write();
+      CTCVWeightedVariables["diPhotonEta"]->Write();
+      CTCVWeightedVariables["diPhotonMVA"]->Write();
+      CTCVWeightedVariables["LeptonPt"]->Write();
+      CTCVWeightedVariables["LeptonEta"]->Write();
+      CTCVWeightedVariables["nJets"]->Write();
+      CTCVWeightedVariables["nbJets"]->Write();
+      CTCVWeightedVariables["MET"]->Write();
+      CTCVWeightedVariables["jPrimeEta"]->Write();
+    };
 
     std::vector<edm::EDGetTokenT<View<flashgg::Jet> > > tokenJets_;
     EDGetTokenT<View<DiPhotonCandidate> > diPhotonToken_;
@@ -248,14 +312,14 @@ namespace flashgg {
     METToken_( consumes<View<flashgg::Met> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
     genParticleToken_( consumes<View<reco::GenParticle> >( iConfig.getParameter<InputTag> ( "GenParticleTag" ) ) ),
     genJetToken_ ( consumes<View<reco::GenJet> >( iConfig.getParameter<InputTag> ( "GenJetTag" ) ) ),
-    weightToken_( consumes<vector<flashgg::PDFWeightObject> >( iConfig.getUntrackedParameter<InputTag>( "WeightTag", InputTag( "flashggPDFWeightObject" ) ) ) ),
+    //weightToken_( consumes<vector<flashgg::PDFWeightObject> >( iConfig.getUntrackedParameter<InputTag>( "WeightTag", InputTag( "flashggPDFWeightObject" ) ) ) ),
     rhoTag_( consumes<double>( iConfig.getParameter<InputTag>( "rhoTag" ) ) ),
     systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
     MVAMethod_    ( iConfig.getParameter<string> ( "MVAMethod"    ) )
   {
 
     if(IsTH){
-      token_lhe = consumes<LHEEventProduct>( InputTag( "source" )  );
+      token_lhe = consumes<LHEEventProduct>( InputTag( "externalLHEProducer" )  );
     }
 
     double default_Zmass_ = 91.9;
@@ -357,6 +421,14 @@ namespace flashgg {
     std::auto_ptr<vector<THQLeptonicTagTruth> > truths( new vector<THQLeptonicTagTruth> );
     Point higgsVtx;
 
+    edm::Handle<LHEEventProduct> product_lhe;
+    vector< double > CtCvWeights ;
+    if( IsTH ){
+      evt.getByToken(token_lhe, product_lhe);
+      for (uint i = 446 ; i < product_lhe->weights().size() ; i++)
+	CtCvWeights.push_back(product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
+    }
+
 
     edm::RefProd<vector<THQLeptonicTagTruth> > rTagTruth = evt.getRefBeforePut<vector<THQLeptonicTagTruth> >();
     unsigned int idx = 0;
@@ -381,7 +453,13 @@ namespace flashgg {
 
       flashgg::THQLeptonicTag thqltags_obj( dipho, mvares );
 
+      if(IsTH)
+      	CTCVWeightedVariables["photon1pt"]->Fill( dipho->leadingPhoton()->pt() , CtCvWeights );
+
       if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { continue; }
+
+      if(IsTH)
+      	CTCVWeightedVariables["photon2pt"]->Fill( dipho->subLeadingPhoton()->pt() , CtCvWeights );
 
       if( dipho->subLeadingPhoton()->pt() < ( dipho->mass() )*subleadPhoOverMassThreshold_ ) { continue; }
 
@@ -390,6 +468,13 @@ namespace flashgg {
       idmva2 = dipho->subLeadingPhoton()->phoIdMvaDWrtVtx( dipho->vtx() );
 
       if( idmva1 <= PhoMVAThreshold_ || idmva2 <= PhoMVAThreshold_ ) { continue; }
+
+      if(IsTH){
+      	CTCVWeightedVariables["diPhotonMVA"]->Fill( mvares->result , CtCvWeights );
+
+      	CTCVWeightedVariables["diPhotonPt"]->Fill( dipho->pt() , CtCvWeights );
+      	CTCVWeightedVariables["diPhotonEta"]->Fill( abs( dipho->eta() ) , CtCvWeights );
+      }
 
       if( mvares->result < MVAThreshold_ ) { continue; }
 
@@ -413,6 +498,9 @@ namespace flashgg {
 
       if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
       Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
+
+      if(IsTH)
+      	CTCVWeightedVariables["MET"]->Fill( theMET->getCorPt() , CtCvWeights );
 
       //const pat::MET &met_ = METs->front();
       //std::cout << met_.pt() <<std::endl;
@@ -505,8 +593,10 @@ namespace flashgg {
                 
       }//end of electron loop
 
-
-
+      if(IsTH){
+      	CTCVWeightedVariables["LeptonPt"]->Fill( lepton.pt , CtCvWeights );
+      	CTCVWeightedVariables["LeptonEta"]->Fill( abs(lepton.eta) , CtCvWeights );
+      }
 
 
       for( unsigned int candIndex_outer = 0; candIndex_outer < Jets[jetCollectionIndex]->size() ; candIndex_outer++ ) {
@@ -583,9 +673,14 @@ namespace flashgg {
       std::sort(SelJetVect.begin(),SelJetVect.end(),GreaterByBTagging(bTag_.c_str())); 
 
 
-            
-
-
+      if( IsTH ){
+      	CTCVWeightedVariables["nJets"]->Fill( SelJetVect_EtaSorted.size() , CtCvWeights );
+      	CTCVWeightedVariables["nbJets"]->Fill( MediumBJetVect.size() , CtCvWeights );
+      	if( SelJetVect_EtaSorted.size() > 0 )
+      	  CTCVWeightedVariables["jPrimeEta"]->Fill( abs(SelJetVect_EtaSorted[0]->eta() ) , CtCvWeights );
+      }
+    
+      
 
       if( photonSelection ){
 	//&& ( ( (tagMuons.size() == 1 && muonJets) and  (tagElectrons.size() == 0 && !ElectronJets) )  || ( (tagMuons.size() == 0 && !muonJets)  and  (tagElectrons.size() == 1 && ElectronJets) ) ) ) 
@@ -716,10 +811,6 @@ namespace flashgg {
 	if( ! evt.isRealData() ) {
 
 	  if(IsTH){
-	    edm::Handle<LHEEventProduct> product_lhe;
-	    evt.getByToken(token_lhe, product_lhe);
-
-	    
 	    for (uint i = 446 ; i < product_lhe->weights().size() ; i++){
 	      thqltags_obj.setCtCv(i-446,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
 	      //cout << i << "_ctcv(" << product_lhe->weights()[i].id << ") :"  << thqltags_obj.getCtCv(i-446) << " : " << product_lhe->weights()[i].wgt << "/" << product_lhe->originalXWGTUP () << "=" << product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () << endl;
@@ -727,46 +818,46 @@ namespace flashgg {
 	  }
 
 	  Handle<vector<flashgg::PDFWeightObject> > WeightHandle;
-	  evt.getByToken( weightToken_, WeightHandle );
+	  //evt.getByToken( weightToken_, WeightHandle );
 	  
-	  for( unsigned int weight_index = 0; weight_index < (*WeightHandle).size(); weight_index++ ){
-	    vector<uint16_t> compressed_weights = (*WeightHandle)[weight_index].pdf_weight_container;
-	    std::vector<float> uncompressed = (*WeightHandle)[weight_index].uncompress( compressed_weights );
-	    vector<uint16_t> compressed_alpha = (*WeightHandle)[weight_index].alpha_s_container;
-	    std::vector<float> uncompressed_alpha = (*WeightHandle)[weight_index].uncompress( compressed_alpha );
-	    vector<uint16_t> compressed_scale = (*WeightHandle)[weight_index].qcd_scale_container;
-	    std::vector<float> uncompressed_scale = (*WeightHandle)[weight_index].uncompress( compressed_scale );
-	    vector<uint16_t> compressed_nloweights = (*WeightHandle)[weight_index].pdfnlo_weight_container;
-	    std::vector<float> uncompressed_nloweights = (*WeightHandle)[weight_index].uncompress( compressed_nloweights );
-	    vector<uint16_t> compressed_ctcvweights = (*WeightHandle)[weight_index].ctcv_weight_container;
-	    std::vector<float> uncompressed_ctcvweights = (*WeightHandle)[weight_index].uncompress( compressed_ctcvweights );
-	    //std::cout << "size !! "<< uncompressed.size() << " "<< uncompressed_alpha.size() << " "<<uncompressed_scale.size()<<" " << uncompressed_nloweights.size() << " "  <<uncompressed_ctcvweights.size() << std::endl;
-	    float central_w = uncompressed_scale[0];
+	  // for( unsigned int weight_index = 0; weight_index < (*WeightHandle).size(); weight_index++ ){
+	  //   vector<uint16_t> compressed_weights = (*WeightHandle)[weight_index].pdf_weight_container;
+	  //   std::vector<float> uncompressed = (*WeightHandle)[weight_index].uncompress( compressed_weights );
+	  //   vector<uint16_t> compressed_alpha = (*WeightHandle)[weight_index].alpha_s_container;
+	  //   std::vector<float> uncompressed_alpha = (*WeightHandle)[weight_index].uncompress( compressed_alpha );
+	  //   vector<uint16_t> compressed_scale = (*WeightHandle)[weight_index].qcd_scale_container;
+	  //   std::vector<float> uncompressed_scale = (*WeightHandle)[weight_index].uncompress( compressed_scale );
+	  //   vector<uint16_t> compressed_nloweights = (*WeightHandle)[weight_index].pdfnlo_weight_container;
+	  //   std::vector<float> uncompressed_nloweights = (*WeightHandle)[weight_index].uncompress( compressed_nloweights );
+	  //   vector<uint16_t> compressed_ctcvweights = (*WeightHandle)[weight_index].ctcv_weight_container;
+	  //   std::vector<float> uncompressed_ctcvweights = (*WeightHandle)[weight_index].uncompress( compressed_ctcvweights );
+	  //   //std::cout << "size !! "<< uncompressed.size() << " "<< uncompressed_alpha.size() << " "<<uncompressed_scale.size()<<" " << uncompressed_nloweights.size() << " "  <<uncompressed_ctcvweights.size() << std::endl;
+	  //   float central_w = uncompressed_scale[0];
 	    
 
-	    for( unsigned int j=0; j<(*WeightHandle)[weight_index].pdf_weight_container.size();j++ ) {
-	      thqltags_obj.setPdf(j,uncompressed[j]/ central_w );
-	    }
-	    // for( unsigned int j=1; j<(*WeightHandle)[weight_index].ctcv_weight_container.size();j++ ) {
-	    //   thqltags_obj.setCtCv(j,uncompressed_ctcvweights[j]/ central_w );
-	    // }
-	    if (uncompressed_alpha.size()>1)
-	      {
-		thqltags_obj.setAlphaUp(uncompressed_alpha[0]/central_w );
-		thqltags_obj.setAlphaDown(uncompressed_alpha[1]/ central_w );
-	      }
-	    else
-	      thqltags_obj.setAlphaDown(uncompressed_alpha[0]/ central_w );
-	    thqltags_obj.setScaleUp(0,uncompressed_scale[1]/central_w );
-	    thqltags_obj.setScaleDown(0,uncompressed_scale[2]/ central_w );
-	    thqltags_obj.setScaleUp(1,uncompressed_scale[3]/ central_w );
-	    thqltags_obj.setScaleDown(1,uncompressed_scale[6]/ central_w );
-	    thqltags_obj.setScaleUp(2,uncompressed_scale[4]/ central_w );
-	    thqltags_obj.setScaleDown(2,uncompressed_scale[8]/central_w );
-	    if (uncompressed_nloweights.size()>0)
-	      thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/ central_w);
+	  //   for( unsigned int j=0; j<(*WeightHandle)[weight_index].pdf_weight_container.size();j++ ) {
+	  //     thqltags_obj.setPdf(j,uncompressed[j]/ central_w );
+	  //   }
+	  //   // for( unsigned int j=1; j<(*WeightHandle)[weight_index].ctcv_weight_container.size();j++ ) {
+	  //   //   thqltags_obj.setCtCv(j,uncompressed_ctcvweights[j]/ central_w );
+	  //   // }
+	  //   if (uncompressed_alpha.size()>1)
+	  //     {
+	  // 	thqltags_obj.setAlphaUp(uncompressed_alpha[0]/central_w );
+	  // 	thqltags_obj.setAlphaDown(uncompressed_alpha[1]/ central_w );
+	  //     }
+	  //   else
+	  //     thqltags_obj.setAlphaDown(uncompressed_alpha[0]/ central_w );
+	  //   thqltags_obj.setScaleUp(0,uncompressed_scale[1]/central_w );
+	  //   thqltags_obj.setScaleDown(0,uncompressed_scale[2]/ central_w );
+	  //   thqltags_obj.setScaleUp(1,uncompressed_scale[3]/ central_w );
+	  //   thqltags_obj.setScaleDown(1,uncompressed_scale[6]/ central_w );
+	  //   thqltags_obj.setScaleUp(2,uncompressed_scale[4]/ central_w );
+	  //   thqltags_obj.setScaleDown(2,uncompressed_scale[8]/central_w );
+	  //   if (uncompressed_nloweights.size()>0)
+	  //     thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/ central_w);
 	    
-	  }//end of reading PDF weights
+	  // }//end of reading PDF weights
 	  
 	  evt.getByToken( genParticleToken_, genParticles );
 	  evt.getByToken( genJetToken_, genJets );

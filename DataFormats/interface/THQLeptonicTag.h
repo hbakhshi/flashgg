@@ -340,7 +340,7 @@ namespace flashgg {
         float scaleDown_[3];
         float pdf_[60];
         float pdfnlo_;
-        float ctcv_[50];
+        float ctcv_[70];
     };
 }
 

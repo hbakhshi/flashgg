@@ -186,6 +186,9 @@ if customize.thqTagsOnly:
     if customize.processId.count("thq") or customize.processId.count("thw"):
         process.flashggTHQLeptonicTag.IsTH = True
 
+print " processId = " , customize.processId
+print " process.flashggTHQLeptonicTag.IsTH = " ,  process.flashggTHQLeptonicTag.IsTH 
+
 print 'here we print the tag sequence after'
 print process.flashggTagSequence
 
