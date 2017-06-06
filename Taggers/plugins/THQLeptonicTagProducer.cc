@@ -53,7 +53,6 @@ using namespace std;
 using namespace edm;
 
 
-
 namespace flashgg {
   class CTCVWeightedVariable {
   public:
@@ -179,7 +178,7 @@ namespace flashgg {
     string  MVAMethod_;
     float thqLeptonicMvaResult_value_, topMass;
 
-    std::vector< TLorentzVector > particles_LorentzVector;
+    std::vector< TLorentzVector > particles_LorentzVector; 
     std::vector< math::RhoEtaPhiVector > particles_RhoEtaPhiVector;
         
     TLorentzVector metL, bL,fwdJL, G1, G2;  //temp solution: make met, bjet & jprime global TLorentzVectors
@@ -312,7 +311,7 @@ namespace flashgg {
     METToken_( consumes<View<flashgg::Met> >( iConfig.getParameter<InputTag> ( "METTag" ) ) ),
     genParticleToken_( consumes<View<reco::GenParticle> >( iConfig.getParameter<InputTag> ( "GenParticleTag" ) ) ),
     genJetToken_ ( consumes<View<reco::GenJet> >( iConfig.getParameter<InputTag> ( "GenJetTag" ) ) ),
-    //weightToken_( consumes<vector<flashgg::PDFWeightObject> >( iConfig.getUntrackedParameter<InputTag>( "WeightTag", InputTag( "flashggPDFWeightObject" ) ) ) ),
+    weightToken_( consumes<vector<flashgg::PDFWeightObject> >( iConfig.getUntrackedParameter<InputTag>( "WeightTag", InputTag( "flashggPDFWeightObject" ) ) ) ),
     rhoTag_( consumes<double>( iConfig.getParameter<InputTag>( "rhoTag" ) ) ),
     systLabel_( iConfig.getParameter<string> ( "SystLabel" ) ),
     MVAMethod_    ( iConfig.getParameter<string> ( "MVAMethod"    ) )
@@ -670,7 +669,7 @@ namespace flashgg {
 
       std::sort(SelJetVect_EtaSorted.begin(),SelJetVect_EtaSorted.end(),GreaterByEta()); 
       std::sort(SelJetVect_PtSorted.begin(),SelJetVect_PtSorted.end(),GreaterByPt()); 
-      std::sort(SelJetVect.begin(),SelJetVect.end(),GreaterByBTagging(bTag_.c_str())); 
+      std::sort(SelJetVect_BSorted.begin(),SelJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
 
 
       if( IsTH ){
@@ -790,7 +789,8 @@ namespace flashgg {
 	thqltags_obj.setDiPhotonIndex( diphoIndex );
 	thqltags_obj.setSystLabel( systLabel_ );
 
-	thqltags_obj.setValues( foxwolf1.another , eventshapes.pt , metL.Pt(), metL.Phi()  );
+	thqltags_obj.setFoxAndAplanarityValues( foxwolf1.another , eventshapes.pt );
+	thqltags_obj.setMETValues( "SolvedMET", metL.Pt(), metL.Eta(), metL.Phi(), metL.E() );
 
 	topReco( &SelJetVect_BSorted );
 	thqltags_obj.setMVAres("HighestBTagVal" ,  thqLeptonicMvaResult_value_ , topMass , fwdJet , bJet);
@@ -818,46 +818,46 @@ namespace flashgg {
 	  }
 
 	  Handle<vector<flashgg::PDFWeightObject> > WeightHandle;
-	  //evt.getByToken( weightToken_, WeightHandle );
+	  evt.getByToken( weightToken_, WeightHandle );
 	  
-	  // for( unsigned int weight_index = 0; weight_index < (*WeightHandle).size(); weight_index++ ){
-	  //   vector<uint16_t> compressed_weights = (*WeightHandle)[weight_index].pdf_weight_container;
-	  //   std::vector<float> uncompressed = (*WeightHandle)[weight_index].uncompress( compressed_weights );
-	  //   vector<uint16_t> compressed_alpha = (*WeightHandle)[weight_index].alpha_s_container;
-	  //   std::vector<float> uncompressed_alpha = (*WeightHandle)[weight_index].uncompress( compressed_alpha );
-	  //   vector<uint16_t> compressed_scale = (*WeightHandle)[weight_index].qcd_scale_container;
-	  //   std::vector<float> uncompressed_scale = (*WeightHandle)[weight_index].uncompress( compressed_scale );
-	  //   vector<uint16_t> compressed_nloweights = (*WeightHandle)[weight_index].pdfnlo_weight_container;
-	  //   std::vector<float> uncompressed_nloweights = (*WeightHandle)[weight_index].uncompress( compressed_nloweights );
+	  for( unsigned int weight_index = 0; weight_index < (*WeightHandle).size(); weight_index++ ){
+	    vector<uint16_t> compressed_weights = (*WeightHandle)[weight_index].pdf_weight_container;
+	    std::vector<float> uncompressed = (*WeightHandle)[weight_index].uncompress( compressed_weights );
+	    vector<uint16_t> compressed_alpha = (*WeightHandle)[weight_index].alpha_s_container;
+	    std::vector<float> uncompressed_alpha = (*WeightHandle)[weight_index].uncompress( compressed_alpha );
+	    vector<uint16_t> compressed_scale = (*WeightHandle)[weight_index].qcd_scale_container;
+	    std::vector<float> uncompressed_scale = (*WeightHandle)[weight_index].uncompress( compressed_scale );
+	    vector<uint16_t> compressed_nloweights = (*WeightHandle)[weight_index].pdfnlo_weight_container;
+	    std::vector<float> uncompressed_nloweights = (*WeightHandle)[weight_index].uncompress( compressed_nloweights );
 	  //   vector<uint16_t> compressed_ctcvweights = (*WeightHandle)[weight_index].ctcv_weight_container;
 	  //   std::vector<float> uncompressed_ctcvweights = (*WeightHandle)[weight_index].uncompress( compressed_ctcvweights );
 	  //   //std::cout << "size !! "<< uncompressed.size() << " "<< uncompressed_alpha.size() << " "<<uncompressed_scale.size()<<" " << uncompressed_nloweights.size() << " "  <<uncompressed_ctcvweights.size() << std::endl;
-	  //   float central_w = uncompressed_scale[0];
+	    float central_w = uncompressed_scale[0];
 	    
 
-	  //   for( unsigned int j=0; j<(*WeightHandle)[weight_index].pdf_weight_container.size();j++ ) {
-	  //     thqltags_obj.setPdf(j,uncompressed[j]/ central_w );
-	  //   }
+	    for( unsigned int j=0; j<(*WeightHandle)[weight_index].pdf_weight_container.size();j++ ) {
+	      thqltags_obj.setPdf(j,uncompressed[j]/ central_w );
+	    }
 	  //   // for( unsigned int j=1; j<(*WeightHandle)[weight_index].ctcv_weight_container.size();j++ ) {
 	  //   //   thqltags_obj.setCtCv(j,uncompressed_ctcvweights[j]/ central_w );
 	  //   // }
-	  //   if (uncompressed_alpha.size()>1)
-	  //     {
-	  // 	thqltags_obj.setAlphaUp(uncompressed_alpha[0]/central_w );
-	  // 	thqltags_obj.setAlphaDown(uncompressed_alpha[1]/ central_w );
-	  //     }
-	  //   else
-	  //     thqltags_obj.setAlphaDown(uncompressed_alpha[0]/ central_w );
-	  //   thqltags_obj.setScaleUp(0,uncompressed_scale[1]/central_w );
-	  //   thqltags_obj.setScaleDown(0,uncompressed_scale[2]/ central_w );
-	  //   thqltags_obj.setScaleUp(1,uncompressed_scale[3]/ central_w );
-	  //   thqltags_obj.setScaleDown(1,uncompressed_scale[6]/ central_w );
-	  //   thqltags_obj.setScaleUp(2,uncompressed_scale[4]/ central_w );
-	  //   thqltags_obj.setScaleDown(2,uncompressed_scale[8]/central_w );
-	  //   if (uncompressed_nloweights.size()>0)
-	  //     thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/ central_w);
+	    if (uncompressed_alpha.size()>1)
+	      {
+	  	thqltags_obj.setAlphaUp(uncompressed_alpha[0]/central_w );
+	  	thqltags_obj.setAlphaDown(uncompressed_alpha[1]/ central_w );
+	      }
+	    else
+	      thqltags_obj.setAlphaDown(uncompressed_alpha[0]/ central_w );
+	    thqltags_obj.setScaleUp(0,uncompressed_scale[1]/central_w );
+	    thqltags_obj.setScaleDown(0,uncompressed_scale[2]/ central_w );
+	    thqltags_obj.setScaleUp(1,uncompressed_scale[3]/ central_w );
+	    thqltags_obj.setScaleDown(1,uncompressed_scale[6]/ central_w );
+	    thqltags_obj.setScaleUp(2,uncompressed_scale[4]/ central_w );
+	    thqltags_obj.setScaleDown(2,uncompressed_scale[8]/central_w );
+	    if (uncompressed_nloweights.size()>0)
+	      thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/ central_w);
 	    
-	  // }//end of reading PDF weights
+	  }//end of reading PDF weights
 	  
 	  evt.getByToken( genParticleToken_, genParticles );
 	  evt.getByToken( genJetToken_, genJets );
@@ -874,6 +874,28 @@ namespace flashgg {
 	  }
 
 	  truth_obj.setGenPV( higgsVtx );
+
+	  // --------
+	  //gen met
+	  TLorentzVector nu_lorentzVector, allnus_LorentzVector, promptnus_LorentzVector;
+	  
+	  for( unsigned int genLoop = 0 ; genLoop < genParticles->size(); genLoop++ ) {
+	    edm::Ptr<reco::GenParticle> part = genParticles->ptrAt( genLoop );
+	    bool fid_cut = (abs(part->eta())<5.0 && part->status()==1) ? 1 : 0;
+	    bool isNu = (abs(part->pdgId())==12 || part->pdgId()==14 || part->pdgId()==16) ? 1 : 0;
+	    if (!fid_cut || !isNu) continue;
+	    if( part->isPromptFinalState() || part->isDirectPromptTauDecayProductFinalState()) {
+	      nu_lorentzVector.SetPtEtaPhiE(  part->pt() , part->eta() , part->phi() , part->energy() );
+	      promptnus_LorentzVector+=nu_lorentzVector;
+	    }
+	    else{
+	      nu_lorentzVector.SetPtEtaPhiE(  part->pt() , part->eta() , part->phi() , part->energy() );
+	      allnus_LorentzVector+=nu_lorentzVector;
+	    }
+	  }
+	  thqltags_obj.setMETValues( "allPromptNus", promptnus_LorentzVector.Pt(), promptnus_LorentzVector.Eta(), promptnus_LorentzVector.Phi(), promptnus_LorentzVector.Energy() );
+	  thqltags_obj.setMETValues( "allNus", allnus_LorentzVector.Pt(), allnus_LorentzVector.Eta(), allnus_LorentzVector.Phi(), allnus_LorentzVector.Energy() );
+	  thqltags_obj.setMETValues( "genMetTrue", theMET->genMET()->pt(), theMET->genMET()->eta(), theMET->genMET()->phi(), theMET->genMET()->energy() );
 
 	  if(SelJetVect_PtSorted.size() > 1){
 	    unsigned int index_leadq       = std::numeric_limits<unsigned int>::max();
@@ -1023,54 +1045,60 @@ namespace flashgg {
 	  
 	    if( index_gp_leadmuon < std::numeric_limits<unsigned int>::max() ) 
 	      {
+		truth_obj.setClosestParticleToLeadingMuon( genParticles->ptrAt( index_gp_leadmuon ) );
 		const reco::GenParticle *mcMom;
 		mcMom = static_cast<const reco::GenParticle *>(genParticles->ptrAt( index_gp_leadmuon )->mother());
 		if (mcMom){
 		  if( abs(genParticles->ptrAt( index_gp_leadmuon )->pdgId())==13 
 		      && genParticles->ptrAt( index_gp_leadmuon )->status()==1  
 		      && abs( mcMom->pdgId())==24 ) 
-		    { truth_obj.setClosestParticleToLeadingMuon( genParticles->ptrAt( index_gp_leadmuon ) ); }
+		    { truth_obj.setClosestPromptParticleToLeadingMuon( genParticles->ptrAt( index_gp_leadmuon ) ); }
 		}
 	      }
 	    
 	    if( index_gp_subleadmuon < std::numeric_limits<unsigned int>::max() ) {
+	      truth_obj.setClosestParticleToSubLeadingMuon( genParticles->ptrAt( index_gp_subleadmuon ) );
 	      const reco::GenParticle *mcMom;
 	      mcMom = static_cast<const reco::GenParticle *>(genParticles->ptrAt( index_gp_subleadmuon )->mother());
 	      if (mcMom){
 		if( abs(genParticles->ptrAt( index_gp_subleadmuon )->pdgId())==13 
 		    && genParticles->ptrAt( index_gp_subleadmuon )->status()==1  
 		    && abs( mcMom->pdgId())==24 ) 
-		  { truth_obj.setClosestParticleToSubLeadingMuon( genParticles->ptrAt( index_gp_subleadmuon ) ); }
+		  { truth_obj.setClosestPromptParticleToSubLeadingMuon( genParticles->ptrAt( index_gp_subleadmuon ) ); }
 	      }
 	    }
 	    if( index_gp_leadelectron < std::numeric_limits<unsigned int>::max() ) 
 	      {
+		truth_obj.setClosestParticleToLeadingElectron( genParticles->ptrAt( index_gp_leadelectron ) );
 		const reco::GenParticle *mcMom;
 		mcMom = static_cast<const reco::GenParticle *>(genParticles->ptrAt( index_gp_leadelectron )->mother());
 		if (mcMom){
 		  if( abs(genParticles->ptrAt( index_gp_leadelectron )->pdgId())==11 
 		      && genParticles->ptrAt( index_gp_leadelectron )->status()==1  
 		      && abs( mcMom->pdgId())==24 ) 
-		    { truth_obj.setClosestParticleToLeadingElectron( genParticles->ptrAt( index_gp_leadelectron ) ); }
+		    { truth_obj.setClosestPromptParticleToLeadingElectron( genParticles->ptrAt( index_gp_leadelectron ) ); }
 		}
 	      }
 	    
 	    if( index_gp_subleadelectron < std::numeric_limits<unsigned int>::max() ) {
 	      const reco::GenParticle *mcMom;
+	      truth_obj.setClosestParticleToSubLeadingElectron( genParticles->ptrAt( index_gp_subleadelectron ) );
 	      mcMom = static_cast<const reco::GenParticle *>(genParticles->ptrAt( index_gp_subleadelectron )->mother());
 	      if (mcMom){
 		if( abs(genParticles->ptrAt( index_gp_subleadelectron )->pdgId())==11 
 		    && genParticles->ptrAt( index_gp_subleadelectron )->status()==1  
 		    && abs( mcMom->pdgId())==24 ) 
-		  { truth_obj.setClosestParticleToSubLeadingElectron( genParticles->ptrAt( index_gp_subleadelectron ) ); }
+		  { truth_obj.setClosestPromptParticleToSubLeadingElectron( genParticles->ptrAt( index_gp_subleadelectron ) ); }
 	      }
 	    }
 
 	    unsigned int index_gj_leadjet = std::numeric_limits<unsigned int>::max();
 	    unsigned int index_gj_subleadjet = std::numeric_limits<unsigned int>::max();
+	    unsigned int index_gj_subsubleadjet = std::numeric_limits<unsigned int>::max();
 
 	    float dr_gj_leadjet = 999.;
 	    float dr_gj_subleadjet = 999.;
+	    float dr_gj_subsubleadjet = 999.;
 	    // --------
 	    //GEN Jet-RECO Jet Matching
 	    for( unsigned int gjLoop = 0 ; gjLoop < genJets->size() ; gjLoop++ ) 
@@ -1090,19 +1118,28 @@ namespace flashgg {
 		    index_gj_subleadjet = gjLoop;
 		  }
 		//}
+		if (truth_obj.hasSubSubLeadingJet())
+		  {
+		    dr = deltaR( SelJetVect_PtSorted[2]->eta(), SelJetVect_PtSorted[2]->phi(), gj->eta(), gj->phi() );
+		    if( dr < dr_gj_subsubleadjet )
+		      {
+			dr_gj_subsubleadjet = dr;
+			index_gj_subsubleadjet = gjLoop;
+		      }
+		  }
 	      }
 	    if( index_gj_leadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestGenJetToLeadingJet( genJets->ptrAt( index_gj_leadjet ) ); }
 	    if( index_gj_subleadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestGenJetToSubLeadingJet( genJets->ptrAt( index_gj_subleadjet ) ); }
+	    if( index_gj_subsubleadjet < std::numeric_limits<unsigned int>::max() ) { truth_obj.setClosestGenJetToSubSubLeadingJet( genJets->ptrAt( index_gj_subsubleadjet ) ); }
           
 	    // --------
 	    //Parton-Jet Matching
-	    //Lead
 	    std::vector<edm::Ptr<reco::GenParticle>> ptOrderedPartons;
 	    for (unsigned int genLoop(0);genLoop < genParticles->size();genLoop++) 
 	      {
 		edm::Ptr<reco::GenParticle> gp = genParticles->ptrAt(genLoop);
-		bool isGluon = abs( gp->pdgId() ) < 7 && gp->numberOfMothers() == 0;
-		bool isQuark = gp->pdgId() == 21 && gp->numberOfMothers() == 0;
+		bool isQuark = abs( gp->pdgId() ) < 7 && gp->numberOfMothers() == 0;
+		bool isGluon = gp->pdgId() == 21 && gp->numberOfMothers() == 0;
 		if (isGluon || isQuark) {
 		  unsigned int insertionIndex(0);
 		  for (unsigned int parLoop(0);parLoop<ptOrderedPartons.size();parLoop++) {
@@ -1111,7 +1148,8 @@ namespace flashgg {
 		  ptOrderedPartons.insert( ptOrderedPartons.begin() + insertionIndex, gp);
 		}
 	      }
-	    if ( ptOrderedPartons.size() > 0 ) 
+	    //Lead
+	    if ( ptOrderedPartons.size() > 0 && truth_obj.hasLeadingJet()) 
 	      {
 		float dr(999.0);
 		unsigned pIndex(0);
@@ -1122,10 +1160,8 @@ namespace flashgg {
 		}
 		truth_obj.setClosestPartonToLeadingJet( ptOrderedPartons[pIndex] );
 	      }
-	    // --------
-	    //Parton-Jet Matching
 	    //Sublead
-	    if (ptOrderedPartons.size() > 0) 
+	    if (ptOrderedPartons.size() > 0 && truth_obj.hasSubLeadingJet()) 
 	      {
 		float dr(999.0);
 		unsigned pIndex(0);
@@ -1134,10 +1170,21 @@ namespace flashgg {
 					     ptOrderedPartons[partLoop]->eta(),ptOrderedPartons[partLoop]->phi());
 		  if (deltaR_temp < dr) {dr = deltaR_temp; pIndex = partLoop;}
 		}
-		//std::cout  << "closest " << dr << std::endl;
 		truth_obj.setClosestPartonToSubLeadingJet( ptOrderedPartons[pIndex] );
 	      }
-	  
+	    //Subsublead
+	    if (ptOrderedPartons.size() > 0 && truth_obj.hasSubSubLeadingJet())
+              {
+                float dr(999.0);
+                unsigned pIndex(0);
+                for (unsigned partLoop(0);partLoop<ptOrderedPartons.size();partLoop++) {
+                  float deltaR_temp = deltaR(SelJetVect_PtSorted[2]->eta(),SelJetVect_PtSorted[2]->phi(),
+                                             ptOrderedPartons[partLoop]->eta(),ptOrderedPartons[partLoop]->phi());
+                  if (deltaR_temp < dr) {dr = deltaR_temp; pIndex = partLoop;}
+                }
+                truth_obj.setClosestPartonToSubSubLeadingJet( ptOrderedPartons[pIndex] );
+              }
+
 	    //std::cout<< index_gp_leadmuon << " "<< index_gp_leadjet <<" "<< index_gp_subleadjet <<" "<< index_gp_leadphoton << index_gp_subleadphoton <<" "<<index_gj_leadjet <<  " "<< index_gj_subleadjet << " "<< dr_gp_leadjet << " "<<dr_gp_subleadjet << " "<<dr_gp_leadphoton << " "<<dr_gp_subleadphoton<<" "<< dr_gj_leadjet <<" "<< dr_gj_subleadjet<<std::endl;
 	  }
 	  thqltags->push_back( thqltags_obj );

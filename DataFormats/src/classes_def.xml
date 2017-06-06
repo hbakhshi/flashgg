@@ -127,7 +127,7 @@
 <class name="std::vector<flashgg::VBFTagTruth>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VBFTagTruth> >"/>
 <class name="flashgg::THQLeptonicTagTruth" ClassVersion="0">
- <version ClassVersion="0" checksum="615950447"/>
+ <version ClassVersion="0" checksum="4051811987"/>
 </class>
 <class name="std::vector<flashgg::THQLeptonicTagTruth>"/>
 <class name="edm::Wrapper<std::vector<flashgg::THQLeptonicTagTruth> >"/>

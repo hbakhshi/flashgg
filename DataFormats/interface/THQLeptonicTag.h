@@ -5,6 +5,7 @@
 #include "flashgg/DataFormats/interface/Muon.h"
 #include "flashgg/DataFormats/interface/Electron.h"
 #include "flashgg/DataFormats/interface/Jet.h"
+#include "flashgg/DataFormats/interface/Met.h"
 //#include "flashgg/DataFormats/interface/THQLeptonicMVAResult.h"
 
 using namespace edm;
@@ -86,15 +87,6 @@ namespace flashgg {
             return LeptonType_;
         }
 
-        int findIndex(string label) const{
-            ptrdiff_t pos = find(bAssignmentLabels.begin(), bAssignmentLabels.end(), label) - bAssignmentLabels.begin();
-            if( pos < int( bAssignmentLabels.size() ) )
-                return pos;
-            else{
-                //cout << "label : " << label < " not found" << endl;
-                return -1;
-            }
-        }
         float thqleptonicMvaRes(string label) const {
             int index = findIndex(label);
             if(index < 0 )
@@ -132,11 +124,38 @@ namespace flashgg {
         float getAplanarity() const{
             return Aplanarity;
         }
-        float getMET() const{
-            return MET;
+
+        const Ptr<Met> getRECOMET() const{
+            return MET_;
         }
-        float getMET_Phi() const{
-            return MET_Phi;
+
+        float getMET_Pt(string label) const{
+            int index = findMETIndex(label);
+            if(index < 0 )
+                return -100;
+
+            return MET_Pt[findMETIndex(label)];
+        }
+        float getMET_Eta(string label) const{
+            int index = findMETIndex(label);
+            if(index < 0 )
+                return -100;
+
+            return MET_Eta[findMETIndex(label)];
+        }
+        float getMET_Phi(string label) const{
+            int index = findMETIndex(label);
+            if(index < 0 )
+                return -100;
+
+            return MET_Phi[findMETIndex(label)];
+        }
+        float getMET_E(string label) const{
+            int index = findMETIndex(label);
+            if(index < 0 )
+                return -100;
+
+            return MET_E[findMETIndex(label)];
         }
 
         const Ptr<reco::Vertex> getVertex( int vtx_index ) const {
@@ -265,14 +284,17 @@ namespace flashgg {
             bJet.push_back( bj ) ;
         }
 
-
-        void setValues( float fox , float aplan ,  float met, float metPhi ){
+        void setRECOMET (edm::Ptr<Met>  MET) {MET_=MET;}
+        void setFoxAndAplanarityValues( float fox , float aplan ){ 
             FoxWolframMoment_ONE = fox ;
             Aplanarity = aplan;
 
-            MET = met ;
-            MET_Phi = metPhi ;
         }
+        void setMETValues(  string label, float metPt, float metEta, float metPhi, float metE ){
+            metAssignmentLabels.push_back( label);
+            MET_Pt.push_back(metPt) ;  MET_Eta.push_back(metEta) ; MET_Phi.push_back(metPhi) ; MET_E.push_back(metE);
+        }
+
         //void setTHQLeptonicMVA( THQLeptonicMVAResult THQLeptonicMVA ) {THQLeptonicMVA_ = THQLeptonicMVA;}
         void setLeptonType(int val){ LeptonType_ = val; }
 
@@ -307,6 +329,24 @@ namespace flashgg {
 
     private:
 
+        int findIndex(string label) const{
+            ptrdiff_t pos = find(bAssignmentLabels.begin(), bAssignmentLabels.end(), label) - bAssignmentLabels.begin();
+            if( pos < int( bAssignmentLabels.size() ) )
+                return pos;
+            else{
+                return -1;
+            }
+        }
+        int findMETIndex(string label) const{
+            ptrdiff_t pos = find(metAssignmentLabels.begin(), metAssignmentLabels.end(), label) - metAssignmentLabels.begin();
+            if( pos < int( metAssignmentLabels.size() ) )
+                return pos;
+            else{
+                return -1;
+            }
+        }
+        
+
         std::vector<int> ElePassIso_;
         std::vector<int> ElePassTight_ ;
         std::vector<int> MuPassTight_ ;
@@ -316,6 +356,7 @@ namespace flashgg {
         std::vector<edm::Ptr<Jet> > Jets_;
         std::vector<edm::Ptr<Jet> > Jets_EtaSorted_;
         std::vector<edm::Ptr<Jet> > BJets_;
+        edm::Ptr<flashgg::Met> MET_;
         std::vector<float> thqleptonicMvaRes_;
         std::vector<edm::Ptr<reco::Vertex> > vertices_;
         std::map <std::string, std::vector<float> > vtx_dxy_; std::map <std::string, std::vector<float> > vtx_dz_;
@@ -330,8 +371,8 @@ namespace flashgg {
         float FoxWolframMoment_ONE;
         float Aplanarity;
         std::vector<float> TopMass;
-        float MET;
-        float MET_Phi;
+        std::vector< std::string > metAssignmentLabels;
+        std::vector<float> MET_Pt; std::vector<float> MET_Eta; std::vector<float> MET_Phi; std::vector<float> MET_E;
 
         
         float alphaUp_;
