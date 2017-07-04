@@ -418,7 +418,7 @@ namespace flashgg {
       //std::cout << theMET->getCorPx() <<std::endl;
       metL.SetPtEtaPhiE(theMET->getCorPt(),
 			theMET->eta(),
-			theMET->phi(),
+			theMET->getCorPhi(),
 			theMET->energy()
 			) ; 
 
