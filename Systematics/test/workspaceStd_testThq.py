@@ -209,7 +209,7 @@ print "customize.processId:",customize.processId
 useEGMTools(process)
 
 # Only run systematics for signal events
-if customize.processId.count("h_") or customize.processId.count("vbf_") or customize.processId.count("thq") or customize.processId.count("thw") or customize.processId.count("Acceptance"): # convention: ggh vbf wzh (wh zh) tth thq thw
+if customize.processId.count("h_") or customize.processId.count("vbf_") or customize.processId.count("Acceptance"): # convention: ggh vbf wzh (wh zh) tth thq thw
     print "Signal MC, so adding systematics and dZ"
     if customize.doHTXS:
         variablesToUse = minimalVariablesHTXS
@@ -303,7 +303,8 @@ from flashgg.MetaData.samples_utils import SamplesManager
 
 process.source = cms.Source ("PoolSource",
                              fileNames = cms.untracked.vstring(
-        "root://eoscms.cern.ch//eos/cms/store/group/phys_top/gkrintir/flashgg/RunIISummer16-2_4_2-25ns_Moriond17/2_4_2/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170413_104447/0000/myMicroAODOutputFile_1.root"
+        #"root://eoscms.cern.ch//eos/cms/store/group/phys_top/gkrintir/flashgg/RunIISummer16-2_4_2-25ns_Moriond17/2_4_2/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170413_104447/0000/myMicroAODOutputFile_1.root"
+        "root://eoscms.cern.ch//eos/cms/store/group/phys_top/gkrintir/flashgg/RunIISummer16-2_4_2-25ns_Moriond17/2_4_2/THQ_ctcvcp_HToGG_M125_13TeV-madgraph-pythia8_TuneCUETP8M1_v2/RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170504_224057/0000/myMicroAODOutputFile_12.root"
         #"root://eoscms.cern.ch//eos/cms/store/group/phys_top/gkrintir/flashgg/RunIISummer16-2_4_2-25ns_Moriond17/2_4_2/THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170413_155336/0000/myMicroAODOutputFile_10.root"
         #"root://eoscms.cern.ch//eos/cms/store/group/phys_top/gkrintir/flashgg/RunIISummer16-2_4_2-25ns_Moriond17/2_4_2/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1/RunIISummer16-2_4_2-25ns_Moriond17-2_4_2-v0-RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/170413_104447/0000/myMicroAODOutputFile_1.root"
         #"root://eoscms.cern.ch//eos/cms/store/group/phys_higgs/cmshgg/ferriff/flashgg/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2/2_3_0/DoubleEG/RunIISpring16DR80X-2_3_0-25ns_Moriond17_MiniAODv2-2_3_0-v0-Run2016B-23Sep2016-v3/161114_162631/0000/myMicroAODOutputFile_122.root"
@@ -426,7 +427,7 @@ for tag in tagList:
           else:
               currentVariables = []
       isBinnedOnly = False #(systlabel !=  "")
-      if ( customize.doPdfWeights  ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("thq")  or customize.processId.count("thw") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "th_125" or customize.processId == "bbh_125"):
+      if ( customize.doPdfWeights  ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("thq")  or customize.processId.count("thw") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "thq_125" or customize.processId == "bbh_125"):
           print "Signal MC central value, so dumping PDF weights"
           dumpPdfWeights = False #True
           nPdfWeights = 60
@@ -541,7 +542,7 @@ for mn in mns:
 print
 printSystematicInfo(process)
 
-customize.setDefault("maxEvents",1000)
+customize.setDefault("maxEvents",-1)
 customize.setDefault("targetLumi",1.00e+3)
 # call the customization
 customize(process)
