@@ -265,7 +265,7 @@ for label in ["HighestBTagVal", "Medium" , "Loose" , "Tight"]:
 
 
 truth_variables=[
-
+    
     "Photon1_J1_dR       := tagTruth().dR_Ph1_1_FggJet()",
     "Photon1_J2_dR       := tagTruth().dR_Ph1_2_FggJet()",
     "Photon1_J3_dR       := tagTruth().dR_Ph1_3_FggJet()",

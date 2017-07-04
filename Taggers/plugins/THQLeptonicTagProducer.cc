@@ -494,9 +494,10 @@ namespace flashgg {
 
       particles_RhoEtaPhiVector.push_back( math::RhoEtaPhiVector(G1.Pt(), G1.Eta() , G1.Phi() ) );
       particles_RhoEtaPhiVector.push_back( math::RhoEtaPhiVector(G2.Pt(), G2.Eta() , G2.Phi() ) );
-
+      
       if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
       Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
+      thqltags_obj.setRECOMET(theMET);
 
       // if(IsTH)
       // 	CTCVWeightedVariables["MET"]->Fill( theMET->getCorPt() , CtCvWeights );
@@ -796,8 +797,8 @@ namespace flashgg {
 	thqltags_obj.setDiPhotonIndex( diphoIndex );
 	thqltags_obj.setSystLabel( systLabel_ );
 
-	thqltags_obj.setFoxAndAplanarityValues( foxwolf1.another , eventshapes.pt );
-	thqltags_obj.setMETValues( "SolvedMET", metL.Pt(), metL.Eta(), metL.Phi(), metL.E() );
+	thqltags_obj.setFoxAndAplanarity( foxwolf1.another , eventshapes.pt );
+	thqltags_obj.setMETPtEtaPhiE( "SolvedMET", metL.Pt(), metL.Eta(), metL.Phi(), metL.E() );
 
 	topReco( &SelJetVect_BSorted );
 	thqltags_obj.setMVAres("HighestBTagVal" ,  thqLeptonicMvaResult_value_ , topMass , fwdJet , bJet);
@@ -906,9 +907,9 @@ namespace flashgg {
 	      allnus_LorentzVector+=nu_lorentzVector;
 	    }
 	  }
-	  thqltags_obj.setMETValues( "allPromptNus", promptnus_LorentzVector.Pt(), promptnus_LorentzVector.Eta(), promptnus_LorentzVector.Phi(), promptnus_LorentzVector.Energy() );
-	  thqltags_obj.setMETValues( "allNus", allnus_LorentzVector.Pt(), allnus_LorentzVector.Eta(), allnus_LorentzVector.Phi(), allnus_LorentzVector.Energy() );
-	  thqltags_obj.setMETValues( "genMetTrue", theMET->genMET()->pt(), theMET->genMET()->eta(), theMET->genMET()->phi(), theMET->genMET()->energy() );
+	  thqltags_obj.setMETPtEtaPhiE( "allPromptNus", promptnus_LorentzVector.Pt(), promptnus_LorentzVector.Eta(), promptnus_LorentzVector.Phi(), promptnus_LorentzVector.Energy() );
+	  thqltags_obj.setMETPtEtaPhiE( "allNus", allnus_LorentzVector.Pt(), allnus_LorentzVector.Eta(), allnus_LorentzVector.Phi(), allnus_LorentzVector.Energy() );
+	  thqltags_obj.setMETPtEtaPhiE( "genMetTrue", theMET->genMET()->pt(), theMET->genMET()->eta(), theMET->genMET()->phi(), theMET->genMET()->energy() );
 
 	  if(SelJetVect_PtSorted.size() > 1){
 	    unsigned int index_leadq       = std::numeric_limits<unsigned int>::max();

@@ -1,4 +1,4 @@
-#!/usr/bin/env cmsRun
+#!/usr/bin/env cmsRunn
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils

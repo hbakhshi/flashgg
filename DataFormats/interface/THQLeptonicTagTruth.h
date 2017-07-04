@@ -255,7 +255,7 @@ namespace flashgg {
         bool hasClosestPromptParticleToLeadingMuon() const { return closestPromptParticleToLeadingMuon_.isNonnull(); }
         bool hasClosestPromptParticleToSubLeadingMuon() const { return closestPromptParticleToSubLeadingMuon_.isNonnull(); }
         bool hasClosestPromptParticleToLeadingElectron() const { return closestPromptParticleToLeadingElectron_.isNonnull(); }
-        bool hasClosestPromptParticleToSubLeadingElectron() const { return closestParticleToSubLeadingElectron_.isNonnull(); }
+        bool hasClosestPromptParticleToSubLeadingElectron() const { return closestPromptParticleToSubLeadingElectron_.isNonnull(); }
         bool hasDiPhoton() const { return diPhoton_.isNonnull(); }
         bool hasLeadingJet() const { return leadingJet_.isNonnull(); }
         bool hasSubLeadingJet() const { return subLeadingJet_.isNonnull(); }

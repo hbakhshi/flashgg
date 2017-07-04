@@ -294,14 +294,18 @@ namespace flashgg {
         }
 
         void setRECOMET (edm::Ptr<Met>  MET) {MET_=MET;}
-        void setFoxAndAplanarityValues( float fox , float aplan ){ 
+        void setFoxAndAplanarity( float fox , float aplan ){ 
             FoxWolframMoment_ONE = fox ;
             Aplanarity = aplan;
 
         }
-        void setMETValues(  string label, float metPt, float metEta, float metPhi, float metE ){
+        void setMETPtEtaPhiE(  string label, float metPt, float metEta, float metPhi, float metE ){
             metAssignmentLabels.push_back( label);
             MET_Pt.push_back(metPt) ;  MET_Eta.push_back(metEta) ; MET_Phi.push_back(metPhi) ; MET_E.push_back(metE);
+        }
+        void setMETPxPyPzE(  string label, float metPx, float metPy, float metPz, float metE ){
+            metAssignmentLabels.push_back( label);
+            MET_Px.push_back(metPx) ;  MET_Py.push_back(metPy) ; MET_Pz.push_back(metPz) ; MET_E.push_back(metE);
         }
 
         //void setTHQLeptonicMVA( THQLeptonicMVAResult THQLeptonicMVA ) {THQLeptonicMVA_ = THQLeptonicMVA;}
@@ -316,7 +320,8 @@ namespace flashgg {
         }
         
         int nMedium_bJets, nLoose_bJets, nTight_bJets;
-        double bTagWeight , bTagWeightUp, bTagWeightDown;
+        double bTagWeight, bTagWeightUp, bTagWeightDown;
+
         double photonWeights;
         const std::vector<int> ElePassIso() const{
             return ElePassIso_;
@@ -381,7 +386,9 @@ namespace flashgg {
         float Aplanarity;
         std::vector<float> TopMass;
         std::vector< std::string > metAssignmentLabels;
-        std::vector<float> MET_Pt; std::vector<float> MET_Eta; std::vector<float> MET_Phi; std::vector<float> MET_E;
+        std::vector<float> MET_Pt; std::vector<float> MET_Eta; std::vector<float> MET_Phi; 
+        std::vector<float> MET_Px; std::vector<float> MET_Py; std::vector<float> MET_Pz;
+        std::vector<float> MET_E;
 
         
         float alphaUp_;
