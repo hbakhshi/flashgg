@@ -322,7 +322,8 @@ process.extraDumpers = cms.Sequence()
 import flashgg.Taggers.dumperConfigTools as cfgTools
 
 import flashgg.Taggers.THQLeptonicTagVariables as var
-variablesToUse = minimalVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables + var.theoweight_variables + defaultVariables
+variablesToUse = minimalVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.theoweight_variables + defaultVariables
+# + var.truth_variables
 print "-------------------------------------------------"
 print "--- Variables to be dumped, including systematic weights ---"
 print variablesToUse
@@ -431,7 +432,7 @@ for tag in tagList:
       isBinnedOnly = False #(systlabel !=  "")
       if ( customize.doPdfWeights  ) and ( (customize.datasetName() and customize.datasetName().count("HToGG")) or customize.processId.count("h_") or customize.processId.count("thq")  or customize.processId.count("thw") or customize.processId.count("vbf_") ) and (systlabel ==  "") and not (customize.processId == "th_125" or customize.processId == "bbh_125"):
           print "Signal MC central value, so dumping PDF weights"
-          dumpPdfWeights = False #True
+          dumpPdfWeights = not ( customize.processId.count("thq")  or customize.processId.count("thw") ) #False ## was false before
           nPdfWeights = 60
           nAlphaSWeights = 2
           nScaleWeights = 9

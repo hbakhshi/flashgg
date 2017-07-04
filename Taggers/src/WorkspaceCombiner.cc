@@ -36,10 +36,14 @@ void WorkspaceCombiner::Init( string outputFileName_, vector<string> inputfiles_
 
     outputFileName = outputFileName_;
 
-    this->cut = "(CMS_hgg_mass > 100 && CMS_hgg_mass < 180)&&(LeptonType == 1 || LeptonType == 2) && (diphoMVA > -0.4)&&(n_jets >= 2) &&(n_M_bjets==1)&&(MET > 30)"; //  &&MVA_Medium > 0 ";
-    varsToKeep = {"CMS_hgg_mass", "diphoMVA", "dZ" , "weight" , "fwdjet1_eta" , "n_jets" , "n_M_bjets" , "n_L_bjets" };
+    this->cut = "(CMS_hgg_mass > 100 && CMS_hgg_mass < 180)&&(LeptonType == 1 || LeptonType == 2) && (diphoMVA > -0.4)&&(n_jets >= 2) &&(n_M_bjets==1)&&(MET_pt > 30)"; //  &&MVA_Medium > 0 ";
+    this->cut_syst = "(CMS_hgg_mass > 100 && CMS_hgg_mass < 180)&&(LeptonType == 1 || LeptonType == 2) && (diphoMVA > -0.4)&&(n_jets >= 2) &&(n_M_bjets==1)&&(MET > 30)"; //  &&MVA_Medium > 0 ";
+    varsToKeep = {"CMS_hgg_mass", "diphoMVA", "dZ" , "weight" , "fwdjet1_eta" , "n_jets" , "n_M_bjets" , "n_L_bjets" , "centralObjectWeight","UnmatchedPUWeightUp01sigma","MvaLinearSystUp01sigma","LooseMvaSFUp01sigma","PreselSFUp01sigma","electronVetoSFUp01sigma","TriggerWeightUp01sigma","FracRVWeightUp01sigma","FracRVNvtxWeightUp01sigma","ElectronWeightUp01sigma","MuonWeightUp01sigma","MuonMiniIsoWeightUp01sigma","JetBTagCutWeightUp01sigma","JetBTagReshapeWeightUp01sigma","UnmatchedPUWeightDown01sigma","MvaLinearSystDown01sigma","LooseMvaSFDown01sigma","PreselSFDown01sigma","electronVetoSFDown01sigma","TriggerWeightDown01sigma","FracRVWeightDown01sigma","FracRVNvtxWeightDown01sigma","ElectronWeightDown01sigma","MuonWeightDown01sigma","MuonMiniIsoWeightDown01sigma","JetBTagCutWeightDown01sigma","JetBTagReshapeWeightDown01sigma" , "scaleUp_0" , "scaleDown_0" , "MVA_Medium" , "LeptonType" } ;
     for( uint i = 0 ; i < 70 ; i++ )
         varsToKeep.push_back( "ctcv_" + std::to_string( i ) );
+    for( uint i = 0 ; i < 101 ; i++ )
+        varsToKeep.push_back( "pdf_" + std::to_string( i ) );
+
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -114,7 +118,7 @@ void WorkspaceCombiner::GetWorkspaces( TDirectoryFile *tdfile )
                     //     //newName = newName.ReplaceAll( "ggh" , "gghlep" );
                     //     newName = newName.ReplaceAll( old , "mrg_");
                     //allDataClone[std::string(dataset->GetName())]
-                    allDataClone[std::string(newName)] = ( ( RooDataSet * )dataset->reduce( Cut(this->cut.c_str()) , SelectVars(selectedVars) , Name( newName ) ) );
+                    allDataClone[std::string(newName)] = ( ( RooDataSet * )dataset->reduce( Cut(this->getCut(newName).c_str()) , SelectVars(selectedVars) , Name( newName ) ) );
                     std::cout << "pushing back dataset " << *dataset << std::endl;
                  }
             }
@@ -206,7 +210,7 @@ void WorkspaceCombiner::MergeWorkspaces()
                         //                    for( d = 0 ; d < data[w].size() ; d++ ) {
                         //                        if( data[w][d]->GetName() == dataset->GetName() ) {
                         //lC    if (dataset) 
-                        data[w][std::string(newName.Data())]->append( *dynamic_cast<RooDataSet *>( dataset->reduce(this->cut.c_str()) ));
+                        data[w][std::string(newName.Data())]->append( *dynamic_cast<RooDataSet *>( dataset->reduce( this->getCut(newName).c_str()) ));
                         //                            break;
                         //                        }
                     }
@@ -216,7 +220,7 @@ void WorkspaceCombiner::MergeWorkspaces()
                         //                        std::map<std::string, RooDataSet *> temp_map;
                         //                        temp_map[dataset->GetName()] = ( RooDataSet * )dataset->Clone();
                         //                        data[w].push_back(  );
-                        data[w].insert( std::pair<string, RooDataSet *>(std::string(dataset->GetName()),( RooDataSet * )dataset->reduce(this->cut.c_str()) )  );
+                        data[w].insert( std::pair<string, RooDataSet *>(std::string(dataset->GetName()),( RooDataSet * )dataset->reduce( this->getCut(newName).c_str()) )  );
                     }
                 }
                 /// do the same for dataHists

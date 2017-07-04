@@ -97,32 +97,32 @@ namespace flashgg {
     void produce( Event &, const EventSetup & ) override;
     virtual void beginJob() override{
       if(IsTH){
-    	CTCVWeightedVariables["photon1pt"] = new CTCVWeightedVariable("photon1pt" , "photon1pt" , 20 , 20 , 300 );
-    	CTCVWeightedVariables["photon2pt"] = new CTCVWeightedVariable("photon2pt" , "photon2pt" , 20 , 20 , 300 );
-    	CTCVWeightedVariables["diPhotonPt"] = new CTCVWeightedVariable("diPhotonPt" , "diPhotonPt" , 20 , 20 , 300 );
-    	CTCVWeightedVariables["diPhotonEta"] = new CTCVWeightedVariable("diPhotonEta" , "diPhotonEta" , 10 , 0 , 4 );
-    	CTCVWeightedVariables["diPhotonMVA"] = new CTCVWeightedVariable("diPhotonMVA" , "diPhotonMVA" , 20 , -1 , 1 );
-    	CTCVWeightedVariables["LeptonPt"] = new CTCVWeightedVariable("LeptonPt" , "LeptonPt" , 20 , 20 , 220 );
-    	CTCVWeightedVariables["LeptonEta"] = new CTCVWeightedVariable("LeptonPt" , "LeptonEta" , 5 , 0 , 2.5 );
-    	CTCVWeightedVariables["nJets"] = new CTCVWeightedVariable("nJets" , "nJets" , 5 , 0 , 5 );
-    	CTCVWeightedVariables["nbJets"] = new CTCVWeightedVariable("nbJets" , "nbJets" , 5 , 0 , 5 );
-    	CTCVWeightedVariables["MET"] = new CTCVWeightedVariable("MET" , "MET" , 10 , 30 , 230 );
-    	CTCVWeightedVariables["jPrimeEta"] = new CTCVWeightedVariable("jPrimeEta" , "jPrimeEta" , 5, 0 , 5 );
+    	// CTCVWeightedVariables["photon1pt"] = new CTCVWeightedVariable("photon1pt" , "photon1pt" , 20 , 20 , 300 );
+    	// CTCVWeightedVariables["photon2pt"] = new CTCVWeightedVariable("photon2pt" , "photon2pt" , 20 , 20 , 300 );
+    	// CTCVWeightedVariables["diPhotonPt"] = new CTCVWeightedVariable("diPhotonPt" , "diPhotonPt" , 20 , 20 , 300 );
+    	// CTCVWeightedVariables["diPhotonEta"] = new CTCVWeightedVariable("diPhotonEta" , "diPhotonEta" , 10 , 0 , 4 );
+    	// CTCVWeightedVariables["diPhotonMVA"] = new CTCVWeightedVariable("diPhotonMVA" , "diPhotonMVA" , 20 , -1 , 1 );
+    	// CTCVWeightedVariables["LeptonPt"] = new CTCVWeightedVariable("LeptonPt" , "LeptonPt" , 20 , 20 , 220 );
+    	// CTCVWeightedVariables["LeptonEta"] = new CTCVWeightedVariable("LeptonPt" , "LeptonEta" , 5 , 0 , 2.5 );
+    	// CTCVWeightedVariables["nJets"] = new CTCVWeightedVariable("nJets" , "nJets" , 5 , 0 , 5 );
+    	// CTCVWeightedVariables["nbJets"] = new CTCVWeightedVariable("nbJets" , "nbJets" , 5 , 0 , 5 );
+    	// CTCVWeightedVariables["MET"] = new CTCVWeightedVariable("MET" , "MET" , 10 , 30 , 230 );
+    	// CTCVWeightedVariables["jPrimeEta"] = new CTCVWeightedVariable("jPrimeEta" , "jPrimeEta" , 5, 0 , 5 );
       }
     };
 
     virtual void endJob() override{
-      CTCVWeightedVariables["photon1pt"]->Write();
-      CTCVWeightedVariables["photon2pt"]->Write();
-      CTCVWeightedVariables["diPhotonPt"]->Write();
-      CTCVWeightedVariables["diPhotonEta"]->Write();
-      CTCVWeightedVariables["diPhotonMVA"]->Write();
-      CTCVWeightedVariables["LeptonPt"]->Write();
-      CTCVWeightedVariables["LeptonEta"]->Write();
-      CTCVWeightedVariables["nJets"]->Write();
-      CTCVWeightedVariables["nbJets"]->Write();
-      CTCVWeightedVariables["MET"]->Write();
-      CTCVWeightedVariables["jPrimeEta"]->Write();
+      // CTCVWeightedVariables["photon1pt"]->Write();
+      // CTCVWeightedVariables["photon2pt"]->Write();
+      // CTCVWeightedVariables["diPhotonPt"]->Write();
+      // CTCVWeightedVariables["diPhotonEta"]->Write();
+      // CTCVWeightedVariables["diPhotonMVA"]->Write();
+      // CTCVWeightedVariables["LeptonPt"]->Write();
+      // CTCVWeightedVariables["LeptonEta"]->Write();
+      // CTCVWeightedVariables["nJets"]->Write();
+      // CTCVWeightedVariables["nbJets"]->Write();
+      // CTCVWeightedVariables["MET"]->Write();
+      // CTCVWeightedVariables["jPrimeEta"]->Write();
     };
 
     std::vector<edm::EDGetTokenT<View<flashgg::Jet> > > tokenJets_;
@@ -452,13 +452,13 @@ namespace flashgg {
 
       flashgg::THQLeptonicTag thqltags_obj( dipho, mvares );
 
-      if(IsTH)
-      	CTCVWeightedVariables["photon1pt"]->Fill( dipho->leadingPhoton()->pt() , CtCvWeights );
+      // if(IsTH)
+      // 	CTCVWeightedVariables["photon1pt"]->Fill( dipho->leadingPhoton()->pt() , CtCvWeights );
 
       if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { continue; }
 
-      if(IsTH)
-      	CTCVWeightedVariables["photon2pt"]->Fill( dipho->subLeadingPhoton()->pt() , CtCvWeights );
+      // if(IsTH)
+      // 	CTCVWeightedVariables["photon2pt"]->Fill( dipho->subLeadingPhoton()->pt() , CtCvWeights );
 
       if( dipho->subLeadingPhoton()->pt() < ( dipho->mass() )*subleadPhoOverMassThreshold_ ) { continue; }
 
@@ -468,12 +468,12 @@ namespace flashgg {
 
       if( idmva1 <= PhoMVAThreshold_ || idmva2 <= PhoMVAThreshold_ ) { continue; }
 
-      if(IsTH){
-      	CTCVWeightedVariables["diPhotonMVA"]->Fill( mvares->result , CtCvWeights );
+      // if(IsTH){
+      // 	CTCVWeightedVariables["diPhotonMVA"]->Fill( mvares->result , CtCvWeights );
 
-      	CTCVWeightedVariables["diPhotonPt"]->Fill( dipho->pt() , CtCvWeights );
-      	CTCVWeightedVariables["diPhotonEta"]->Fill( abs( dipho->eta() ) , CtCvWeights );
-      }
+      // 	CTCVWeightedVariables["diPhotonPt"]->Fill( dipho->pt() , CtCvWeights );
+      // 	CTCVWeightedVariables["diPhotonEta"]->Fill( abs( dipho->eta() ) , CtCvWeights );
+      // }
 
       if( mvares->result < MVAThreshold_ ) { continue; }
 
@@ -498,8 +498,8 @@ namespace flashgg {
       if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
       Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
 
-      if(IsTH)
-      	CTCVWeightedVariables["MET"]->Fill( theMET->getCorPt() , CtCvWeights );
+      // if(IsTH)
+      // 	CTCVWeightedVariables["MET"]->Fill( theMET->getCorPt() , CtCvWeights );
 
       //const pat::MET &met_ = METs->front();
       //std::cout << met_.pt() <<std::endl;
@@ -592,10 +592,10 @@ namespace flashgg {
                 
       }//end of electron loop
 
-      if(IsTH){
-      	CTCVWeightedVariables["LeptonPt"]->Fill( lepton.pt , CtCvWeights );
-      	CTCVWeightedVariables["LeptonEta"]->Fill( abs(lepton.eta) , CtCvWeights );
-      }
+      // if(IsTH){
+      // 	CTCVWeightedVariables["LeptonPt"]->Fill( lepton.pt , CtCvWeights );
+      // 	CTCVWeightedVariables["LeptonEta"]->Fill( abs(lepton.eta) , CtCvWeights );
+      // }
 
 
       for( unsigned int candIndex_outer = 0; candIndex_outer < Jets[jetCollectionIndex]->size() ; candIndex_outer++ ) {
@@ -672,12 +672,12 @@ namespace flashgg {
       std::sort(SelJetVect_BSorted.begin(),SelJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
 
 
-      if( IsTH ){
-      	CTCVWeightedVariables["nJets"]->Fill( SelJetVect_EtaSorted.size() , CtCvWeights );
-      	CTCVWeightedVariables["nbJets"]->Fill( MediumBJetVect.size() , CtCvWeights );
-      	if( SelJetVect_EtaSorted.size() > 0 )
-      	  CTCVWeightedVariables["jPrimeEta"]->Fill( abs(SelJetVect_EtaSorted[0]->eta() ) , CtCvWeights );
-      }
+      // if( IsTH ){
+      // 	CTCVWeightedVariables["nJets"]->Fill( SelJetVect_EtaSorted.size() , CtCvWeights );
+      // 	CTCVWeightedVariables["nbJets"]->Fill( MediumBJetVect.size() , CtCvWeights );
+      // 	if( SelJetVect_EtaSorted.size() > 0 )
+      // 	  CTCVWeightedVariables["jPrimeEta"]->Fill( abs(SelJetVect_EtaSorted[0]->eta() ) , CtCvWeights );
+      // }
     
       
 
@@ -716,17 +716,24 @@ namespace flashgg {
 	thqltags_obj.setBJets( SelJetVect_BSorted );
 
 	thqltags_obj.bTagWeight = 1.0;
+	thqltags_obj.bTagWeightDown = 1.0;
+	thqltags_obj.bTagWeightUp = 1.0;
 
 
 
-	for( auto j : SelJetVect_PtSorted )
+	for( auto j : SelJetVect_PtSorted ){
 	  //for(auto itr = j->weightListBegin() ; itr != j->weightListEnd() ; itr++)
 	  //  cout << *itr << endl;
-	  if( j->hasWeight("JetBTagCutWeightCentral") )
+	  thqltags_obj.includeWeights( *j );
+	  
+	  if( j->hasWeight("JetBTagCutWeightCentral") ){
 	      thqltags_obj.bTagWeight *= j->weight( "JetBTagCutWeightCentral" );
+	      thqltags_obj.bTagWeightDown *= j->weight( "JetBTagCutWeightDown01sigma" );
+	      thqltags_obj.bTagWeightUp *= j->weight( "JetBTagCutWeightUp01sigma" );
+	  }
 	  else
 	    cout << "BTag weight is not set in jet" << endl;
-
+	}
 
 	thqltags_obj.setVertices( vertices->ptrs() );
 
@@ -815,48 +822,54 @@ namespace flashgg {
 	      thqltags_obj.setCtCv(i-446,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
 	      //cout << i << "_ctcv(" << product_lhe->weights()[i].id << ") :"  << thqltags_obj.getCtCv(i-446) << " : " << product_lhe->weights()[i].wgt << "/" << product_lhe->originalXWGTUP () << "=" << product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () << endl;
 	    }
-	  }
-
-	  Handle<vector<flashgg::PDFWeightObject> > WeightHandle;
-	  evt.getByToken( weightToken_, WeightHandle );
+	    thqltags_obj.setScaleUp(0,product_lhe->weights()[4].wgt/product_lhe->originalXWGTUP () );
+	    thqltags_obj.setScaleDown(0,product_lhe->weights()[8].wgt/product_lhe->originalXWGTUP () );
+	    for( uint i = 9 ; i < 109 ; i ++ )
+	      thqltags_obj.setPdf(i-9,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
+	  }else{
 	  
-	  for( unsigned int weight_index = 0; weight_index < (*WeightHandle).size(); weight_index++ ){
-	    vector<uint16_t> compressed_weights = (*WeightHandle)[weight_index].pdf_weight_container;
-	    std::vector<float> uncompressed = (*WeightHandle)[weight_index].uncompress( compressed_weights );
-	    vector<uint16_t> compressed_alpha = (*WeightHandle)[weight_index].alpha_s_container;
-	    std::vector<float> uncompressed_alpha = (*WeightHandle)[weight_index].uncompress( compressed_alpha );
-	    vector<uint16_t> compressed_scale = (*WeightHandle)[weight_index].qcd_scale_container;
-	    std::vector<float> uncompressed_scale = (*WeightHandle)[weight_index].uncompress( compressed_scale );
-	    vector<uint16_t> compressed_nloweights = (*WeightHandle)[weight_index].pdfnlo_weight_container;
-	    std::vector<float> uncompressed_nloweights = (*WeightHandle)[weight_index].uncompress( compressed_nloweights );
-	  //   vector<uint16_t> compressed_ctcvweights = (*WeightHandle)[weight_index].ctcv_weight_container;
-	  //   std::vector<float> uncompressed_ctcvweights = (*WeightHandle)[weight_index].uncompress( compressed_ctcvweights );
-	  //   //std::cout << "size !! "<< uncompressed.size() << " "<< uncompressed_alpha.size() << " "<<uncompressed_scale.size()<<" " << uncompressed_nloweights.size() << " "  <<uncompressed_ctcvweights.size() << std::endl;
-	    float central_w = uncompressed_scale[0];
+	  
+	    Handle<vector<flashgg::PDFWeightObject> > WeightHandle;
+	    evt.getByToken( weightToken_, WeightHandle );
+	  
+	    for( unsigned int weight_index = 0; weight_index < (*WeightHandle).size(); weight_index++ ){
+	      vector<uint16_t> compressed_weights = (*WeightHandle)[weight_index].pdf_weight_container;
+	      std::vector<float> uncompressed = (*WeightHandle)[weight_index].uncompress( compressed_weights );
+	      vector<uint16_t> compressed_alpha = (*WeightHandle)[weight_index].alpha_s_container;
+	      std::vector<float> uncompressed_alpha = (*WeightHandle)[weight_index].uncompress( compressed_alpha );
+	      vector<uint16_t> compressed_scale = (*WeightHandle)[weight_index].qcd_scale_container;
+	      std::vector<float> uncompressed_scale = (*WeightHandle)[weight_index].uncompress( compressed_scale );
+	      vector<uint16_t> compressed_nloweights = (*WeightHandle)[weight_index].pdfnlo_weight_container;
+	      std::vector<float> uncompressed_nloweights = (*WeightHandle)[weight_index].uncompress( compressed_nloweights );
+	      //   vector<uint16_t> compressed_ctcvweights = (*WeightHandle)[weight_index].ctcv_weight_container;
+	      //   std::vector<float> uncompressed_ctcvweights = (*WeightHandle)[weight_index].uncompress( compressed_ctcvweights );
+	      //   //std::cout << "size !! "<< uncompressed.size() << " "<< uncompressed_alpha.size() << " "<<uncompressed_scale.size()<<" " << uncompressed_nloweights.size() << " "  <<uncompressed_ctcvweights.size() << std::endl;
+	      float central_w = uncompressed_scale[0];
 	    
 
-	    for( unsigned int j=0; j<(*WeightHandle)[weight_index].pdf_weight_container.size();j++ ) {
-	      thqltags_obj.setPdf(j,uncompressed[j]/ central_w );
-	    }
-	  //   // for( unsigned int j=1; j<(*WeightHandle)[weight_index].ctcv_weight_container.size();j++ ) {
-	  //   //   thqltags_obj.setCtCv(j,uncompressed_ctcvweights[j]/ central_w );
-	  //   // }
-	    if (uncompressed_alpha.size()>1)
-	      {
-	  	thqltags_obj.setAlphaUp(uncompressed_alpha[0]/central_w );
-	  	thqltags_obj.setAlphaDown(uncompressed_alpha[1]/ central_w );
+	      for( unsigned int j=0; j<(*WeightHandle)[weight_index].pdf_weight_container.size();j++ ) {
+		thqltags_obj.setPdf(j,uncompressed[j]/ central_w );
 	      }
-	    else
-	      thqltags_obj.setAlphaDown(uncompressed_alpha[0]/ central_w );
-	    thqltags_obj.setScaleUp(0,uncompressed_scale[1]/central_w );
-	    thqltags_obj.setScaleDown(0,uncompressed_scale[2]/ central_w );
-	    thqltags_obj.setScaleUp(1,uncompressed_scale[3]/ central_w );
-	    thqltags_obj.setScaleDown(1,uncompressed_scale[6]/ central_w );
-	    thqltags_obj.setScaleUp(2,uncompressed_scale[4]/ central_w );
-	    thqltags_obj.setScaleDown(2,uncompressed_scale[8]/central_w );
-	    if (uncompressed_nloweights.size()>0)
-	      thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/ central_w);
-	    
+	      //   // for( unsigned int j=1; j<(*WeightHandle)[weight_index].ctcv_weight_container.size();j++ ) {
+	      //   //   thqltags_obj.setCtCv(j,uncompressed_ctcvweights[j]/ central_w );
+	      //   // }
+	      if (uncompressed_alpha.size()>1)
+		{
+		  thqltags_obj.setAlphaUp(uncompressed_alpha[0]/central_w );
+		  thqltags_obj.setAlphaDown(uncompressed_alpha[1]/ central_w );
+		}
+	      else
+		thqltags_obj.setAlphaDown(uncompressed_alpha[0]/ central_w );
+	      
+	      thqltags_obj.setScaleUp(0,uncompressed_scale[1]/central_w );
+	      thqltags_obj.setScaleDown(0,uncompressed_scale[2]/ central_w );
+	      thqltags_obj.setScaleUp(1,uncompressed_scale[3]/ central_w );
+	      thqltags_obj.setScaleDown(1,uncompressed_scale[6]/ central_w );
+	      thqltags_obj.setScaleUp(2,uncompressed_scale[4]/ central_w );
+	      thqltags_obj.setScaleDown(2,uncompressed_scale[8]/central_w );
+	      if (uncompressed_nloweights.size()>0)
+		thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/ central_w);
+	    }
 	  }//end of reading PDF weights
 	  
 	  evt.getByToken( genParticleToken_, genParticles );
