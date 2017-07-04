@@ -311,7 +311,7 @@ namespace flashgg {
         }
         
         int nMedium_bJets, nLoose_bJets, nTight_bJets;
-        double bTagWeight;
+        double bTagWeight, bTagWeightUp, bTagWeightDown;;
         double photonWeights;
         const std::vector<int> ElePassIso() const{
             return ElePassIso_;
@@ -385,7 +385,7 @@ namespace flashgg {
         float alphaDown_;
         float scaleUp_[3];
         float scaleDown_[3];
-        float pdf_[60];
+        float pdf_[100];
         float pdfnlo_;
         float ctcv_[50];
     };
