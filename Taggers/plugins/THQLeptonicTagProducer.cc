@@ -498,6 +498,7 @@ namespace flashgg {
       if( METs->size() != 1 ) { std::cout << "WARNING - #MET is not 1" << std::endl;}
       Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
       thqltags_obj.setRECOMET(theMET);
+
       // if(IsTH)
       // 	CTCVWeightedVariables["MET"]->Fill( theMET->getCorPt() , CtCvWeights );
 

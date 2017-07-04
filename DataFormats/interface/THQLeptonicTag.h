@@ -128,6 +128,15 @@ namespace flashgg {
         const Ptr<Met> getRECOMET() const{
             return MET_;
         }
+        const float getRECOMET_Pt() const{
+            return MET_->getCorPt();
+        }
+        const float getRECOMET_Eta() const{
+            return MET_->eta();
+        }
+        const float getRECOMET_Phi() const{
+            return MET_->getCorPhi();
+        }
 
         float getMET_Pt(string label) const{
             int index = findMETIndex(label);
@@ -311,7 +320,8 @@ namespace flashgg {
         }
         
         int nMedium_bJets, nLoose_bJets, nTight_bJets;
-        double bTagWeight, bTagWeightUp, bTagWeightDown;;
+        double bTagWeight, bTagWeightUp, bTagWeightDown;
+
         double photonWeights;
         const std::vector<int> ElePassIso() const{
             return ElePassIso_;
@@ -387,7 +397,7 @@ namespace flashgg {
         float scaleDown_[3];
         float pdf_[100];
         float pdfnlo_;
-        float ctcv_[50];
+        float ctcv_[70];
     };
 }
 
