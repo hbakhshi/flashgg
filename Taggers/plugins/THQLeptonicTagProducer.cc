@@ -181,7 +181,7 @@ namespace flashgg {
     std::vector< TLorentzVector > particles_LorentzVector; 
     std::vector< math::RhoEtaPhiVector > particles_RhoEtaPhiVector;
         
-    TLorentzVector metL, bL,fwdJL, G1, G2;  //temp solution: make met, bjet & jprime global TLorentzVectors
+    TLorentzVector metL, metW_check, bL,fwdJL, G1, G2;  //temp solution: make met, bjet & jprime global TLorentzVectors
 
     struct GreaterByPt
     {
@@ -249,7 +249,7 @@ namespace flashgg {
       metL = singletop.getMET() ;
       jprime_eta  = fabs( fwdJL.Eta() );
       met_pt = metL.Pt();
-
+      metW_check = singletop.neutrino_W () ;
       topMass = singletop.top().M() ;
 
       if (MVAMethod_ != "") 
@@ -503,7 +503,7 @@ namespace flashgg {
       // 	CTCVWeightedVariables["MET"]->Fill( theMET->getCorPt() , CtCvWeights );
 
       //const pat::MET &met_ = METs->front();
-      //std::cout << met_.pt() <<std::endl;
+      //std::cout << theMET->getCorPt() <<std::endl;
       metL.SetPtEtaPhiE( theMET->getCorPt(),
 			 theMET->eta(),
 			 theMET->getCorPhi(),
@@ -598,7 +598,7 @@ namespace flashgg {
       // 	CTCVWeightedVariables["LeptonEta"]->Fill( abs(lepton.eta) , CtCvWeights );
       // }
 
-
+      float ht=0;
       for( unsigned int candIndex_outer = 0; candIndex_outer < Jets[jetCollectionIndex]->size() ; candIndex_outer++ ) {
 	edm::Ptr<flashgg::Jet> thejet = Jets[jetCollectionIndex]->ptrAt( candIndex_outer );
 
@@ -652,13 +652,17 @@ namespace flashgg {
 	  TightBJetVect_PtSorted.push_back( thejet ); 
 	  TightBJetVect.push_back( thejet );
 	}
-
-                        
+	
+	ht+=thejet->pt();
 	SelJetVect.push_back( thejet ); 
 	SelJetVect_EtaSorted.push_back( thejet );
 	SelJetVect_PtSorted.push_back( thejet );
 	SelJetVect_BSorted.push_back( thejet );
       }//end of jets loop
+
+      //Calculate scalar sum of jets
+      thqltags_obj.setHT(ht);
+
       std::sort(LooseBJetVect_PtSorted.begin(),LooseBJetVect_PtSorted.end(),GreaterByPt()); 
       std::sort(LooseBJetVect.begin(),LooseBJetVect.end(),GreaterByBTagging(bTag_.c_str())); 
 
@@ -798,7 +802,7 @@ namespace flashgg {
 	thqltags_obj.setSystLabel( systLabel_ );
 
 	thqltags_obj.setFoxAndAplanarity( foxwolf1.another , eventshapes.pt );
-	thqltags_obj.setMETPtEtaPhiE( "SolvedMET", metL.Pt(), metL.Eta(), metL.Phi(), metL.E() );
+	thqltags_obj.setMETPtEtaPhiE( "SolvedMET", metW_check.Pt(), metW_check.Eta(), metW_check.Phi(), metW_check.E() );
 
 	topReco( &SelJetVect_BSorted );
 	thqltags_obj.setMVAres("HighestBTagVal" ,  thqLeptonicMvaResult_value_ , topMass , fwdJet , bJet);
@@ -819,17 +823,23 @@ namespace flashgg {
 	if( ! evt.isRealData() ) {
 
 	  if(IsTH){
-	    for (uint i = 446 ; i < product_lhe->weights().size() ; i++){
+	      //8 QCD scale weights
+	      for( uint i = 1 ; i < 9 ; i ++ )
+	      thqltags_obj.setScale(i-1,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
+	      //100 NNPDF30 LO weights
+	      for( uint i = 9 ; i < 109 ; i ++ )
+	      thqltags_obj.setPdf(i-9,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
+	      //1 as down variation
+	      thqltags_obj.setAlphaDown(product_lhe->weights()[211].wgt/product_lhe->originalXWGTUP ());
+	      //1 NNDF30 NLO weight
+	      thqltags_obj.setPdfNLO(product_lhe->weights()[390].wgt/product_lhe->originalXWGTUP () );
+	      for (uint i = 446 ; i < product_lhe->weights().size() ; i++){
 	      thqltags_obj.setCtCv(i-446,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
 	      //cout << i << "_ctcv(" << product_lhe->weights()[i].id << ") :"  << thqltags_obj.getCtCv(i-446) << " : " << product_lhe->weights()[i].wgt << "/" << product_lhe->originalXWGTUP () << "=" << product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () << endl;
 	    }
-	    thqltags_obj.setScaleUp(0,product_lhe->weights()[4].wgt/product_lhe->originalXWGTUP () );
-	    thqltags_obj.setScaleDown(0,product_lhe->weights()[8].wgt/product_lhe->originalXWGTUP () );
-	    for( uint i = 9 ; i < 109 ; i ++ )
-	      thqltags_obj.setPdf(i-9,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
-	  }else{
-	  
-	  
+
+	  }else{ 
+	    //temporary solution till ctcv issue on PDFWeightObject is solved :(
 	    Handle<vector<flashgg::PDFWeightObject> > WeightHandle;
 	    evt.getByToken( weightToken_, WeightHandle );
 	  
@@ -861,18 +871,15 @@ namespace flashgg {
 		}
 	      else
 		thqltags_obj.setAlphaDown(uncompressed_alpha[0]/ central_w );
-	      
-	      thqltags_obj.setScaleUp(0,uncompressed_scale[1]/central_w );
-	      thqltags_obj.setScaleDown(0,uncompressed_scale[2]/ central_w );
-	      thqltags_obj.setScaleUp(1,uncompressed_scale[3]/ central_w );
-	      thqltags_obj.setScaleDown(1,uncompressed_scale[6]/ central_w );
-	      thqltags_obj.setScaleUp(2,uncompressed_scale[4]/ central_w );
-	      thqltags_obj.setScaleDown(2,uncompressed_scale[8]/central_w );
+
+	      for( uint i = 1 ; i < 9 ; i ++ )
+		thqltags_obj.setScale(i-1,uncompressed_scale[i]/central_w );
+
 	      if (uncompressed_nloweights.size()>0)
 		thqltags_obj.setPdfNLO(uncompressed_nloweights[0]/ central_w);
 	    }
-	  }//end of reading PDF weights
-	  
+	  }//end of reading PDF weights from PDFWeightObject
+
 	  evt.getByToken( genParticleToken_, genParticles );
 	  evt.getByToken( genJetToken_, genJets );
 
@@ -1204,6 +1211,7 @@ namespace flashgg {
 	  thqltags->push_back( thqltags_obj );
 	  truths->push_back( truth_obj );
 	  thqltags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<THQLeptonicTagTruth> >( rTagTruth, idx++ ) ) );
+
 	}// ! evt.isRealData() loop end ! 
 	
       }//thq tag
