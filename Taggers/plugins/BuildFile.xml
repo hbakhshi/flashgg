@@ -12,5 +12,6 @@ n<library   name="FlashggTaggersPlugins" file="*.cc">
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="CommonTools/CandAlgos"/>
 <!-- Flags CXXFLAGS="-ggdb"/ -->
+<Flags CXXFLAGS="-ggdb"/>
 <flags   EDM_PLUGIN="1"/>
 </library>

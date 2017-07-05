@@ -150,6 +150,15 @@ namespace flashgg {
         const Ptr<Met> getRECOMET() const{
             return MET_;
         }
+        const float getRECOMET_Pt() const{
+            return MET_->getCorPt();
+        }
+        const float getRECOMET_Eta() const{
+            return MET_->eta();
+        }
+        const float getRECOMET_Phi() const{
+            return MET_->getCorPhi();
+        }
 
         float getMET_Pt(string label) const{
             int index = findMETIndex(label);

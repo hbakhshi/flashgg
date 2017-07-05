@@ -1,4 +1,4 @@
-#import flashgg.Taggers.globalVariables as globalVars
+import flashgg.Taggers.globalVariables_cff as globalVars
 
 #import FWCore.ParameterSet.Config as cms
 
@@ -248,6 +248,7 @@ jet_variables=[
     "jet1_e                 := ?jets.size>0? jets.at(0).energy : -999",
     "jet2_e                 := ?jets.size>1? jets.at(1).energy : -999",
     "jet3_e                 := ?jets.size>2? jets.at(2).energy : -999",
+
     "recoMET_pt             :=getRECOMET().getCorPt()",
     "recoMET_eta            :=getRECOMET().eta()",
     "recoMET_phi            :=getRECOMET().getCorPhi()",
@@ -256,14 +257,14 @@ jet_variables=[
     "solvedMET_eta          :=getMET_Eta(\"SolvedMET\")",
     "solvedMET_phi          :=getMET_Phi(\"SolvedMET\")",
     "solvedMET_e            :=getMET_E(\"SolvedMET\")",
-    "HT                     :=getHT()"
-
-    
+    "HT                     :=getHT()"    
 ]
 
 thqmva_variables=[
-    "bTagWeight             :=bTagWeight",
-    "photonWeights          :=photonWeights",
+    "bTagWeight             := bTagWeight",
+    "bTagWeightUp           := bTagWeightUp",
+    "bTagWeightDown         := bTagWeightDown",
+    "photonWeights          := photonWeights",
     "FoxWolf                :=getFoxWolframMoment_ONE",
     "Aplanarity             :=getAplanarity()",
     "MET_pt                 :=getRECOMET().getCorPt()",
@@ -375,9 +376,12 @@ truth_variables=[
 #     "MET[10,0,300]    :=getMET()",
 # ]
 thqSystematicVariables = [
-    "diphoMVA  :=diPhotonMVA().result",
-    "n_jets    :=jets.size",
-    "n_M_bjets :=nMedium_bJets",
+    "fwdjet1_eta            := ?Jets_EtaSorted.size>0? Jets_EtaSorted.at(0).eta: -999.",
+    "diphoMVA  := diPhotonMVA().result",
+    "n_jets    := jets.size",
+    "n_L_bjets                := nLoose_bJets",
+    "n_T_bjets                := nTight_bJets",
+    "n_M_bjets := nMedium_bJets",
     "LeptonType:=getLeptonType()",
     "MET_pt    :=getRECOMET().getCorPt()",
 ]
@@ -388,13 +392,11 @@ for label in ["Medium" ]: #"HighestBTagVal", "Loose" , "Tight"]:
 
 
 theoweight_variables=[
-    "alphaUp   := getAlphaUp()",
-    "alphaDown := getAlphaDown()",
-    "pdfnlo    := getPdfNLO()"
+#    "alphaUp   := getAlphaUp()",
+#    "alphaDown := getAlphaDown()",
+#    "pdfnlo    := getPdfNLO()"
 ]
 
-#for i in range(3):
-    #theoweight_variables += ["scaleUp_%i := getScaleUp(%i)" % (i,i),"scaleDown_%i := getScaleDown(%i)" % (i,i)]
 theoweight_variables +=[
     "scaleMuFUp   := getScale(0)",
     "scaleMuFDown := getScale(1)",
@@ -406,10 +408,11 @@ theoweight_variables +=[
     "scaleMuFDownMuRDown := getScale(7)"
     ]
 
-# for i in range(60):
-#     theoweight_variables +=["pdf_%i := getPdf(%i)" % (i,i)]
+for i in range(100):
+    theoweight_variables +=["pdf_%i := getPdf(%i)" % (i,i)]
 
 theoctcvweight_variables = []
 for i in range(70):
     theoctcvweight_variables +=["ctcv_%i := getCtCv(%i)" % (i,i)]
+
 
