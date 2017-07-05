@@ -376,14 +376,19 @@ truth_variables=[
 #     "MET[10,0,300]    :=getMET()",
 # ]
 thqSystematicVariables = [
-    "fwdjet1_eta            := ?Jets_EtaSorted.size>0? Jets_EtaSorted.at(0).eta: -999.",
-    "diphoMVA  := diPhotonMVA().result",
-    "n_jets    := jets.size",
-    "n_L_bjets                := nLoose_bJets",
-    "n_T_bjets                := nTight_bJets",
-    "n_M_bjets := nMedium_bJets",
-    "LeptonType:=getLeptonType()",
-    "MET_pt    :=getRECOMET().getCorPt()",
+    "fwdjet1_eta := ?Jets_EtaSorted.size>0? Jets_EtaSorted.at(0).eta: -999.",
+    "diphoMVA    := diPhotonMVA().result",
+    "n_jets      := jets.size",
+    "n_L_bjets   := nLoose_bJets",
+    "n_T_bjets   := nTight_bJets",
+    "n_M_bjets   := nMedium_bJets",
+    "LeptonType  := getLeptonType()",
+    "MET_pt      := getRECOMET().getCorPt()",
+    "HT          := getHT()",
+    'bjet1_discr := ?bJets.size>0? bJets.at(0).bDiscriminator( "'+ flashggBTag +'" ) : -999',
+    'bjet2_discr := ?bJets.size>1? bJets.at(1).bDiscriminator( "'+ flashggBTag +'" ) : -999',
+    'bjet3_discr := ?bJets.size>2? bJets.at(2).bDiscriminator( "'+ flashggBTag +'" ) : -999',
+
 ]
 for label in ["Medium" ]: #"HighestBTagVal", "Loose" , "Tight"]:
     thqSystematicVariables.append('fwdJetEta_{0}             := ?thqleptonicMvaRes("{0}")>-10.? getFwdJet("{0}").eta : -999'.format(label) )
@@ -398,13 +403,13 @@ theoweight_variables=[
 ]
 
 theoweight_variables +=[
-    "scaleMuFUp   := getScale(0)",
-    "scaleMuFDown := getScale(1)",
-    "scaleMuRUp   := getScale(2)",
-    "scaleMuFUpMuRUp := getScale(3)",
-    "scaleMuFDownMuRUp := getScale(4)",
-    "scaleMuRDown := getScale(5)",
-    "scaleMuFUpMuRDown := getScale(6)",
+    "scaleMuFUp          := getScale(0)",
+    "scaleMuFDown        := getScale(1)",
+    "scaleMuRUp          := getScale(2)",
+    "scaleMuFUpMuRUp     := getScale(3)",
+    "scaleMuFDownMuRUp   := getScale(4)",
+    "scaleMuRDown        := getScale(5)",
+    "scaleMuFUpMuRDown   := getScale(6)",
     "scaleMuFDownMuRDown := getScale(7)"
     ]
 
