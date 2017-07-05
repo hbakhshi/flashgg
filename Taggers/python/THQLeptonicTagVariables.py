@@ -392,9 +392,9 @@ for label in ["Medium" ]: #"HighestBTagVal", "Loose" , "Tight"]:
 
 
 theoweight_variables=[
-#    "alphaUp   := getAlphaUp()",
-#    "alphaDown := getAlphaDown()",
-#    "pdfnlo    := getPdfNLO()"
+    "alphaUp   := getAlphaUp()",
+    "alphaDown := getAlphaDown()",
+    "pdfnlo    := getPdfNLO()"
 ]
 
 theoweight_variables +=[
