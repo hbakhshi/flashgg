@@ -92,11 +92,11 @@ namespace flashgg {
     
     THQLeptonicTagProducer( const ParameterSet & );
   private:
-    bool IsTH;
+    std::string processId_;
     edm::EDGetTokenT< LHEEventProduct > token_lhe;
     void produce( Event &, const EventSetup & ) override;
     virtual void beginJob() override{
-      if(IsTH){
+      if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos){
     	// CTCVWeightedVariables["photon1pt"] = new CTCVWeightedVariable("photon1pt" , "photon1pt" , 20 , 20 , 300 );
     	// CTCVWeightedVariables["photon2pt"] = new CTCVWeightedVariable("photon2pt" , "photon2pt" , 20 , 20 , 300 );
     	// CTCVWeightedVariables["diPhotonPt"] = new CTCVWeightedVariable("diPhotonPt" , "diPhotonPt" , 20 , 20 , 300 );
@@ -301,7 +301,7 @@ namespace flashgg {
   };
 
   THQLeptonicTagProducer::THQLeptonicTagProducer( const ParameterSet &iConfig ) :
-    IsTH( iConfig.getParameter<bool>("IsTH") ),
+    processId_( iConfig.getParameter<string>("processId") ),
     diPhotonToken_( consumes<View<flashgg::DiPhotonCandidate> >( iConfig.getParameter<InputTag> ( "DiPhotonTag" ) ) ),
     inputTagJets_( iConfig.getParameter<std::vector<edm::InputTag> >( "inputTagJets" ) ),
     electronToken_( consumes<View<flashgg::Electron> >( iConfig.getParameter<InputTag>( "ElectronTag" ) ) ),
@@ -317,7 +317,7 @@ namespace flashgg {
     MVAMethod_    ( iConfig.getParameter<string> ( "MVAMethod"    ) )
   {
 
-    if(IsTH){
+    if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos){
       token_lhe = consumes<LHEEventProduct>( InputTag( "externalLHEProducer" )  );
     }
 
@@ -422,7 +422,7 @@ namespace flashgg {
 
     edm::Handle<LHEEventProduct> product_lhe;
     vector< double > CtCvWeights ;
-    if( IsTH ){
+    if( processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos ){
       evt.getByToken(token_lhe, product_lhe);
       for (uint i = 446 ; i < product_lhe->weights().size() ; i++)
 	CtCvWeights.push_back(product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
@@ -452,12 +452,12 @@ namespace flashgg {
 
       flashgg::THQLeptonicTag thqltags_obj( dipho, mvares );
 
-      // if(IsTH)
+      // if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos)
       // 	CTCVWeightedVariables["photon1pt"]->Fill( dipho->leadingPhoton()->pt() , CtCvWeights );
 
       if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { continue; }
 
-      // if(IsTH)
+      // if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos)
       // 	CTCVWeightedVariables["photon2pt"]->Fill( dipho->subLeadingPhoton()->pt() , CtCvWeights );
 
       if( dipho->subLeadingPhoton()->pt() < ( dipho->mass() )*subleadPhoOverMassThreshold_ ) { continue; }
@@ -468,7 +468,7 @@ namespace flashgg {
 
       if( idmva1 <= PhoMVAThreshold_ || idmva2 <= PhoMVAThreshold_ ) { continue; }
 
-      // if(IsTH){
+      // if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos){
       // 	CTCVWeightedVariables["diPhotonMVA"]->Fill( mvares->result , CtCvWeights );
 
       // 	CTCVWeightedVariables["diPhotonPt"]->Fill( dipho->pt() , CtCvWeights );
@@ -499,7 +499,7 @@ namespace flashgg {
       Ptr<flashgg::Met> theMET = METs->ptrAt( 0 );
       thqltags_obj.setRECOMET(theMET);
 
-      // if(IsTH)
+      // if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos)
       // 	CTCVWeightedVariables["MET"]->Fill( theMET->getCorPt() , CtCvWeights );
 
       //const pat::MET &met_ = METs->front();
@@ -593,7 +593,7 @@ namespace flashgg {
                 
       }//end of electron loop
 
-      // if(IsTH){
+      // if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos){
       // 	CTCVWeightedVariables["LeptonPt"]->Fill( lepton.pt , CtCvWeights );
       // 	CTCVWeightedVariables["LeptonEta"]->Fill( abs(lepton.eta) , CtCvWeights );
       // }
@@ -677,7 +677,7 @@ namespace flashgg {
       std::sort(SelJetVect_BSorted.begin(),SelJetVect_BSorted.end(),GreaterByBTagging(bTag_.c_str())); 
 
 
-      // if( IsTH ){
+      // if( processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos ){
       // 	CTCVWeightedVariables["nJets"]->Fill( SelJetVect_EtaSorted.size() , CtCvWeights );
       // 	CTCVWeightedVariables["nbJets"]->Fill( MediumBJetVect.size() , CtCvWeights );
       // 	if( SelJetVect_EtaSorted.size() > 0 )
@@ -822,7 +822,7 @@ namespace flashgg {
 	
 	if( ! evt.isRealData() ) {
 
-	  if(IsTH){
+	  if(processId_.find("thq") != std::string::npos or processId_.find("thw") != std::string::npos){
 	      //8 QCD scale weights
 	      for( uint i = 1 ; i < 9 ; i ++ )
 	      thqltags_obj.setScale(i-1,product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () );
@@ -838,7 +838,7 @@ namespace flashgg {
 	      //cout << i << "_ctcv(" << product_lhe->weights()[i].id << ") :"  << thqltags_obj.getCtCv(i-446) << " : " << product_lhe->weights()[i].wgt << "/" << product_lhe->originalXWGTUP () << "=" << product_lhe->weights()[i].wgt/product_lhe->originalXWGTUP () << endl;
 	    }
 
-	  }else{ 
+	  }else if (processId_.find("h_") != std::string::npos or processId_.find("vbf") != std::string::npos){ 
 	    //temporary solution till ctcv issue on PDFWeightObject is solved :(
 	    Handle<vector<flashgg::PDFWeightObject> > WeightHandle;
 	    evt.getByToken( weightToken_, WeightHandle );
