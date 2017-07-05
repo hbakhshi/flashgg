@@ -7,6 +7,8 @@
 #include "flashgg/DataFormats/interface/Jet.h"
 #include "flashgg/DataFormats/interface/Met.h"
 //#include "flashgg/DataFormats/interface/THQLeptonicMVAResult.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 using namespace edm;
 
@@ -33,6 +35,22 @@ namespace flashgg {
         const std::vector<edm::Ptr<Jet> > Jets_EtaSorted() const { return Jets_EtaSorted_;}
         const std::vector<edm::Ptr<Jet> > bJets() const { return BJets_;}
 
+        //DeltaRhis between leptons and MET
+        float dPhi_Muon1_MET() const  { 
+            return deltaPhi( muons()[0]->phi(),  MET_->phi()); 
+        }
+        
+        float dPhi_Muon2_MET() const  { 
+            return deltaPhi( muons()[1]->phi(),  MET_->phi()); 
+        }
+        float dPhi_Electron1_MET() const  { 
+            return deltaPhi( electrons()[0]->phi(),  MET_->phi()); 
+        }
+        
+        float dPhi_Electron2_MET() const  { 
+            return deltaPhi( electrons()[1]->phi(),  MET_->phi()); 
+        }
+        
         
         float getElecAlpha(int eleIndex) const{
             float eleta =  electrons()[eleIndex]->eta();
@@ -123,6 +141,10 @@ namespace flashgg {
         }
         float getAplanarity() const{
             return Aplanarity;
+        }
+
+        float getHT() const{
+            return ht;
         }
 
         const Ptr<Met> getRECOMET() const{
@@ -240,8 +262,7 @@ namespace flashgg {
         
         float getAlphaUp() const { return alphaUp_; }
         float getAlphaDown() const { return alphaDown_; }
-        float getScaleUp(unsigned i) const { return scaleUp_[i]; }
-        float getScaleDown(unsigned i) const { return scaleDown_[i]; }
+        float getScale(unsigned i) const { return scale_[i]; }
         float getPdf(unsigned i) const { return pdf_[i]; }
         float getPdfNLO() const { return pdfnlo_; }
         float getCtCv(unsigned i) const { return ctcv_[i]; }
@@ -290,6 +311,10 @@ namespace flashgg {
             Aplanarity = aplan;
 
         }
+        void setHT(float val){
+            ht=val;
+        }
+
         void setMETPtEtaPhiE(  string label, float metPt, float metEta, float metPhi, float metE ){
             metAssignmentLabels.push_back( label);
             MET_Pt.push_back(metPt) ;  MET_Eta.push_back(metEta) ; MET_Phi.push_back(metPhi) ; MET_E.push_back(metE);
@@ -311,7 +336,7 @@ namespace flashgg {
         }
         
         int nMedium_bJets, nLoose_bJets, nTight_bJets;
-        double bTagWeight, bTagWeightUp, bTagWeightDown;;
+        double bTagWeight, bTagWeightUp, bTagWeightDown;
         double photonWeights;
         const std::vector<int> ElePassIso() const{
             return ElePassIso_;
@@ -325,8 +350,7 @@ namespace flashgg {
 
         void setAlphaUp(float val) { alphaUp_ = val; }
         void setAlphaDown(float val) { alphaDown_ = val; }
-        void setScaleUp(unsigned i, float val) { scaleUp_[i] = val; }
-        void setScaleDown(unsigned i, float val) { scaleDown_[i] = val; }
+        void setScale(unsigned i, float val) { scale_[i] = val; }
         void setPdf(unsigned i, float val) { pdf_[i] = val; }
         void setPdfNLO(float val) { pdfnlo_ = val; }
         void setCtCv(unsigned i, float val) { ctcv_[i] = val; }
@@ -374,6 +398,7 @@ namespace flashgg {
         std::vector< Ptr<Jet> > bJet;
         float FoxWolframMoment_ONE;
         float Aplanarity;
+        float ht;
         std::vector<float> TopMass;
         std::vector< std::string > metAssignmentLabels;
         std::vector<float> MET_Pt; std::vector<float> MET_Eta; std::vector<float> MET_Phi; 
@@ -383,11 +408,10 @@ namespace flashgg {
         
         float alphaUp_;
         float alphaDown_;
-        float scaleUp_[3];
-        float scaleDown_[3];
+        float scale_[8];
         float pdf_[100];
         float pdfnlo_;
-        float ctcv_[50];
+        float ctcv_[70];
     };
 }
 

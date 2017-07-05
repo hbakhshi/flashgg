@@ -4,6 +4,8 @@
 
 #from globalVariables_cff import globalVariables
 
+from flashgg.MicroAOD.flashggJets_cfi import flashggBTag
+
 vtx_variables=[
     "vtxprob                := diPhotonMVA.vtxprob",
     "ptbal                  := diPhoton.ptBal",
@@ -152,6 +154,8 @@ lepton_variables=[
     "ele2_PassTight         := ?(electrons.size>1)? ElePassTight.at(1) : -999",
     "ele1_PassIso           := ?(electrons.size>0)? ElePassIso.at(0) : -999",
     "ele2_PassIso           := ?(electrons.size>1)? ElePassIso.at(1) : -999",
+    "ele1_dPhiMET           := ?(electrons.size>0)? dPhi_Electron1_MET() : -999",
+    'ele2_dPhiMET           := ?(electrons.size>1)? dPhi_Electron2_MET() : -999',
     "n_muons                := muons.size",
     "muon1_pt               := ?(muons.size>0)? muons.at(0).pt : -999",
     "muon2_pt               := ?(muons.size>1)? muons.at(1).pt : -999",
@@ -184,11 +188,14 @@ lepton_variables=[
     "muon1_tkLayers         := ?(muons.size>0)? muons.at(0).innerTrack().hitPattern().trackerLayersWithMeasurement : -999",
     "muon2_tkLayers         := ?(muons.size>1)? muons.at(1).innerTrack().hitPattern().trackerLayersWithMeasurement : -999",
     "muon1_PassTight        := ?(muons.size>0)? MuPassTight.at(0) : -999",
-    "muon2_PassTight        := ?(muons.size>1)? MuPassTight.at(1) : -999"
-
+    "muon2_PassTight        := ?(muons.size>1)? MuPassTight.at(1) : -999",
+    "muon1_dPhiMET          := ?(muons.size>0)? dPhi_Muon1_MET() : -999",
+    "muon2_dPhiMET          := ?(muons.size>1)? dPhi_Muon2_MET() : -999",
     
 
 ]
+
+#print lepton_variables["ele1_pt"]
 jet_variables=[
     
     "n_fwdjets              := Jets_EtaSorted.size",
@@ -222,6 +229,10 @@ jet_variables=[
     "bjet1_e                := ?bJets.size>0? bJets.at(0).energy: -999.",
     "bjet2_e                := ?bJets.size>1? bJets.at(1).energy: -999.",
     "bjet3_e                := ?bJets.size>2? bJets.at(2).energy: -999.",
+    'bjet1_discr            := ?bJets.size>0? bJets.at(0).bDiscriminator( "'+ flashggBTag +'" ) : -999',
+    'bjet2_discr            := ?bJets.size>1? bJets.at(1).bDiscriminator( "'+ flashggBTag +'" ) : -999',
+    'bjet3_discr            := ?bJets.size>2? bJets.at(2).bDiscriminator( "'+ flashggBTag +'" ) : -999',
+
 
     # new variables
     "n_jets                 := jets.size",
@@ -241,19 +252,22 @@ jet_variables=[
     "recoMET_eta            :=getRECOMET().eta()",
     "recoMET_phi            :=getRECOMET().getCorPhi()",
     "recoMET_e              :=getRECOMET().energy()",
-    "MET_eta                :=getMET_Eta(\"SolvedMET\")",
-    "MET_e                  :=getMET_E(\"SolvedMET\")"
+    "solvedMET_pt           :=getMET_Pt(\"SolvedMET\")",
+    "solvedMET_eta          :=getMET_Eta(\"SolvedMET\")",
+    "solvedMET_phi          :=getMET_Phi(\"SolvedMET\")",
+    "solvedMET_e            :=getMET_E(\"SolvedMET\")",
+    "HT                     :=getHT()"
 
     
 ]
 
 thqmva_variables=[
-    "bTagWeight             := bTagWeight",
-    "photonWeights          := photonWeights",
+    "bTagWeight             :=bTagWeight",
+    "photonWeights          :=photonWeights",
     "FoxWolf                :=getFoxWolframMoment_ONE",
     "Aplanarity             :=getAplanarity()",
-    "MET_pt                 :=getMET_Pt(\"SolvedMET\")",
-    "MET_phi                :=getMET_Phi(\"SolvedMET\")"
+    "MET_pt                 :=getRECOMET().getCorPt()",
+    "MET_phi                :=getRECOMET().getCorPhi()"
 ]
 
 for label in ["HighestBTagVal", "Medium" , "Loose" , "Tight"]:
@@ -346,7 +360,7 @@ truth_variables=[
     "promptGenMET_eta                     := getMET_Eta(\"allPromptNus\")",
     "promptGenMET_phi                     := getMET_Phi(\"allPromptNus\")",
     "promptGenMET_e                       := getMET_E(\"allPromptNus\")",
-    "GenMETTrue_pt                        := getMET_Pt(\"genMetTrue\")",
+    "genMETTrue_pt                        := getMET_Pt(\"genMetTrue\")",
     "genMETTrue_eta                       := getMET_Eta(\"genMetTrue\")",
     "genMETTrue_phi                       := getMET_Phi(\"genMetTrue\")",
     "genMETTrue_e                         := getMET_E(\"genMetTrue\")"    
@@ -361,11 +375,11 @@ truth_variables=[
 #     "MET[10,0,300]    :=getMET()",
 # ]
 thqSystematicVariables = [
-    "diphoMVA  := diPhotonMVA().result",
-    "n_jets    := jets.size",
-    "n_M_bjets := nMedium_bJets",
+    "diphoMVA  :=diPhotonMVA().result",
+    "n_jets    :=jets.size",
+    "n_M_bjets :=nMedium_bJets",
     "LeptonType:=getLeptonType()",
-    "MET_pt    :=getMET_Pt(\"SolvedMET\")",
+    "MET_pt    :=getRECOMET().getCorPt()",
 ]
 for label in ["Medium" ]: #"HighestBTagVal", "Loose" , "Tight"]:
     thqSystematicVariables.append('fwdJetEta_{0}             := ?thqleptonicMvaRes("{0}")>-10.? getFwdJet("{0}").eta : -999'.format(label) )
@@ -379,12 +393,23 @@ theoweight_variables=[
     "pdfnlo    := getPdfNLO()"
 ]
 
-for i in range(3):
-    theoweight_variables += ["scaleUp_%i := getScaleUp(%i)" % (i,i),"scaleDown_%i := getScaleDown(%i)" % (i,i)]
+#for i in range(3):
+    #theoweight_variables += ["scaleUp_%i := getScaleUp(%i)" % (i,i),"scaleDown_%i := getScaleDown(%i)" % (i,i)]
+theoweight_variables +=[
+    "scaleMuFUp   := getScale(0)",
+    "scaleMuFDown := getScale(1)",
+    "scaleMuRUp   := getScale(2)",
+    "scaleMuFUpMuRUp := getScale(3)",
+    "scaleMuFDownMuRUp := getScale(4)",
+    "scaleMuRDown := getScale(5)",
+    "scaleMuFUpMuRDown := getScale(6)",
+    "scaleMuFDownMuRDown := getScale(7)"
+    ]
 
 # for i in range(60):
 #     theoweight_variables +=["pdf_%i := getPdf(%i)" % (i,i)]
 
-for i in range(50):
-    theoweight_variables +=["ctcv_%i := getCtCv(%i)" % (i,i)]
+theoctcvweight_variables = []
+for i in range(70):
+    theoctcvweight_variables +=["ctcv_%i := getCtCv(%i)" % (i,i)]
 
