@@ -1,6 +1,0 @@
-{
-    "processes" : {
-	"DY"  : [ "/ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"]
-		  },
-        "cmdLine" : "campaign=RunIISummer16-2_4_1-25ns_Moriond17"
-}
