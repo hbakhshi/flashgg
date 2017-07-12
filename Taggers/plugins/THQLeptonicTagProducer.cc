@@ -1213,7 +1213,7 @@ namespace flashgg {
 	  thqltags->back().setTagTruth( edm::refToPtr( edm::Ref<vector<THQLeptonicTagTruth> >( rTagTruth, idx++ ) ) );
 
 	}// ! evt.isRealData() loop end ! 
-	
+	if (evt.isRealData()) thqltags->push_back( thqltags_obj ); //FIXME at next iteration!!
       }//thq tag
       else {
 	if(false)

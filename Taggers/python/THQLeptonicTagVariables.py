@@ -17,7 +17,11 @@ vtx_variables=[
     "vtxdz                  := diPhoton.dZ1",
     "vtx_x                  := diPhoton.vtx.x", 
     "vtx_y                  := diPhoton.vtx.y", 
-    "vtx_z                  := diPhoton.vtx.z", 
+    "vtx_z                  := diPhoton.vtx.z"
+    
+]
+
+vtx_truth_variables = [
     "gv_x                   := diPhoton.genPV.x", 
     "gv_y                   := diPhoton.genPV.y", 
     "gv_z                   := diPhoton.genPV.z"

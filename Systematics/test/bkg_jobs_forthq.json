@@ -8,12 +8,13 @@
 	"dipho" : [ "/DiPhotonJetsBox_MGG-80toInf_13TeV-Sherpa",
 		    "/DiPhotonJets_MGG-80toInf_13TeV_amcatnloFXFX_pythia8" ],
 	"Wjets" : [ "/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" ],
-	"THQ"   : [ "/THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1" ],
-        "THw" : [ "/THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1"],
 	"ttgg" : [ "/TTGG_0Jets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8"],
 	"tgjets" : [ "/TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8"],
 	"ttgjets" : [ "/TGJets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8"],
-	"DY"  : [ "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"]
+	"DY"  : [ "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"],
+	"ZG" :	[ "/ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"],
+	"TTJet" : [ "/TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8",
+		     "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" ]
 		  },
         "cmdLine" : "campaign=RunIISummer16-2_4_1-25ns_Moriond17"
 }
