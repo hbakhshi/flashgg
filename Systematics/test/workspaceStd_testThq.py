@@ -1,4 +1,4 @@
-#!/usr/bin/env cmsRunn
+#!/usr/bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
@@ -327,11 +327,11 @@ import flashgg.Taggers.THQLeptonicTagVariables as var
 if customize.processId.count("Data"):
     variablesToUse = minimalNonSignalVariables + var.vtx_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + defaultVariables
 elif customize.processId.count("thq") or customize.processId.count("thw"):
-    variablesToUse = minimalVariables + var.vtx_variables + vtx_truth_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables + var.theoweight_variables + var.theoctcvweight_variables + defaultVariables
+    variablesToUse = minimalVariables + var.vtx_variables + var.vtx_truth_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables + var.theoweight_variables + var.theoctcvweight_variables + defaultVariables
 elif customize.processId.count("h_") or customize.processId.count("vbf"):
-    variablesToUse = minimalVariables + var.vtx_variables + vtx_truth_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables + var.theoweight_variables + defaultVariables
+    variablesToUse = minimalVariables + var.vtx_variables + var.vtx_truth_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables + var.theoweight_variables + defaultVariables
 else:
-    variablesToUse = minimalVariables + var.vtx_variables + vtx_truth_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables  + defaultVariables
+    variablesToUse = minimalVariables + var.vtx_variables + var.vtx_truth_variables + var.dipho_variables + var.photon_variables + var.lepton_variables + var.jet_variables + var.thqmva_variables + var.truth_variables  + defaultVariables
 
 print "-------------------------------------------------"
 print "--- Variables to be dumped, including systematic weights ---"

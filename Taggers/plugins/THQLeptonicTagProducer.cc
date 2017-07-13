@@ -511,36 +511,61 @@ namespace flashgg {
 			 ) ; 
 
 
-      std::vector<edm::Ptr<flashgg::Muon> > goodLooseMuons = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
-									  2.0, deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , true);
+      std::vector<edm::Ptr<flashgg::Muon> > LooseMu15 = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
+								     0.15 , deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , 0);
+      std::vector<edm::Ptr<flashgg::Muon> > LooseMu25 = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
+								     0.25 , deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , 0);
 
-      std::vector<edm::Ptr<flashgg::Muon> > goodMuons = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
-								     muPFIsoSumRelThreshold_, deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , false);
+      std::vector<edm::Ptr<flashgg::Muon> > LooseMu200 = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
+								      2. , deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , 0);
+
+
+      std::vector<edm::Ptr<flashgg::Muon> > MediumMu15 = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
+								     0.15 , deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , 1);
+      std::vector<edm::Ptr<flashgg::Muon> > MediumMu25 = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
+								     0.25 , deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , 1);
+
+      std::vector<edm::Ptr<flashgg::Muon> > TightMuo15 = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
+								      0.15 , deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , 2);
+      std::vector<edm::Ptr<flashgg::Muon> > TightMuo25 = selectMuons( theMuons->ptrs(), dipho, vertices->ptrs(), leptonEtaThreshold_ , leptonPtThreshold_,
+								      0.25 , deltaRLepPhoThreshold_, deltaRLepPhoThreshold_ , 2);
+
+      std::vector<edm::Ptr<flashgg::Muon> > goodMuons = muPFIsoSumRelThreshold_== 0.15 ? TightMuo15 : TightMuo25 ;
+
 
       std::vector<int> looseMus_PassTight;
-      for(auto mu: goodLooseMuons)
+      for(auto mu: LooseMu200)
 	looseMus_PassTight.push_back( std::find( goodMuons.begin() , goodMuons.end() , mu ) != goodMuons.end() );
 
+      
 
-      std::vector<edm::Ptr<Electron> > vetoElectronsNonIso = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
-									  0,0,
-									  deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true ); //evt.isRealData()
+
+      std::vector<edm::Ptr<Electron> > vetoNonIsoElectrons = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
+										 0,4,
+										 deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true ); //evt.isRealData()
+
+      std::vector<edm::Ptr<Electron> > looseElectrons = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
+									   0,3,
+									   deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true ); //evt.isRealData()
 
       
       std::vector<edm::Ptr<Electron> > vetoElectrons = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
-									  0,1,
+									  0,0,
 									  deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true ); //evt.isRealData()
             
+      std::vector<edm::Ptr<Electron> > mediumElectrons = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
+									    0,2,
+									    deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true ); //evt.isRealData()
 
       std::vector<edm::Ptr<Electron> > goodElectrons = selectStdElectrons(theElectrons->ptrs(), dipho, vertices->ptrs(), leptonPtThreshold_,  electronEtaThresholds_ ,
-									  0,2,
+									  0,1,
 									  deltaRPhoElectronThreshold_,DeltaRTrkElec_,deltaMassElectronZThreshold_ , rho_, true);
 
-      std::vector<int> vetoElectrons_PassTight;
-      std::vector<int> vetoElectrons_PassIso;
-      for(auto ele : vetoElectronsNonIso ){
-	vetoElectrons_PassTight.push_back( std::find( goodElectrons.begin() , goodElectrons.end() , ele ) != goodElectrons.end() );
-	vetoElectrons_PassIso.push_back( std::find( vetoElectrons.begin() , vetoElectrons.end() , ele ) != vetoElectrons.end() );
+      std::vector<int> vetoNonIsoElectrons_PassTight;
+      std::vector<int> vetoNonIsoElectrons_PassVeto;
+      for(auto ele : vetoNonIsoElectrons ){
+	vetoNonIsoElectrons_PassTight.push_back( std::find( goodElectrons.begin() , goodElectrons.end() , ele ) != goodElectrons.end() );
+	vetoNonIsoElectrons_PassVeto.push_back( std::find( vetoElectrons.begin() , vetoElectrons.end() , ele ) != vetoElectrons.end() );
       }
 
 
@@ -743,9 +768,9 @@ namespace flashgg {
 	thqltags_obj.setVertices( vertices->ptrs() );
 
 	std::vector <float> a; std::vector <float> b; std::vector <float> c; std::vector <float> d;
-	for( unsigned int muonIndex = 0; muonIndex < goodLooseMuons.size(); muonIndex++ ) {
+	for( unsigned int muonIndex = 0; muonIndex < LooseMu200.size(); muonIndex++ ) {
                 
-	  Ptr<flashgg::Muon> muon = goodLooseMuons[muonIndex];
+	  Ptr<flashgg::Muon> muon = LooseMu200[muonIndex];
 	  
 	  int vtxInd = -1;
 	  double dzmin = 9999;
@@ -768,13 +793,13 @@ namespace flashgg {
 	
 	//std::cout << "new vertex !! "<< thqltags_obj.getSubLeadingLeptonVertexDxy( "muon") << std::endl;
 
-	thqltags_obj.setMuons( goodLooseMuons , looseMus_PassTight );
-	//cout << "nLooseMuons : " << goodLooseMuons.size() << " and nTightMuons : " << goodMuons.size() << " out of : " << theMuons->ptrs().size() << endl;
+	thqltags_obj.setMuons( LooseMu200 , looseMus_PassTight , LooseMu25.size() , LooseMu15.size() , MediumMu25.size() , MediumMu15.size() , TightMuo25.size() , TightMuo15.size() );
+	//cout << "nLooseMuons : " << LooseMu200.size() << " and nTightMuons : " << goodMuons.size() << " out of : " << theMuons->ptrs().size() << endl;
 
 	a.clear();b.clear();c.clear();d.clear();
-	for( unsigned int ElectronIndex = 0; ElectronIndex < vetoElectronsNonIso.size(); ElectronIndex++ ) {
+	for( unsigned int ElectronIndex = 0; ElectronIndex < vetoNonIsoElectrons.size(); ElectronIndex++ ) {
                 
-	  Ptr<flashgg::Electron> electron = vetoElectronsNonIso[ElectronIndex];
+	  Ptr<flashgg::Electron> electron = vetoNonIsoElectrons[ElectronIndex];
 	  
 	  int vtxInd = -1;
 	  double dzmin = 9999;
@@ -796,7 +821,7 @@ namespace flashgg {
 
 	thqltags_obj.setLeptonVertices( "electron", a, b, c, d) ;
 
-	thqltags_obj.setElectrons( vetoElectronsNonIso , vetoElectrons_PassTight , vetoElectrons_PassIso );
+	thqltags_obj.setElectrons( vetoNonIsoElectrons , vetoNonIsoElectrons_PassTight , vetoNonIsoElectrons_PassVeto , looseElectrons.size() , vetoElectrons.size() , mediumElectrons.size() , goodElectrons.size() );
 
 	thqltags_obj.setDiPhotonIndex( diphoIndex );
 	thqltags_obj.setSystLabel( systLabel_ );

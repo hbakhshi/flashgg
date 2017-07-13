@@ -9,7 +9,7 @@ using namespace edm;
 namespace flashgg {
 
     std::vector<edm::Ptr<flashgg::Muon> > selectAllMuons( const std::vector<edm::Ptr<flashgg::Muon> > &muonPointers, 
-                                                          const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers, double muonEtaThreshold, double muonPtThreshold, double muPFIsoSumRelThreshold , bool Loose)
+                                                          const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers, double muonEtaThreshold, double muonPtThreshold, double muPFIsoSumRelThreshold , int id)
     {
 
         std::vector<edm::Ptr<flashgg::Muon> > goodMuons;
@@ -31,10 +31,12 @@ namespace flashgg {
             if( muon->pt() < muonPtThreshold ) continue; 
 
 
-            if( Loose ){
+            if( id == 0 ){
                 if( !muon::isLooseMuon( *muon ) ) continue; 
+            }else if( id == 1 ){
+                if( !muon::isMediumMuon( *muon ) ) continue;
             }
-            else{
+            else if(id == 2 ){
                 int vtxInd = 0;
                 double dzmin = 9999;
                 for( size_t ivtx = 0 ; ivtx < vertexPointers.size(); ivtx++ ) {
@@ -64,11 +66,11 @@ namespace flashgg {
 
     std::vector<edm::Ptr<flashgg::Muon> > selectMuons( const std::vector<edm::Ptr<flashgg::Muon> > &muonPointers, Ptr<flashgg::DiPhotonCandidate> dipho,
             const std::vector<edm::Ptr<reco::Vertex> > &vertexPointers, double muonEtaThreshold, double muonPtThreshold, double muPFIsoSumRelThreshold,
-                                                       double dRPhoLeadMuonThreshold, double dRPhoSubLeadMuonThreshold , bool Loose )
+                                                       double dRPhoLeadMuonThreshold, double dRPhoSubLeadMuonThreshold , int id )
     {
 
         std::vector<edm::Ptr<flashgg::Muon> > goodMuons;
-        std::vector<edm::Ptr<flashgg::Muon> > allGoodMuons= selectAllMuons( muonPointers, vertexPointers, muonEtaThreshold, muonPtThreshold, muPFIsoSumRelThreshold , Loose );
+        std::vector<edm::Ptr<flashgg::Muon> > allGoodMuons= selectAllMuons( muonPointers, vertexPointers, muonEtaThreshold, muonPtThreshold, muPFIsoSumRelThreshold , id );
 
         //cout << "nmuons : " << allGoodMuons.size() << " out of : " << muonPointers.size() <<  muonEtaThreshold << "  " << muonPtThreshold << "  "  << muPFIsoSumRelThreshold << "   " << dRPhoSubLeadMuonThreshold << " " << Loose << endl;
 
@@ -345,7 +347,8 @@ namespace flashgg {
         //int idIndex=0;
         //if (useLooseID) idIndex=0;
         //else idIndex=1;
-        if(useMVARecipe) idIndex+=3;
+        if(useMVARecipe)
+            idIndex+=4;
         
 
         std::vector<edm::Ptr<flashgg::Electron> > goodElectrons;
@@ -357,18 +360,23 @@ namespace flashgg {
             
             if( Electron_eta > EtaCuts[2] || ( Electron_eta > EtaCuts[0] && Electron_eta < EtaCuts[1] ) )  continue;             
             if( Electron->pt() < ElectronPtThreshold ) continue; 
-            
-            //vector<bool> IDs=EgammaIDs(Electron, vertexPointers, rho );
+
+            vector<bool> CalcedIDs=EgammaIDs(Electron, vertexPointers, rho );
+            bool looseIdLooseIso = CalcedIDs[0];
+
             vector<bool> IDs;
             //if(!isData){//for MC use the stored Egamma IDs // fixed with reminiAOD microAOD, no special case reqd for data
-                IDs.clear();
-                IDs.push_back(Electron->passVetoId());
-                IDs.push_back(Electron->passTightId());
-                IDs.push_back(Electron->passMVAMediumId());
-                IDs.push_back(Electron->passMVATightId());
-                //} else {//for data use calculated IDs : FIXME saghosh : for data MicroAOD not containing latest egamma ids
-                //IDs=EgammaIDs(Electron, vertexPointers, rho );
-                //}
+            IDs.clear();
+            IDs.push_back(Electron->passVetoId());
+            IDs.push_back(Electron->passTightId());
+            IDs.push_back(Electron->passMediumId());
+            IDs.push_back(Electron->passLooseId());
+            IDs.push_back( looseIdLooseIso );
+            IDs.push_back(Electron->passMVAMediumId());
+            IDs.push_back(Electron->passMVATightId());
+            //} else {//for data use calculated IDs : FIXME saghosh : for data MicroAOD not containing latest egamma ids
+            //IDs=EgammaIDs(Electron, vertexPointers, rho );
+            //}
             
             if(!IDs[idIndex]) continue;
 

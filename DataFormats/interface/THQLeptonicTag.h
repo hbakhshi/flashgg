@@ -294,17 +294,32 @@ namespace flashgg {
             
         }
 
-        void setMuons( std::vector<edm::Ptr<Muon> > Muons , std::vector<int> passTight ) {
+        int NLooseMu25 , NLooseMu15 , NMediumMu25 , NMediumMu15 , NTightMuo25 , NTightMuo15 ;
+        void setMuons( std::vector<edm::Ptr<Muon> > Muons , std::vector<int> passTight , int n_LooseMu25 , int n_LooseMu15 , int n_MediumMu25 , int n_MediumMu15 , int n_TightMuo25 , int n_TightMuo15 ) {
             Muons_ = Muons;
             assert( Muons.size() == passTight.size() );
             MuPassTight_ = passTight;
+
+            NLooseMu15 = n_LooseMu15 ;
+            NLooseMu25 = n_LooseMu25 ;
+            NMediumMu15 = n_MediumMu15;
+            NMediumMu25 = n_MediumMu25;
+            NTightMuo15 = n_TightMuo15;
+            NTightMuo25 = n_TightMuo25;
         }
-        void setElectrons( std::vector<edm::Ptr<Electron> > Electrons , std::vector<int> passTight, std::vector<int> passIso ) {
+
+        int n_Ele_Loose , n_Ele_Veto, n_Ele_Medium, n_Ele_Tight;
+        void setElectrons( std::vector<edm::Ptr<Electron> > Electrons , std::vector<int> passTight, std::vector<int> passVeto , int n_loose , int n_veto , int n_medium , int n_tight ) {
             Electrons_ = Electrons;
             assert( passTight.size() == Electrons.size() );
             ElePassTight_ = passTight ;
-            assert( ElePassTight_.size() == passIso.size() );
-            ElePassIso_ = passIso;
+            assert( ElePassTight_.size() == passVeto.size() );
+            ElePassVeto_ = passVeto;
+
+            n_Ele_Veto = n_veto;
+            n_Ele_Medium = n_medium ;
+            n_Ele_Tight = n_tight;
+            n_Ele_Loose = n_loose;
         }
         void setMVAres(string label, float val , float topMass , Ptr<Jet> fwd , Ptr<Jet> bj ) {
             bAssignmentLabels.push_back( label);
@@ -347,8 +362,8 @@ namespace flashgg {
         int nMedium_bJets, nLoose_bJets, nTight_bJets;
         double bTagWeight, bTagWeightUp, bTagWeightDown;
         double photonWeights;
-        const std::vector<int> ElePassIso() const{
-            return ElePassIso_;
+        const std::vector<int> ElePassVeto() const{
+            return ElePassVeto_;
         }
         const std::vector<int> ElePassTight() const{
             return ElePassTight_;
@@ -384,7 +399,7 @@ namespace flashgg {
         }
         
 
-        std::vector<int> ElePassIso_;
+        std::vector<int> ElePassVeto_;
         std::vector<int> ElePassTight_ ;
         std::vector<int> MuPassTight_ ;
 
