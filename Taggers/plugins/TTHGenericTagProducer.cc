@@ -215,9 +215,6 @@ namespace flashgg {
 
             unsigned int jetCollectionIndex = diPhotons->ptrAt( diphoIndex )->jetCollectionIndex();
 
-            std::vector<edm::Ptr<Jet> > tagJets;
-            std::vector<edm::Ptr<Jet> > tagBJets;
-
             edm::Ptr<flashgg::DiPhotonCandidate> dipho = diPhotons->ptrAt( diphoIndex );
             edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( diphoIndex );
 
@@ -267,12 +264,12 @@ namespace flashgg {
 
             if( njets_btagloose_ >= bjetsLooseNumberThreshold_ && njet_ >= jetsNumberThreshold_ && photonSelection)
             {
-                for( unsigned num = 0; num < tagJets.size(); num++ )
-                    tthtags_obj.includeWeightsByLabel( *tagJets.at(num), "JetBTagCutWeight");
+                for( unsigned num = 0; num < JetVect.size(); num++ )
+                    tthtags_obj.includeWeightsByLabel( *JetVect.at(num), "JetBTagCutWeight");
                 
                 tthtags_obj.includeWeights( *dipho );
 
-                tthtags_obj.setJets( tagJets );
+                tthtags_obj.setJets( JetVect );
                 tthtags_obj.setMuons( goodMuons );
                 tthtags_obj.setElectrons( goodElectrons );
                 tthtags_obj.setDiPhotonIndex( diphoIndex );
