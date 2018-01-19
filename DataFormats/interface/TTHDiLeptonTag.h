@@ -8,16 +8,16 @@
 
 namespace flashgg {
 
-    class TTHGenericTag: public DiPhotonTagBase
+    class TTHDiLeptonTag: public DiPhotonTagBase
     {
     public:
-        TTHGenericTag();
-        TTHGenericTag( edm::Ptr<DiPhotonCandidate>, edm::Ptr<DiPhotonMVAResult> );
-        TTHGenericTag( edm::Ptr<DiPhotonCandidate>, DiPhotonMVAResult );
+        TTHDiLeptonTag();
+        TTHDiLeptonTag( edm::Ptr<DiPhotonCandidate>, edm::Ptr<DiPhotonMVAResult> );
+        TTHDiLeptonTag( edm::Ptr<DiPhotonCandidate>, DiPhotonMVAResult );
 
-        ~TTHGenericTag();
+        ~TTHDiLeptonTag();
 
-        TTHGenericTag *clone() const override { return ( new TTHGenericTag( *this ) ); }
+        TTHDiLeptonTag *clone() const override { return ( new TTHDiLeptonTag( *this ) ); }
 
         const std::vector<edm::Ptr<Muon> > muons() const { return Muons_;}
         const std::vector<edm::Ptr<flashgg::Electron> > electrons() const {return Electrons_;}
@@ -45,7 +45,7 @@ namespace flashgg {
         int nBTight() const {return Nbtagtight_;}
 
 
-        DiPhotonTagBase::tag_t tagEnum() const override {return DiPhotonTagBase::kTTHLeptonic; }
+        DiPhotonTagBase::tag_t tagEnum() const override {return DiPhotonTagBase::kTTHDiLepton; }
 
     private:
         std::vector<edm::Ptr<Muon> > Muons_;

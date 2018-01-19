@@ -35,7 +35,7 @@ elif os.environ["CMSSW_VERSION"].count("CMSSW_8_0"):
 else:
     raise Exception,"Could not find a sensible CMSSW_VERSION for default globaltag"
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1000)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32( 1)
 
 process.source = cms.Source ("PoolSource",
                              fileNames = cms.untracked.vstring(inputFiles))
@@ -108,13 +108,13 @@ process.load("flashgg/Taggers/flashggTagTester_cfi")
 from flashgg.Taggers.tagsDumpers_cfi import createTagDumper
 import flashgg.Taggers.dumperConfigTools as cfgTools
 
-process.TTHGenericTagDumper = createTagDumper("TTHGenericTag")
+process.TTHDiLeptonTagDumper = createTagDumper("TTHDiLeptonTag")
 #process.load("flashgg.Taggers.tthDumper_cfi")
 #process.flashggMuMuGamma.PhotonTag=cms.InputTag('flashggUpdatedIdMVAPhotons')
-process.TTHGenericTagDumper.dumpTrees = True
-process.TTHGenericTagDumper.dumpHistos = False
-process.TTHGenericTagDumper.dumpWorkspace = False
-process.TTHGenericTagDumper.nameTemplate = cms.untracked.string("$PROCESS_$SQRTS_$CLASSNAME_$SUBCAT_$LABEL")
+process.TTHDiLeptonTagDumper.dumpTrees = True
+process.TTHDiLeptonTagDumper.dumpHistos = False
+process.TTHDiLeptonTagDumper.dumpWorkspace = False
+process.TTHDiLeptonTagDumper.nameTemplate = cms.untracked.string("$PROCESS_$SQRTS_$CLASSNAME_$SUBCAT_$LABEL")
 
 #from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 #massSearchReplaceAnyInputTag(process.flashggTagSequence,cms.InputTag("flashggDiPhotons"),cms.InputTag("flashggPreselectedDiPhotons"))
@@ -126,13 +126,63 @@ else:
 	variables_ = var.generic_variables + var.dipho_variables
 
 
-cfgTools.addCategories(process.TTHGenericTagDumper,
+cfgTools.addCategories(process.TTHDiLeptonTagDumper,
                        ## categories definition  
 			[	("all","1",0)
 			],
 			variables = variables_,
 			histograms = []
                      )
+
+
+
+process.TTHLeptonicDumper = createTagDumper("TTHLeptonicTag")
+#process.load("flashgg.Taggers.tthDumper_cfi")
+#process.flashggMuMuGamma.PhotonTag=cms.InputTag('flashggUpdatedIdMVAPhotons')
+process.TTHLeptonicDumper.dumpTrees = True
+process.TTHLeptonicDumper.dumpHistos = False
+process.TTHLeptonicDumper.dumpWorkspace = False
+process.TTHLeptonicDumper.nameTemplate = cms.untracked.string("$PROCESS_$SQRTS_$CLASSNAME_$SUBCAT_$LABEL")
+
+#from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+#massSearchReplaceAnyInputTag(process.flashggTagSequence,cms.InputTag("flashggDiPhotons"),cms.InputTag("flashggPreselectedDiPhotons"))
+
+
+cfgTools.addCategories(process.TTHLeptonicDumper,
+                       ## categories definition  
+			[	("all","1",0)
+			],
+			variables = variables_,
+			histograms = []
+                     )
+
+
+
+
+process.TTHHadronicDumper = createTagDumper("TTHHadronicTag")
+#process.load("flashgg.Taggers.tthDumper_cfi")
+#process.flashggMuMuGamma.PhotonTag=cms.InputTag('flashggUpdatedIdMVAPhotons')
+process.TTHHadronicDumper.dumpTrees = True
+process.TTHHadronicDumper.dumpHistos = False
+process.TTHHadronicDumper.dumpWorkspace = False
+process.TTHHadronicDumper.nameTemplate = cms.untracked.string("$PROCESS_$SQRTS_$CLASSNAME_$SUBCAT_$LABEL")
+
+#from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+#massSearchReplaceAnyInputTag(process.flashggTagSequence,cms.InputTag("flashggDiPhotons"),cms.InputTag("flashggPreselectedDiPhotons"))
+
+variables_hadronic = var.hadronic_variables + var.dipho_variables
+
+cfgTools.addCategories(process.TTHHadronicDumper,
+                       ## categories definition  
+			[	("all","1",0)
+			],
+			variables = variables_hadronic,
+			histograms = []
+                     )
+
+
+
+
 
 process.finalFilter = cms.Sequence()
 if (customize.processId.count("qcd") or customize.processId.count("gjet")) and customize.processId.count("fake"):
@@ -163,7 +213,7 @@ if (customize.processId.count("qcd") or customize.processId.count("gjet")) and c
 
 
 from flashgg.MetaData.JobConfig import customize
-customize.setDefault("maxEvents" , 100)    # max-number of events
+customize.setDefault("maxEvents" , 1000)    # max-number of events
 customize.setDefault("targetLumi",1e+3) # define integrated lumi
 customize(process)
 
@@ -176,7 +226,9 @@ process.p1 = cms.Path(process.dataRequirements*
                      (process.flashggTagSequence*process.systematicsTagSequences)*
                      process.flashggSystTagMerger*
                      process.finalFilter*
-                     process.TTHGenericTagDumper)
+                     process.TTHDiLeptonTagDumper*
+		     process.TTHLeptonicDumper*
+		     process.TTHHadronicDumper)
 
 
 print process.p1

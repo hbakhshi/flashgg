@@ -84,8 +84,8 @@ hadronic_variables=[
 	"njet               :=  nJet ",
 	"nbjet              :=  nBMedium ",
 	"ttHMVA             :=  tthMvaRes ",
-	"MetPt              :=  MetPt ",
-	"MetPhi             :=  MetPhi "
+#	"MetPt              :=  MetPt ",
+#	"MetPhi             :=  MetPhi "
 ]
 
 
@@ -193,8 +193,8 @@ generic_variables=[
 	"jet_phi9               :=  ? jets.size()>8 ? jets[8].phi : -100",
 	"jet_energy9            :=  ? jets.size()>8 ? jets[8].energy : -100 ",
 	"jet_bdiscriminant9     :=  ? jets.size()>8 ? jets[8].bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags') : -100 ",
-	"MetPt                  :=  MetPt ",
-	"MetPhi                 :=  MetPhi "
+#	"MetPt                  :=  MetPt ",
+#	"MetPhi                 :=  MetPhi "
 ]
 
 
