@@ -88,6 +88,7 @@ namespace flashgg {
         double jetPtThreshold_;
         double jetEtaThreshold_;
         double deltaRJetLepton_;
+        double leadingJetPtThreshold_;
         vector<double> bDiscriminator_;
         string bTag_;
         double PhoMVAThreshold_;
@@ -116,7 +117,7 @@ namespace flashgg {
         jetPtThreshold_ = iConfig.getParameter<double>( "jetPtThreshold");
         jetEtaThreshold_ = iConfig.getParameter<double>( "jetEtaThreshold");
         deltaRJetLepton_ = iConfig.getParameter<double>( "deltaRJetLepton");
-
+        leadingJetPtThreshold_ = iConfig.getParameter<double>("leadingJetPtThreshold");
 
         MuonEtaCut_ = iConfig.getParameter<double>( "MuonEtaCut");
         MuonPtCut_ = iConfig.getParameter<double>( "MuonPtCut");
@@ -253,6 +254,7 @@ namespace flashgg {
             int njets_btagloose_ = 0;
             int njets_btagmedium_ = 0;
             int njets_btagtight_ = 0;
+            float leadingJetPt = -1;
             std::vector<edm::Ptr<Muon> > tagMuons;
             std::vector<edm::Ptr<Electron> > tagElectrons;
             std::vector<edm::Ptr<flashgg::Jet>> tagJets;
@@ -265,6 +267,7 @@ namespace flashgg {
                 njets_btagloose_ = 0;
                 njets_btagmedium_ = 0;
                 njets_btagtight_ = 0;
+                leadingJetPt = -1;
                 tagJets.clear();
 
                 for( unsigned int jetIndex = 0; jetIndex < Jets[jetCollectionIndex]->size() ; jetIndex++ )
@@ -285,7 +288,9 @@ namespace flashgg {
 
                     njet_++;
                     tagJets.push_back(thejet);
-                    
+                    if(thejet->pt()>leadingJetPt)
+                        leadingJetPt = thejet->pt();
+
                     float bDiscriminatorValue = -2.;
                     bDiscriminatorValue = thejet->bDiscriminator( bTag_ );
 
@@ -294,7 +299,7 @@ namespace flashgg {
                     if( bDiscriminatorValue > bDiscriminator_[2] ) njets_btagtight_++;
                 }
 
-                if(njet_ >= jetsNumberThreshold_ && njets_btagmedium_ >= bjetsNumberThreshold_ && photonSelection)
+                if(njet_ >= jetsNumberThreshold_ && njets_btagmedium_ >= bjetsNumberThreshold_ && photonSelection && leadingJetPt>leadingJetPtThreshold_)
                 {
                     passMuonSelection = true;
                     tagMuons.push_back(muon);
@@ -311,6 +316,7 @@ namespace flashgg {
                 njets_btagloose_ = 0;
                 njets_btagmedium_ = 0;
                 njets_btagtight_ = 0;
+                leadingJetPt = -1;
                 std::vector<flashgg::Jet> ElectronJets;
                 ElectronJets.clear();
 
@@ -333,8 +339,9 @@ namespace flashgg {
                     njet_++;
                     if(std::find(tagJets.begin(), tagJets.end(), thejet) == tagJets.end())
                        tagJets.push_back( thejet );
-
-                    
+                    if(thejet->pt()>leadingJetPt)
+                        leadingJetPt = thejet->pt();
+                   
                     float bDiscriminatorValue = -2.;
                     bDiscriminatorValue = thejet->bDiscriminator( bTag_ );
 
@@ -343,7 +350,7 @@ namespace flashgg {
                     if( bDiscriminatorValue > bDiscriminator_[2] ) njets_btagtight_++;
                 }
 
-                if(njet_ >= jetsNumberThreshold_ && njets_btagmedium_ >= bjetsNumberThreshold_ && photonSelection)
+                if(njet_ >= jetsNumberThreshold_ && njets_btagmedium_ >= bjetsNumberThreshold_ && photonSelection && leadingJetPt>leadingJetPtThreshold_)
                 {
                     passEleSelection = true;
                     tagElectrons.push_back(ele);

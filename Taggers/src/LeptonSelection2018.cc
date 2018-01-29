@@ -132,6 +132,7 @@ namespace flashgg {
 
     std::vector<pair<edm::Ptr<flashgg::Electron>, edm::Ptr<flashgg::Electron>>> selectDiElectrons(const std::vector<edm::Ptr<flashgg::Electron>> Ele, Ptr<flashgg::DiPhotonCandidate> dipho, double ElePtCut, std::vector<double> EleEtaCuts, double ElePhotonDrCut, double ElesDrCut, double ElePhotonZMassCut, double ElesZMassCut, double LeadingLeptonPtCut)
 {
+
     assert(EleEtaCuts.size()==3);
     std::vector<pair<edm::Ptr<flashgg::Electron>, edm::Ptr<flashgg::Electron>>> output;
     for(unsigned int l1=0; l1<Ele.size(); ++l1)
@@ -202,7 +203,7 @@ namespace flashgg {
 
             float dREleMu = deltaR( Muons[l1]->eta(), Muons[l1]->phi(), Ele[l2]->eta(), Ele[l2]->phi() ) ;
             if( dREleMu < EleMuDrCut) continue;
-  
+
             pair<edm::Ptr<flashgg::Muon>, edm::Ptr<flashgg::Electron>> thePair(Muons[l1], Ele[l2]);
             output.push_back(thePair);
         }
