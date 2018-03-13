@@ -141,6 +141,11 @@ namespace flashgg {
 
             //if (njets > 0) {
                     ZPlusJetTag tag_obj( dipho, mvares, leadingJet, njets );
+                    
+                    if( ! evt.isRealData() ) {
+                        tag_obj.setGenCollection(genParticles);
+                    }
+
                     tag_obj.setDiPhotonIndex( candIndex );
                     tag_obj.setSystLabel    ( systLabel_ );
                     tag_obj.setIsGold ( evt.run() );

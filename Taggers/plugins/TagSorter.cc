@@ -371,6 +371,8 @@ namespace flashgg {
             return string("VHLeptonicLoose");
         case DiPhotonTagBase::tag_t::kVHMet:
             return string("VHMet");
+        case DiPhotonTagBase::tag_t::kTHQLeptonic:
+            return string("THQLeptonic");
         }
         return string("TAG NOT ON LIST");
     }

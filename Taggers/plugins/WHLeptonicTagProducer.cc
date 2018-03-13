@@ -343,6 +343,12 @@ namespace flashgg {
             edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( diphoIndex );
 
             WHLeptonicTag whleptonictags_obj( dipho, mvares );
+
+            if( ! evt.isRealData() ) {
+                whleptonictags_obj.setGenCollection(genParticles);
+            }
+
+
             whleptonictags_obj.includeWeights( *dipho );
             
             if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { continue; }

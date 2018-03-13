@@ -60,7 +60,6 @@ namespace flashgg {
         EDGetTokenT<float> pTHToken_,pTVToken_;
         EDGetTokenT<double> rhoTag_;
         string systLabel_;
-
         typedef std::vector<edm::Handle<edm::View<flashgg::Jet> > > JetCollectionVector;
 
         //Thresholds
@@ -265,6 +264,11 @@ namespace flashgg {
             edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( diphoIndex );
 
             TTHLeptonicTag tthltags_obj( dipho, mvares );
+
+            if( ! evt.isRealData() ) {
+                tthltags_obj.setGenCollection(genParticles);
+            }
+            
 
             if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { continue; }
 

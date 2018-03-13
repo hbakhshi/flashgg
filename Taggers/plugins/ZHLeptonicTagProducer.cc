@@ -263,6 +263,11 @@ namespace flashgg {
             edm::Ptr<flashgg::DiPhotonCandidate> dipho = diPhotons->ptrAt( diphoIndex );
             edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( diphoIndex );
             ZHLeptonicTag ZHLeptonicTags_obj( dipho, mvares );
+
+            if( ! evt.isRealData() ) {
+                ZHLeptonicTags_obj.setGenCollection(genParticles);
+            }
+
             ZHLeptonicTags_obj.includeWeights( *dipho );
             
             if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { continue; }

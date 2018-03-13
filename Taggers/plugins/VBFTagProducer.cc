@@ -184,6 +184,11 @@ namespace flashgg {
             edm::Ptr<flashgg::DiPhotonCandidate>      dipho           = diPhotons->ptrAt( candIndex );
             
             VBFTag tag_obj( dipho, mvares, vbfdipho_mvares );
+
+            if( ! evt.isRealData() ) {
+                tag_obj.setGenCollection(genParticles);
+            }
+
             tag_obj.setDiPhotonIndex( candIndex );
             tag_obj.setSystLabel    ( systLabel_ );
 

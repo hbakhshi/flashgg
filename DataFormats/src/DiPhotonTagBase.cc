@@ -4,6 +4,79 @@
 
 using namespace flashgg;
 
+void DiPhotonTagBase::setGenCollection( edm::Handle< edm::View<reco::GenParticle> > genParticles ){
+    bool fwdJetSet = false;
+    bool higgsSet = false;
+    bool topSet = false;
+    for( unsigned int i = 0 ; i < genParticles->size(); i++ ) {
+        edm::Ptr<reco::GenParticle> gen = genParticles->ptrAt(i);
+        
+        if( gen->isHardProcess() ){
+            const reco::GenParticle* mother = GetMother( gen.get() );
+            const reco::GenParticle* grandmom = GetMother( mother );
+            int mother_id = 0 ;
+            if( mother != NULL )
+                mother_id = mother->pdgId() ;
+            int gmother_id = 0 ;
+            if( grandmom != NULL )
+                gmother_id = grandmom->pdgId() ;
+            //cout << "\t" << gmother_id << " --> " << mother_id << " --> " << gen->pdgId() << endl;
+
+            if( gmother_id == 0 && mother_id == 0 )
+                {
+                    if( abs(gen->pdgId()) == 5 ){
+                        light_b = gen;
+                    }else if( abs(gen->pdgId()) < 5 ){
+                        fwdJetSet = true;
+                        fwdJet = gen ;
+                    }
+                }
+        }
+    
+
+        if( gen->isLastCopy() && abs( gen->pdgId() )==6 ){
+            top = gen;
+            topSet = true;
+            continue;
+        }
+        if( gen->isLastCopy() && abs( gen->pdgId() )==25) {
+            higgs = gen;
+            higgsSet = true;
+            continue;
+        }
+
+        topDecayMode = 0;
+        if(abs(gen->pdgId())==24){
+            if( gen->numberOfDaughters()==2){
+                int d_pdgid = abs(gen->daughter(0)->pdgId());
+                if(d_pdgid==12||d_pdgid==11){
+                    topDecayMode = 1;
+                }else if(d_pdgid==13||d_pdgid==14){
+                    topDecayMode = 2;
+                }else if(d_pdgid==15||d_pdgid==16){
+                    topDecayMode = 3;
+                }else{
+                    topDecayMode = 4;
+                }
+            }else{
+                topDecayMode = -1;
+            }
+        }
+    }
+
+
+    if( !fwdJetSet )
+        std::cout << "fwdJet not set---" ;
+    if( !topSet )
+        std::cout << "top is not set----" ;
+    if( !higgsSet )
+        std::cout << "higgs is not set----";
+
+    if (!fwdJetSet || !topSet || !higgsSet )
+        std::cout << std::endl;
+
+}
+
 DiPhotonTagBase::DiPhotonTagBase()
 {
     category_number_ = -1;

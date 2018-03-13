@@ -341,6 +341,12 @@ namespace flashgg {
             edm::Ptr<flashgg::DiPhotonMVAResult> mvares = mvaResults->ptrAt( diphoIndex );
 
             VHLooseTag vhloosetags_obj( dipho, mvares );
+
+            if( ! evt.isRealData() ) {
+                vhloosetags_obj.setGenCollection(genParticles);
+            }
+
+
             vhloosetags_obj.includeWeights( *dipho );
             
             if( dipho->leadingPhoton()->pt() < ( dipho->mass() )*leadPhoOverMassThreshold_ ) { continue; }

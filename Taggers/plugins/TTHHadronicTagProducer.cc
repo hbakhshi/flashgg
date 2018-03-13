@@ -453,6 +453,11 @@ namespace flashgg {
 
             if( isTTHHadronicTagged ) {
                 TTHHadronicTag tthhtags_obj( dipho, mvares, JetVect, BJetVect );
+                
+                if( ! evt.isRealData() ) {
+                    tthhtags_obj.setGenCollection(genParticles);
+                }
+
                 tthhtags_obj.setNjet( jetcount_ );
                 tthhtags_obj.setNBLoose( njets_btagloose_ );
                 tthhtags_obj.setNBMedium( njets_btagmedium_ );

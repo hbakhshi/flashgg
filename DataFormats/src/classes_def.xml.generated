@@ -30,14 +30,16 @@
 </class>
 <class name="std::vector<flashgg::VBFDiPhoDiJetMVAResult>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VBFDiPhoDiJetMVAResult> >"/>
-<class name="flashgg::DiPhotonTagBase" ClassVersion="12">
+<class name="flashgg::DiPhotonTagBase" ClassVersion="13">
+ <version ClassVersion="13" checksum="733674239"/>
  <version ClassVersion="12" checksum="2747850133"/>
  <version ClassVersion="11" checksum="232592888"/>
   <version ClassVersion="10" checksum="2111686847"/>
 </class>
 <class name="std::vector<flashgg::DiPhotonTagBase>"/>
 <class name="edm::Wrapper<std::vector<flashgg::DiPhotonTagBase> >"/>
-<class name="flashgg::UntaggedTag" ClassVersion="12">
+<class name="flashgg::UntaggedTag" ClassVersion="13">
+ <version ClassVersion="13" checksum="1242389492"/>
  <version ClassVersion="12" checksum="3256565386"/>
  <version ClassVersion="11" checksum="741308141"/>
   <version ClassVersion="10" checksum="2620402100"/>
@@ -47,13 +49,12 @@
 <class name="flashgg::NoTag"/>
 <class name="std::vector<flashgg::NoTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::NoTag> >"/>
-<class name="flashgg::SigmaMpTTag" ClassVersion="0">
-  <version ClassVersion="0" checksum="3974770049"/>
-</class>
+<class name="flashgg::SigmaMpTTag" ClassVersion="0" />
 <class name="std::vector<flashgg::SigmaMpTTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::SigmaMpTTag> >"/>
 
-<class name="flashgg::VBFTag" ClassVersion="13">
+<class name="flashgg::VBFTag" ClassVersion="14">
+ <version ClassVersion="14" checksum="666869377"/>
  <version ClassVersion="13" checksum="2763928631"/>
  <version ClassVersion="12" checksum="3071493064"/>
  <version ClassVersion="11" checksum="1094465099"/>
@@ -61,7 +62,8 @@
 </class>
 <class name="std::vector<flashgg::VBFTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VBFTag> >"/>
-<class name="flashgg::TTHLeptonicTag" ClassVersion="12">
+<class name="flashgg::TTHLeptonicTag" ClassVersion="13">
+ <version ClassVersion="13" checksum="2833990719"/>
  <version ClassVersion="12" checksum="1015665249"/>
  <version ClassVersion="11" checksum="2848650298"/>
   <version ClassVersion="10" checksum="727624063"/>
@@ -69,7 +71,8 @@
 <class name="std::vector<flashgg::TTHLeptonicTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::TTHLeptonicTag> >"/>
 <class name="std::vector<pat::Muon>"/>
-<class name="flashgg::TTHHadronicTag" ClassVersion="14">
+<class name="flashgg::TTHHadronicTag" ClassVersion="15">
+ <version ClassVersion="15" checksum="2472752686"/>
  <version ClassVersion="14" checksum="3454620804"/>
  <version ClassVersion="13" checksum="3956710497"/>
  <version ClassVersion="12" checksum="3228179576"/>
@@ -87,34 +90,39 @@
 <class name="std::vector<flashgg::THQLeptonicTagTruth>"/>
 <class name="edm::Wrapper<std::vector<flashgg::THQLeptonicTagTruth> >"/>
 
-<class name="flashgg::VHMetTag" ClassVersion="11">
+<class name="flashgg::VHMetTag" ClassVersion="12">
+ <version ClassVersion="12" checksum="2069966103"/>
    <version ClassVersion="10" checksum="3643272763"/>
    <version ClassVersion="11" checksum="619869289"/>
 </class>
 <class name="std::vector<flashgg::VHMetTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VHMetTag> >"/>
 
-<class name="flashgg::WHLeptonicTag" ClassVersion="11">
+<class name="flashgg::WHLeptonicTag" ClassVersion="12">
+ <version ClassVersion="12" checksum="922511724"/>
   <version ClassVersion="11" checksum="1465473074"/>
   <version ClassVersion="10" checksum="1904294291"/>
 </class>
 <class name="std::vector<flashgg::WHLeptonicTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::WHLeptonicTag> >"/>
 
-<class name="flashgg::ZHLeptonicTag" ClassVersion="11">
+<class name="flashgg::ZHLeptonicTag" ClassVersion="12">
+ <version ClassVersion="12" checksum="1361332941"/>
   <version ClassVersion="11" checksum="1904294291"/>
   <version ClassVersion="10" checksum="1465473074"/>
 </class>
 <class name="std::vector<flashgg::ZHLeptonicTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::ZHLeptonicTag> >"/>
 
-<class name="flashgg::VHLeptonicLooseTag" ClassVersion="10">
+<class name="flashgg::VHLeptonicLooseTag" ClassVersion="11">
+ <version ClassVersion="11" checksum="3779691143"/>
   <version ClassVersion="10" checksum="27685197"/>
 </class>
 <class name="std::vector<flashgg::VHLeptonicLooseTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VHLeptonicLooseTag> >"/>
 
-<class name="flashgg::VHEtTag" ClassVersion="13">
+<class name="flashgg::VHEtTag" ClassVersion="14">
+ <version ClassVersion="14" checksum="855654612"/>
  <version ClassVersion="13" checksum="2125676410"/>
  <version ClassVersion="12" checksum="1192814105"/>
  <version ClassVersion="11" checksum="884120660"/>
@@ -131,7 +139,8 @@
 </class>
 <class name="std::vector<flashgg::VBFTagTruth>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VBFTagTruth> >"/>
-<class name="flashgg::VHLooseTag" ClassVersion="14">
+<class name="flashgg::VHLooseTag" ClassVersion="15">
+ <version ClassVersion="15" checksum="1318402549"/>
  <version ClassVersion="14" checksum="1861363899"/>
  <version ClassVersion="13" checksum="3345591704"/>
  <version ClassVersion="12" checksum="2427728431"/>
@@ -148,7 +157,8 @@
 
 <class name="std::vector<flashgg::VHLooseTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VHLooseTag> >"/>
-<class name="flashgg::VHTightTag" ClassVersion="14">
+<class name="flashgg::VHTightTag" ClassVersion="15">
+ <version ClassVersion="15" checksum="2870832929"/>
  <version ClassVersion="14" checksum="3413794279"/>
  <version ClassVersion="13" checksum="1140450204"/>
  <version ClassVersion="12" checksum="1711188723"/>
@@ -157,7 +167,8 @@
 </class>
 <class name="std::vector<flashgg::VHTightTag>"/>
 <class name="edm::Wrapper<std::vector<flashgg::VHTightTag> >"/>
-<class name="flashgg::VHHadronicTag" ClassVersion="12">
+<class name="flashgg::VHHadronicTag" ClassVersion="13">
+ <version ClassVersion="13" checksum="4142815821"/>
  <version ClassVersion="12" checksum="1541512627"/>
  <version ClassVersion="11" checksum="1986614206"/>
   <version ClassVersion="10" checksum="2760911373"/>

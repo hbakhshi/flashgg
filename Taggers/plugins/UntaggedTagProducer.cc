@@ -126,6 +126,10 @@ namespace flashgg {
             UntaggedTag tag_obj( dipho, mvares );
             tag_obj.setDiPhotonIndex( candIndex );
 
+            if( ! evt.isRealData() ) {
+                tag_obj.setGenCollection(genParticles);
+            }
+
             tag_obj.setSystLabel( systLabel_ );
 
             int catnum = chooseCategory( mvares->result );

@@ -5,12 +5,73 @@
 #include "flashgg/DataFormats/interface/DiPhotonMVAResult.h"
 #include "flashgg/DataFormats/interface/TagTruthBase.h"
 
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include <DataFormats/Common/interface/Ptr.h>
+
 namespace flashgg {
 
     class DiPhotonTagBase : public WeightedObject
     {
     public:
-        enum tag_t { kUndefined = 0, kUntagged, kVBF, kTTHHadronic, kTTHLeptonic, kVHTight, kVHLoose, kVHHadronic, kVHEt,  kZHLeptonic, kWHLeptonic, kVHLeptonicLoose, kVHMet };
+        enum tag_t { kUndefined = 0, kUntagged, kVBF, kTTHHadronic, kTTHLeptonic, kVHTight, kVHLoose, kVHHadronic, kVHEt,  kZHLeptonic, kWHLeptonic, kVHLeptonicLoose, kVHMet , kTHQLeptonic };
+
+
+        //*****THQ CODES
+        const reco::GenParticle* GetMother( const reco::GenParticle* gen ){
+            if( gen == NULL )
+                return NULL;
+            if( gen->numberOfMothers() == 0 )
+                return NULL;
+    
+            const reco::GenParticle* mom = dynamic_cast<const reco::GenParticle*>(gen->mother());
+
+            while( true ){
+                if( mom == NULL ){
+                    cout << "ERROR : mom is not convertible to GenParticle*" << endl;
+                    return NULL;
+                }
+                if( mom->pdgId() != gen->pdgId()  ){
+                    return mom;
+                }
+                if( mom->numberOfMothers() == 0 ){
+                    return NULL;
+                }
+                mom = dynamic_cast<const reco::GenParticle*>( mom->mother() );
+            }
+        };
+
+        const reco::GenParticle* GetStableParticle( const reco::GenParticle* input ){
+            if( input == NULL )
+                return NULL;
+            if( input->isLastCopy() )
+                return input ;
+
+            for( unsigned int i =0 ; i < input->numberOfDaughters() ; i++){
+                const reco::GenParticle* gen = dynamic_cast< const reco::GenParticle*>( input->daughter(i) );
+                if( gen->pdgId() == input->pdgId() )
+                    return GetStableParticle( gen );
+            }
+            return NULL;
+        };
+        void setGenCollection( edm::Handle< edm::View<reco::GenParticle> > genCollection );
+
+        const reco::GenParticle GetTop() const{return *top;};
+        const reco::GenParticle GetHiggs() const{return *higgs;};
+        const reco::GenParticle GetFwdJet_() const{return *fwdJet;} ;
+        
+        edm::Ptr<reco::GenParticle> top ;
+        edm::Ptr<reco::GenParticle> higgs ;
+        edm::Ptr<reco::GenParticle> fwdJet ;
+        edm::Ptr<reco::GenParticle> light_b;
+        int topDecayMode;
+        edm::Ptr<reco::GenParticle> lepton ;
+        edm::Ptr<reco::GenParticle> neutrino ;
+        edm::Ptr<reco::GenParticle> b_fromtop ;
+
+        //*****THQ CODES
+
 
         DiPhotonTagBase();
         virtual ~DiPhotonTagBase(); 

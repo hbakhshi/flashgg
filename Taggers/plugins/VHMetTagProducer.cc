@@ -289,6 +289,12 @@ namespace flashgg {
             
             
             VHMetTag tag_obj( dipho, mvares );
+
+            if( ! evt.isRealData() ) {
+                tag_obj.setGenCollection(genParticles);
+            }
+
+
             tag_obj.includeWeights( *dipho );
             tag_obj.setDiPhotonIndex( candIndex );
             tag_obj.setSystLabel( systLabel_ );
