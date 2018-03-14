@@ -21,6 +21,7 @@
 #include "flashgg/DataFormats/interface/TTHHadronicTag.h"
 #include "flashgg/DataFormats/interface/TTHLeptonicTag.h"
 #include "flashgg/DataFormats/interface/THQLeptonicTag.h"
+#include "flashgg/DataFormats/interface/TTHDiLeptonTag.h"
 #include "flashgg/DataFormats/interface/VBFDiPhoDiJetMVAResult.h"
 #include "flashgg/DataFormats/interface/VBFMVAResult.h"
 #include "flashgg/DataFormats/interface/VBFTag.h"
@@ -209,6 +210,10 @@ namespace  {
         flashgg::THQLeptonicTag thql;
         std::vector<flashgg::THQLeptonicTag> vec_thql;
         edm::Wrapper<std::vector<flashgg::THQLeptonicTag> > wrp_vec_thql;
+
+        flashgg::TTHDiLeptonTag tthDl;
+        std::vector<flashgg::TTHDiLeptonTag> vec_tthDl;
+        edm::Wrapper<std::vector<flashgg::TTHDiLeptonTag> > wrp_vec_tthDl;
 
         edm::Ptr<reco::GenParticle> ptr_genp;
 
