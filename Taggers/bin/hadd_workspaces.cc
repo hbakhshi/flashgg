@@ -19,6 +19,8 @@ int main( int argc, char *argv[] )
 
     WorkspaceCombiner merger;
 
+    cout << "Before init" << endl;
+
     merger.Init( outputfile, input );
 
     cout << endl << "Initialization" << endl << endl;

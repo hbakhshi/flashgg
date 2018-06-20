@@ -1,20 +1,6 @@
 {
     "processes" : {
-        "gjet" : [ "/GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8/sethzenz-RunIISummer16-2_4_1-25ns_Moriond17-2_4_1-v0-RunIISummer16MiniAODv2-EGM0_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1-17c645750168c82731e0bcef4523b51c/USER",
-	           "/GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8" ],
-	"qcd" : [ "/QCD_Pt-30to40_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8",
-		  "/QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8",
-		  "/QCD_Pt-30toInf_DoubleEMEnriched_MGG-40to80_TuneCUETP8M1_13TeV_Pythia8"],
-	"dipho" : [ "/DiPhotonJetsBox_MGG-80toInf_13TeV-Sherpa",
-		    "/DiPhotonJets_MGG-80toInf_13TeV_amcatnloFXFX_pythia8" ],
-	"Wjets" : [ "/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" ],
-	"ttgg" : [ "/TTGG_0Jets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8"],
-	"tgjets" : [ "/TTGJets_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8"],
-	"ttgjets" : [ "/TGJets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8"],
-	"DY"  : [ "/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"],
-	"ZG" :	[ "/ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8"],
-	"TTJet" : [ "/TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8",
-		     "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" ]
-		  },
+        "ttbar" : [ [ "TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" , { "args" :["outputFile=output_TTbar.root"] }] ]
+	},
         "cmdLine" : "campaign=RunIISummer16-2_4_1-25ns_Moriond17"
 }

@@ -53,7 +53,8 @@ class Merger:
         return contents
 
     def hadd_workspaces(self):
-        target = "WS_" + self.Name + ".root"
+        target = "WS_PreSel1Jet0B_" + self.Name + ".root"
+        print ['hadd_workspaces', target ] + self.Jobs
         print subprocess.check_output(['hadd_workspaces', target ] + self.Jobs )
 
     def fhadd(self, force=False, verbose=False, slow=True):
@@ -74,7 +75,7 @@ class Merger:
         force -- overwrite target file if exists
         """
 
-        target = self.Name + "_New.root"
+        target = self.Name + ".root"
         sources = self.Jobs
 
         TH1.AddDirectory(False)
@@ -107,7 +108,7 @@ class Merger:
             otherfiles.append(TFile(f))
 
         
-        cut = "(CMS_hgg_mass > 100 && CMS_hgg_mass < 180)&&(LeptonType == 1 || LeptonType == 2) && (diphoMVA > -0.4)&&(n_jets >= 2) &&(n_M_bjets==1)&&(MET_pt > 30)"
+        cut = "" #(CMS_hgg_mass > 100 && CMS_hgg_mass < 180) && (diphoMVA > -0.4) && (n_loose_ele == 1 || n_LooseMu25 == 1) && (MET_pt > 30)"
         # loop over contents and merge objects from other files to seed file objects
         for n, (path, hname) in enumerate(contents):
 
@@ -169,37 +170,63 @@ class Merger:
         print "fhadd completed"
 
 jobs = None
-# with open("sig_jobs_1/task_config.json", "r" ) as cfin:
+with open("bkg_jobs_3/task_config.json", "r" ) as cfin:
+    task_config = json.load(cfin)
+    jobs = task_config["jobs"]
+
+# with open("sig_jobs_3/task_config.json", "r" ) as cfin:
 #     task_config = json.load(cfin)
 #     jobs = task_config["jobs"]
 
 # print len(jobs)
-with open("sig_jobs_4/task_config.json", "r" ) as cfin:
-    task_config = json.load(cfin)
-    jobs = task_config["jobs"]
+# task_config = None
+#with open("data_jobs_forKirill_1/task_config.json", "r" ) as cfin:
+#    task_config = json.load(cfin)
+#with open("data_jobs_forKirill_2/task_config.json", "r" ) as cfin:
+#    task_config = json.load(cfin)
+#with open("data_jobs_forKirill_3/task_config.json", "r" ) as cfin:
+#    task_config.update( json.load(cfin) )
+#    jobs = task_config["jobs"]
 
-print len(jobs)
+# print len(jobs)
 
 # FOR DATA
-# dataset_names = [ "Run2016B-23Sep2016",
-#                   "Run2016C-23Sep2016",
-#                   "Run2016D-23Sep2016",
-#                   "Run2016E-23Sep2016",
-#                   "Run2016F-23Sep2016",
-#                   "Run2016G-23Sep2016",
-#                   "Run2016H-PromptReco-v2",
-#                   "Run2016H-PromptReco-v3"
+# dataset_names = [ "Run2016B-03Feb2017",
+#                   "Run2016C-03Feb2017",
+#                   "Run2016D-03Feb2017",
+#                   "Run2016E-03Feb2017",
+#                   "Run2016F-03Feb2017",
+#                   "Run2016G-03Feb2017",
+#                   "Run2016H-03Feb2017_ver2",
+#                   "Run2016H-03Feb2017_ver3"
 #                   ]
 
 #FOR SIGNALS
-# dataset_names = [ #"VBFHToGG_M-125_13TeV_powheg_pythia8",
-#                   "GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8",
-#                   #"ttHToGG_M125_13TeV_powheg_pythia8_v2",
-#                   #"THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1",
-#                   #"THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1"
-#                   ]
-dataset_names = [ "TTH" , "THQ" , "THW" , "VH" ]
+#dataset_names = [ "VBFHToGG_M-125_13TeV_powheg_pythia8",
+#                  "GluGluHToGG_M125_13TeV_amcatnloFXFX_pythia8",
+#                  "ttHToGG_M125_13TeV_powheg_pythia8_v2",
+#                  "THQ_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1",
+#                  "THW_HToGG_13TeV-madgraph-pythia8_TuneCUETP8M1"
+#                  ]
+#dataset_names = [ "TTH" , "THQ" , "THW" , "VH" , "GGH" , "VBF" ]
+#dataset_names = [ #"GJet_Pt-20to40_DoubleEMEnriched_MGG-80toInf",
+                  #"GJet_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8" ,
+                  #"QCD_Pt-30to40_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8" ,
+		  #"QCD_Pt-40toInf_DoubleEMEnriched_MGG-80toInf_TuneCUETP8M1_13TeV_Pythia8",
+		  #"QCD_Pt-30toInf_DoubleEMEnriched_MGG-40to80_TuneCUETP8M1_13TeV_Pythia8",
+                  #"DiPhotonJets_MGG-80toInf_13TeV_amcatnloFXFX_pythia8" ,
+                  #"WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" ,
+                  #"TTGG_0Jets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8",
+                  #"TGJets_TuneCUETP8M1_13TeV_amcatnlo_madspin_pythia8",
+                  #"DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
+                  #"ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8",
+                  #"TTJets_TuneCUETP8M2T4_13TeV-amcatnloFXFX-pythia8",
+                  #"TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8",
+                  #"TTGJets",
+                  #"TTGG"
+                  #]
 
+dataset_names = ["TTbar"]
 datasets = { ds:Merger(ds) for ds in dataset_names }
 
 for job in jobs:
@@ -212,14 +239,15 @@ for job in jobs:
         #     continue
         # else:
         print outfile, "doesn't exist"
-        exit()
+        #continue
+
     ds = ""
     for a in dataset_names:
         if a in outfile:
             ds = a
 
     if ds == "" :
-        print "no dataset found for %s" % outfile
+        #print "no dataset found for %s" % outfile
         continue
 
     datasets[ ds ].AddJob( outfile )
@@ -234,7 +262,7 @@ for ds_n in datasets:
     print "start merging %s, #files %d" % ( ds.Name, len(ds.Jobs) )
     
 
-    #ds.fhadd()
+    ds.fhadd()
     ds.hadd_workspaces()
 
     print "Done"
